@@ -1,0 +1,31 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><script>
+function loadBotGuard(challengeData){
+ this.vm=this[challengeData.globalName]; this.program=challengeData.program; this.vmFunctions={}; this.syncSnapshotFunction=null;
+ if(!this.vm) throw new Error('BG:VM'); if(!this.vm.a) throw new Error('BG:PROGRAM');
+ var self=this;
+ var callback=function(asyncSnapshotFunction,shutdownFunction,passEventFunction,checkCameraFunction){
+  self.vmFunctions={asyncSnapshotFunction:asyncSnapshotFunction,shutdownFunction:shutdownFunction,passEventFunction:passEventFunction,checkCameraFunction:checkCameraFunction};
+ };
+ this.syncSnapshotFunction=this.vm.a(this.program,callback,true,this.userInteractionElement,function(){},[[],[]])[0];
+ return new Promise(function(resolve,reject){var i=0;var timer=setInterval(function(){
+  if(self.vmFunctions.asyncSnapshotFunction){clearInterval(timer);resolve(self);return;}
+  if(i++>=10000){clearInterval(timer);reject('BG:ASYNC_TIMEOUT');}
+ },1);});
+}
+function snapshot(args){var self=this;return new Promise(function(resolve,reject){
+ if(!self.vmFunctions.asyncSnapshotFunction){reject(new Error('BG:SNAPSHOT'));return;}
+ self.vmFunctions.asyncSnapshotFunction(function(response){resolve(response)},[args.contentBinding,args.signedTimestamp,args.webPoSignalOutput,args.skipPrivacyBuffer]);
+});}
+function runBotGuard(challengeData){
+ var js=challengeData.interpreterJavascript.privateDoNotAccessOrElseSafeScriptWrappedValue;
+ if(!js) throw new Error('BG:NO_VM'); new Function(js)(); var signal=[];
+ return loadBotGuard({globalName:challengeData.globalName,globalObj:this,program:challengeData.program})
+  .then(function(bg){return bg.snapshot({webPoSignalOutput:signal})})
+  .then(function(response){return {webPoSignalOutput:signal,botguardResponse:response}});
+}
+function obtainPoToken(signal,integrityToken,identifier){
+ var getMinter=signal[0]; if(!getMinter) throw new Error('POT:MINTER');
+ var mint=getMinter(integrityToken); if(!(mint instanceof Function)) throw new Error('POT:MINT');
+ var result=mint(identifier); if(!result) throw new Error('POT:EMPTY'); if(!(result instanceof Uint8Array)) throw new Error('POT:TYPE'); return result;
+}
+</script></head><body></body></html>
