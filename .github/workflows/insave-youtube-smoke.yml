@@ -26,16 +26,16 @@ jobs:
         run: |
           yt-dlp --version
           node --version
-      - name: Public video metadata + audio URL
+      - name: Public video with EJS and automatic PO token
         run: |
           set -euxo pipefail
-          yt-dlp -v --remote-components ejs:github --simulate -f bestaudio --print '%(id)s|%(title)s|%(format_id)s' 'https://youtu.be/aqz-KE-bpKQ' | tee /tmp/public.txt
+          yt-dlp -v --js-runtimes node --remote-components ejs:github --extractor-args 'youtube:player_client=mweb' --simulate -f bestaudio --print '%(id)s|%(title)s|%(format_id)s' 'https://youtu.be/aqz-KE-bpKQ' | tee /tmp/public.txt
           grep -q 'aqz-KE-bpKQ' /tmp/public.txt
       - name: Cristian Castro search and resolve first result
         run: |
           set -euxo pipefail
-          URL=$(yt-dlp --remote-components ejs:github --flat-playlist --playlist-end 1 --print '%(webpage_url)s' 'ytsearch1:Cristian Castro Azul' | tail -1)
+          URL=$(yt-dlp --js-runtimes node --remote-components ejs:github --flat-playlist --playlist-end 1 --print '%(webpage_url)s' 'ytsearch1:Cristian Castro Azul' | tail -1)
           test -n "$URL"
           echo "Resolved: $URL"
-          yt-dlp -v --remote-components ejs:github --simulate -f bestaudio --print '%(id)s|%(title)s|%(format_id)s' "$URL" | tee /tmp/cristian.txt
+          yt-dlp -v --js-runtimes node --remote-components ejs:github --extractor-args 'youtube:player_client=mweb' --simulate -f bestaudio --print '%(id)s|%(title)s|%(format_id)s' "$URL" | tee /tmp/cristian.txt
           test -s /tmp/cristian.txt
