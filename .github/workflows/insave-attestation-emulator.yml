@@ -1,0 +1,61 @@
+name: InSave attestation emulator QA
+on:
+  push:
+    branches:
+      - build/android-tools-temp
+jobs:
+  emulator-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: android-actions/setup-android@v3
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.5.0'
+      - name: Restore compiled attestation agent
+        run: |
+          set -euxo pipefail
+          mkdir -p insave-attestation-test/app/libs
+          base64 -d insave-attestation-test/attestation-agent.jar.b64 > insave-attestation-test/app/libs/attestation-agent.jar
+          jar tf insave-attestation-test/app/libs/attestation-agent.jar | grep 'YoutubeAttestationAgent.class'
+      - name: Install SDK and emulator image
+        run: |
+          set -euxo pipefail
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'platform-tools' 'emulator' 'system-images;android-35;google_apis;x86_64'
+      - name: Build runtime test APK
+        run: gradle -p insave-attestation-test :app:assembleDebug --stacktrace
+      - name: Boot emulator and execute attestation
+        run: |
+          set -euxo pipefail
+          sudo chmod 666 /dev/kvm || true
+          echo no | avdmanager create avd --force --name insaveQA --package 'system-images;android-35;google_apis;x86_64' --device 'pixel_6'
+          nohup "$ANDROID_HOME/emulator/emulator" -avd insaveQA -no-window -no-audio -no-boot-anim -no-snapshot -gpu swiftshader_indirect -camera-back none -camera-front none >/tmp/emulator.log 2>&1 &
+          adb wait-for-device
+          for i in $(seq 1 120); do
+            BOOT=$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')
+            [ "$BOOT" = "1" ] && break
+            sleep 2
+          done
+          test "$(adb shell getprop sys.boot_completed | tr -d '\r')" = "1"
+          adb install -r insave-attestation-test/app/build/outputs/apk/debug/app-debug.apk
+          adb logcat -c
+          adb shell am start -W -n com.adelvis.insave.attestationtest/.MainActivity
+          RESULT=''
+          for i in $(seq 1 90); do
+            LOG=$(adb logcat -d -s InSaveAttestationQA:I '*:S' || true)
+            echo "$LOG"
+            if echo "$LOG" | grep -q 'INSAVE_ATTESTATION_TEST_PASS'; then RESULT=PASS; break; fi
+            if echo "$LOG" | grep -q 'INSAVE_ATTESTATION_TEST_FAIL'; then RESULT=FAIL; break; fi
+            sleep 2
+          done
+          echo '===== FINAL ATTESTATION LOG ====='
+          adb logcat -d -s InSaveAttestationQA:I '*:S' || true
+          echo '===== WEBVIEW/CHROMIUM ERRORS ====='
+          adb logcat -d | grep -Ei 'chromium|WebView|InSaveAttestationQA' | tail -200 || true
+          test "$RESULT" = 'PASS'
