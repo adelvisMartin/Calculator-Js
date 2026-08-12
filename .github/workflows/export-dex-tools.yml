@@ -7,16 +7,21 @@ jobs:
   export:
     runs-on: ubuntu-latest
     steps:
-      - name: Download smali tools
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: android-actions/setup-android@v3
+      - name: Install Android SDK compile tools
         run: |
           set -euxo pipefail
-          curl -L --fail -o baksmali.jar https://github.com/baksmali/smali/releases/download/3.0.9/baksmali-3.0.9-fat-release.jar
-          curl -L --fail -o smali.jar https://github.com/baksmali/smali/releases/download/3.0.9/smali-3.0.9-fat-release.jar
-          java -jar baksmali.jar --version
-          java -jar smali.jar --version
+          sdkmanager 'platforms;android-36' 'build-tools;36.0.0'
+          cp "$ANDROID_HOME/platforms/android-36/android.jar" android.jar
+          cp "$ANDROID_HOME/build-tools/36.0.0/lib/d8.jar" d8.jar
+          ls -lh android.jar d8.jar
       - uses: actions/upload-artifact@v4
         with:
-          name: dex-tools
+          name: android-compile-tools
           path: |
-            baksmali.jar
-            smali.jar
+            android.jar
+            d8.jar
