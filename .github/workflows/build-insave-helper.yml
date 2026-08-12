@@ -1,0 +1,36 @@
+name: Build InSave helper dex
+on:
+  push:
+    branches:
+      - build/android-tools-temp
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: android-actions/setup-android@v3
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.3.0'
+      - name: Install Android SDK components
+        run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0'
+      - name: Build helper AAR
+        run: gradle -p insave-helper-build :helper:assembleRelease --stacktrace
+      - name: Dex only helper classes
+        run: |
+          set -euxo pipefail
+          AAR=$(find insave-helper-build/helper/build/outputs/aar -name '*release.aar' | head -1)
+          mkdir -p /tmp/aar /tmp/dexout
+          unzip -q "$AAR" classes.jar -d /tmp/aar
+          "$ANDROID_HOME/build-tools/36.0.0/d8" --min-api 29 --lib "$ANDROID_HOME/platforms/android-36/android.jar" --output /tmp/dexout /tmp/aar/classes.jar
+          ls -lh /tmp/dexout/classes.dex
+      - uses: actions/upload-artifact@v4
+        with:
+          name: insave-helper-dex
+          path: |
+            /tmp/dexout/classes.dex
+            insave-helper-build/helper/build/outputs/aar/*release.aar
