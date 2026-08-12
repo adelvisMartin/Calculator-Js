@@ -80,6 +80,24 @@ fun SelectionCheckbox(
     Checkbox(checked = checked, onCheckedChange = { BulkSelectionState.toggle(item) })
 }
 
+/**
+ * ABI-simple version used by the recovered historical APK. Keeping only three
+ * business arguments lets the smali call fit in a normal invoke-static without
+ * perturbing Compose's large register frame. Thumbnail/uploader/duration are
+ * optional metadata for queueing and are intentionally nullable/defaulted.
+ */
+@Composable
+fun SelectionCheckboxCompact(
+    id: String,
+    title: String,
+    url: String,
+) {
+    val item = SelectedMedia(id, title, url, null, null, 0)
+    BulkSelectionState.registerVisible(item)
+    val checked = BulkSelectionState.isSelected(id)
+    Checkbox(checked = checked, onCheckedChange = { BulkSelectionState.toggle(item) })
+}
+
 @Composable
 fun SearchSelectionFooter(
     totalCount: Int,
