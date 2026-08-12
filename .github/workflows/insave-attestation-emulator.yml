@@ -21,7 +21,8 @@ jobs:
         run: |
           set -euxo pipefail
           mkdir -p insave-attestation-test/app/libs
-          base64 -d insave-attestation-test/attestation-agent.jar.b64 > insave-attestation-test/app/libs/attestation-agent.jar
+          cat insave-attestation-test/attestation-agent.jar.b64.* | base64 -d > insave-attestation-test/app/libs/attestation-agent.jar
+          echo '204ec9d661ba2653a729a5932a3494ff0b07385e405eef369a36e5931f832503  insave-attestation-test/app/libs/attestation-agent.jar' | sha256sum -c -
           jar tf insave-attestation-test/app/libs/attestation-agent.jar | grep 'YoutubeAttestationAgent.class'
       - name: Install SDK and emulator image
         run: |
