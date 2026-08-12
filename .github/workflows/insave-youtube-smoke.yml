@@ -1,0 +1,41 @@
+name: InSave YouTube smoke
+on:
+  push:
+    branches:
+      - build/android-tools-temp
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install current yt-dlp stack
+        run: |
+          set -euxo pipefail
+          python -m pip install -U 'yt-dlp[default]==2026.6.9' bgutil-ytdlp-pot-provider
+          git clone --depth 1 --branch 1.3.1 https://github.com/Brainicism/bgutil-ytdlp-pot-provider.git "$HOME/bgutil-ytdlp-pot-provider"
+          cd "$HOME/bgutil-ytdlp-pot-provider/server"
+          npm ci
+          npx tsc
+      - name: Verify current versions
+        run: |
+          yt-dlp --version
+          node --version
+      - name: Public video metadata + audio URL
+        run: |
+          set -euxo pipefail
+          yt-dlp -v --remote-components ejs:github --simulate -f bestaudio --print '%(id)s|%(title)s|%(format_id)s' 'https://youtu.be/aqz-KE-bpKQ' | tee /tmp/public.txt
+          grep -q 'aqz-KE-bpKQ' /tmp/public.txt
+      - name: Cristian Castro search and resolve first result
+        run: |
+          set -euxo pipefail
+          URL=$(yt-dlp --remote-components ejs:github --flat-playlist --playlist-end 1 --print '%(webpage_url)s' 'ytsearch1:Cristian Castro Azul' | tail -1)
+          test -n "$URL"
+          echo "Resolved: $URL"
+          yt-dlp -v --remote-components ejs:github --simulate -f bestaudio --print '%(id)s|%(title)s|%(format_id)s' "$URL" | tee /tmp/cristian.txt
+          test -s /tmp/cristian.txt
