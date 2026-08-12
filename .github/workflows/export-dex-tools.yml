@@ -1,0 +1,22 @@
+name: Export DEX tools
+on:
+  push:
+    branches:
+      - build/android-tools-temp
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download smali tools
+        run: |
+          set -euxo pipefail
+          curl -L --fail -o baksmali.jar https://github.com/baksmali/smali/releases/download/3.0.9/baksmali-3.0.9-fat-release.jar
+          curl -L --fail -o smali.jar https://github.com/baksmali/smali/releases/download/3.0.9/smali-3.0.9-fat-release.jar
+          java -jar baksmali.jar --version
+          java -jar smali.jar --version
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dex-tools
+          path: |
+            baksmali.jar
+            smali.jar
