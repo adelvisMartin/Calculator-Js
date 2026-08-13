@@ -3,112 +3,76 @@ package com.adelvis.insave.attestationtest;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
-import android.webkit.CookieManager;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.TextView;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import com.adelvis.insave.data.YouTubePoTokenBridge;
+
+import org.json.JSONObject;
+
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 public final class MainActivity extends Activity {
     private static final String TAG = "InSaveAttestationQA";
-    private static final String WATCH = "https://www.youtube.com/watch?v=aqz-KE-bpKQ";
     private TextView text;
-    private WebView webView;
-    private boolean exported;
 
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
         text = new TextView(this);
-        text.setText("Preparando sesión web anónima de YouTube…");
+        text.setText("Probando proveedor local de YouTube…");
         text.setTextSize(18f);
         text.setPadding(32, 64, 32, 32);
         setContentView(text);
 
-        CookieManager cm = CookieManager.getInstance();
-        cm.setAcceptCookie(true);
-        cm.removeAllCookies(value -> {
-            cm.flush();
-            startWebView();
-        });
+        String plugin = YouTubePoTokenBridge.prepare(this);
+        Log.i(TAG, "PLUGIN_ROOT " + plugin);
+        if (plugin == null || !YouTubePoTokenBridge.isServerRunning()) {
+            fail(new IllegalStateException("No arrancó el proveedor local"));
+            return;
+        }
+
+        new Thread(() -> {
+            try {
+                JSONObject request = new JSONObject().put("content_binding", "aqz-KE-bpKQ").put("binding_type", "video_id").put("context", "player");
+                HttpURLConnection c = (HttpURLConnection) new URL("http://127.0.0.1:4417/get_pot").openConnection();
+                c.setConnectTimeout(5000);
+                c.setReadTimeout(40000);
+                c.setRequestMethod("POST");
+                c.setDoOutput(true);
+                c.setRequestProperty("Content-Type", "application/json");
+                byte[] body = request.toString().getBytes(StandardCharsets.UTF_8);
+                c.setFixedLengthStreamingMode(body.length);
+                try (OutputStream out = c.getOutputStream()) { out.write(body); }
+                int code = c.getResponseCode();
+                InputStream in = code >= 200 && code < 300 ? c.getInputStream() : c.getErrorStream();
+                String response = read(in);
+                c.disconnect();
+                Log.i(TAG, "POT_RESPONSE code=" + code + " body=" + response);
+                if (code != 200) throw new IllegalStateException("HTTP " + code + ": " + response);
+                String token = new JSONObject(response).optString("poToken", "");
+                if (token.length() < 20) throw new IllegalStateException("PO Token inválido/corto");
+                Log.i(TAG, "INSAVE_POT_DIRECT_PASS tokenLength=" + token.length());
+                runOnUiThread(() -> text.setText("PASS: PO Token local generado (" + token.length() + ")"));
+            } catch (Throwable t) { fail(t); }
+        }, "InSave-POT-QA").start();
     }
 
-    private void startWebView() {
-        webView = new WebView(this);
-        WebSettings s = webView.getSettings();
-        s.setJavaScriptEnabled(true);
-        s.setDomStorageEnabled(true);
-        s.setDatabaseEnabled(true);
-        s.setLoadsImagesAutomatically(false);
-        s.setMediaPlaybackRequiresUserGesture(true);
-        CookieManager.getInstance().setAcceptThirdPartyCookies(webView, true);
-        webView.setWebViewClient(new WebViewClient() {
-            @Override public void onPageFinished(WebView view, String url) {
-                Log.i(TAG, "PAGE_FINISHED " + url);
-                if (!exported) view.postDelayed(() -> exportBrowserState(view), 15000L);
-            }
-        });
-        addContentView(webView, new android.view.ViewGroup.LayoutParams(1, 1));
-        webView.loadUrl(WATCH);
-    }
-
-    private void exportBrowserState(WebView view) {
-        if (exported) return;
-        exported = true;
-        try {
-            CookieManager cm = CookieManager.getInstance();
-            cm.flush();
-            Map<String, String> cookies = new LinkedHashMap<>();
-            collect(cookies, cm.getCookie("https://www.youtube.com/"));
-            collect(cookies, cm.getCookie("https://m.youtube.com/"));
-            collect(cookies, cm.getCookie(WATCH));
-
-            String ua = view.getSettings().getUserAgentString();
-            File dir = getExternalFilesDir(null);
-            File cookieFile = new File(dir, "youtube-anon-cookies.txt");
-            try (FileWriter fw = new FileWriter(cookieFile, false)) {
-                fw.write("# Netscape HTTP Cookie File\n");
-                fw.write("# Generated by InSave WebView QA\n");
-                long expiry = System.currentTimeMillis() / 1000L + 86400L * 30L;
-                for (Map.Entry<String, String> e : cookies.entrySet()) {
-                    fw.write(".youtube.com\tTRUE\t/\tTRUE\t" + expiry + "\t" + e.getKey() + "\t" + e.getValue() + "\n");
-                }
-            }
-            File uaFile = new File(dir, "youtube-user-agent.txt");
-            try (FileWriter fw = new FileWriter(uaFile, false)) {
-                fw.write(ua == null ? "" : ua);
-            }
-
-            Log.i(TAG, "COOKIE_NAMES " + cookies.keySet());
-            Log.i(TAG, "USER_AGENT " + ua);
-            Log.i(TAG, "COOKIE_FILE " + cookieFile.getAbsolutePath());
-            Log.i(TAG, "UA_FILE " + uaFile.getAbsolutePath());
-            if (cookies.isEmpty()) throw new IllegalStateException("WebView no generó cookies");
-            if (ua == null || ua.isEmpty()) throw new IllegalStateException("WebView no entregó User-Agent");
-            Log.i(TAG, "INSAVE_COOKIE_PRIME_PASS count=" + cookies.size());
-            text.setText("PASS: WebView generó " + cookies.size() + " cookies anónimas");
-        } catch (Throwable t) {
-            Log.e(TAG, "INSAVE_COOKIE_PRIME_FAIL " + t.getClass().getName() + ": " + t.getMessage(), t);
-            text.setText("FAIL: " + t.getClass().getSimpleName() + ": " + t.getMessage());
+    private static String read(InputStream in) throws Exception {
+        if (in == null) return "";
+        try (InputStream input = in; ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            byte[] b = new byte[8192];
+            int n;
+            while ((n = input.read(b)) != -1) out.write(b, 0, n);
+            return out.toString("UTF-8");
         }
     }
 
-    private static void collect(Map<String, String> target, String header) {
-        if (header == null || header.trim().isEmpty()) return;
-        for (String part : header.split(";")) {
-            String p = part.trim();
-            int eq = p.indexOf('=');
-            if (eq <= 0) continue;
-            target.put(p.substring(0, eq), p.substring(eq + 1));
-        }
-    }
-
-    @Override protected void onDestroy() {
-        if (webView != null) webView.destroy();
-        super.onDestroy();
+    private void fail(Throwable t) {
+        Log.e(TAG, "INSAVE_POT_DIRECT_FAIL " + t.getClass().getName() + ": " + t.getMessage(), t);
+        runOnUiThread(() -> text.setText("FAIL: " + t.getClass().getSimpleName() + ": " + t.getMessage()));
     }
 }
