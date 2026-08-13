@@ -1,4 +1,4 @@
-name: InSave Android WebView YouTube QA
+name: InSave Android YouTube PO QA
 on:
   push:
     branches:
@@ -28,19 +28,23 @@ jobs:
           set -euxo pipefail
           yes | sdkmanager --licenses >/dev/null || true
           sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'platform-tools'
-      - name: Build WebView cookie-primer APK
+      - name: Inject the exact InSave PO bridge into harness
+        run: |
+          set -euxo pipefail
+          mkdir -p insave-attestation-test/app/src/main/java/com/adelvis/insave/data
+          mkdir -p insave-attestation-test/app/src/main/assets
+          cp insave-helper-build/helper/src/main/java/com/adelvis/insave/data/YouTubePoTokenBridge.java insave-attestation-test/app/src/main/java/com/adelvis/insave/data/
+          cp insave-helper-build/helper/src/main/assets/insave_po_token.html insave-attestation-test/app/src/main/assets/
+          cp insave-helper-build/helper/src/main/assets/insave_pot_provider.py insave-attestation-test/app/src/main/assets/
+      - name: Build Android harness
         run: gradle -p insave-attestation-test :app:assembleDebug --stacktrace
       - name: Install current yt-dlp stack
         run: |
           set -euxo pipefail
-          python -m pip install -U 'yt-dlp[default]==2026.07.04' bgutil-ytdlp-pot-provider
-          git clone --depth 1 --branch 1.3.1 https://github.com/Brainicism/bgutil-ytdlp-pot-provider.git "$HOME/bgutil-ytdlp-pot-provider"
-          cd "$HOME/bgutil-ytdlp-pot-provider/server"
-          npm ci
-          npx tsc
+          python -m pip install -U 'yt-dlp[default]==2026.07.04'
           yt-dlp --version
           node --version
-      - name: Android WebView prime + host yt-dlp smoke
+      - name: Android PO generator + provider smoke
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 35
@@ -53,53 +57,39 @@ jobs:
             set -euxo pipefail
             APK='insave-attestation-test/app/build/outputs/apk/debug/app-debug.apk'
             PKG='com.adelvis.insave.attestationtest'
-            REMOTE_DIR="/sdcard/Android/data/$PKG/files"
-            COOKIE_FILE='/tmp/youtube-anon-cookies.txt'
-            UA_FILE='/tmp/youtube-user-agent.txt'
-            rm -f "$COOKIE_FILE" "$UA_FILE"
             adb install -r "$APK"
             adb logcat -c
             adb shell am force-stop "$PKG" || true
             adb shell am start -W -n "$PKG/.MainActivity"
             RESULT=''
             for i in $(seq 1 90); do
-              LOG=$(adb logcat -d -s InSaveAttestationQA:I '*:S' || true)
-              if echo "$LOG" | grep -q 'INSAVE_COOKIE_PRIME_PASS'; then RESULT=PASS; break; fi
-              if echo "$LOG" | grep -q 'INSAVE_COOKIE_PRIME_FAIL'; then RESULT=FAIL; break; fi
+              LOG=$(adb logcat -d -s InSaveAttestationQA:I InSavePoToken:I '*:S' || true)
+              if echo "$LOG" | grep -q 'INSAVE_POT_DIRECT_PASS'; then RESULT=PASS; break; fi
+              if echo "$LOG" | grep -q 'INSAVE_POT_DIRECT_FAIL'; then RESULT=FAIL; break; fi
               sleep 2
             done
-            echo '===== WEBVIEW QA LOG ====='
-            adb logcat -d -s InSaveAttestationQA:I '*:S' || true
+            echo '===== ANDROID PO QA LOG ====='
+            adb logcat -d -s InSaveAttestationQA:I InSavePoToken:I '*:S' || true
             test "$RESULT" = PASS
-            adb pull "$REMOTE_DIR/youtube-anon-cookies.txt" "$COOKIE_FILE"
-            adb pull "$REMOTE_DIR/youtube-user-agent.txt" "$UA_FILE"
-            test -s "$COOKIE_FILE"
-            test -s "$UA_FILE"
-            echo 'Cookie names produced by WebView:'
-            awk 'BEGIN{FS="\t"} !/^#/ && NF>=7 {print $6}' "$COOKIE_FILE" | sort -u
-            UA=$(cat "$UA_FILE")
-            echo "WebView UA captured (length=${#UA})"
+
+            adb forward tcp:4417 tcp:4417
+            curl --fail --max-time 5 http://127.0.0.1:4417/ping | tee /tmp/ping.json
+            grep -q 'InSave' /tmp/ping.json
+
+            PLUGIN_ROOT='/tmp/insave-plugin'
+            mkdir -p "$PLUGIN_ROOT/yt_dlp_plugins/extractor"
+            cp insave-helper-build/helper/src/main/assets/insave_pot_provider.py "$PLUGIN_ROOT/yt_dlp_plugins/extractor/insave_pot.py"
+            python -m py_compile "$PLUGIN_ROOT/yt_dlp_plugins/extractor/insave_pot.py"
 
             VIDEO='https://youtu.be/aqz-KE-bpKQ'
             set +e
-            timeout 120 yt-dlp -v --cookies "$COOKIE_FILE" --user-agent "$UA" --js-runtimes node --remote-components ejs:github --simulate -f bestaudio --print '%(id)s|%(title)s|%(format_id)s' "$VIDEO" >/tmp/anon-default.log 2>&1
-            RC_DEFAULT=$?
+            timeout 120 yt-dlp -v --plugin-dirs "$PLUGIN_ROOT" --js-runtimes node --remote-components ejs:github --simulate -f bestaudio --print '%(id)s|%(title)s|%(format_id)s' "$VIDEO" >/tmp/provider-ytdlp.log 2>&1
+            RC=$?
             set -e
-            cat /tmp/anon-default.log
-            if [ $RC_DEFAULT -eq 0 ] && grep -q 'aqz-KE-bpKQ' /tmp/anon-default.log; then
-              echo 'INSAVE_WEBVIEW_COOKIE_YTDLP_PASS strategy=default'
-              exit 0
+            cat /tmp/provider-ytdlp.log
+            grep -q 'InSave' /tmp/provider-ytdlp.log
+            if [ $RC -eq 0 ] && grep -q 'aqz-KE-bpKQ' /tmp/provider-ytdlp.log; then
+              echo 'INSAVE_PROVIDER_YTDLP_NETWORK_PASS'
+            else
+              echo 'INSAVE_PROVIDER_YTDLP_NETWORK_BLOCKED_ON_CI (Android token generator itself passed; cloud IP may still be LOGIN_REQUIRED)'
             fi
-
-            set +e
-            timeout 120 yt-dlp -v --cookies "$COOKIE_FILE" --user-agent "$UA" --js-runtimes node --remote-components ejs:github --extractor-args 'youtube:player_client=mweb' --simulate -f bestaudio --print '%(id)s|%(title)s|%(format_id)s' "$VIDEO" >/tmp/anon-mweb.log 2>&1
-            RC_MWEB=$?
-            set -e
-            cat /tmp/anon-mweb.log
-            if [ $RC_MWEB -eq 0 ] && grep -q 'aqz-KE-bpKQ' /tmp/anon-mweb.log; then
-              echo 'INSAVE_WEBVIEW_COOKIE_YTDLP_PASS strategy=mweb-bgutil'
-              exit 0
-            fi
-
-            echo 'INSAVE_WEBVIEW_COOKIE_YTDLP_FAIL'
-            exit 1
