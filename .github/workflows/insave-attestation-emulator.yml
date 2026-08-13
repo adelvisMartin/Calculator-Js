@@ -54,7 +54,7 @@ jobs:
           emulator-options: -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -camera-back none -camera-front none
           disable-animations: true
           script: |
-            set -euxo pipefail
+            set -eu
             APK='insave-attestation-test/app/build/outputs/apk/debug/app-debug.apk'
             PKG='com.adelvis.insave.attestationtest'
             adb install -r "$APK"
@@ -73,7 +73,8 @@ jobs:
             test "$RESULT" = PASS
 
             adb forward tcp:4417 tcp:4417
-            curl --fail --max-time 5 http://127.0.0.1:4417/ping | tee /tmp/ping.json
+            curl --fail --max-time 5 http://127.0.0.1:4417/ping > /tmp/ping.json
+            cat /tmp/ping.json
             grep -q 'InSave' /tmp/ping.json
 
             PLUGIN_ROOT='/tmp/insave-plugin'
