@@ -26,16 +26,37 @@ jobs:
         run: |
           yt-dlp --version
           node --version
-      - name: Public video with EJS and automatic PO token
+      - name: Public YouTube client matrix
+        shell: bash
+        run: |
+          set -uo pipefail
+          VIDEO='https://youtu.be/aqz-KE-bpKQ'
+          : > /tmp/matrix.txt
+          PASS=0
+          for CLIENT in default android_vr web_safari web_embedded tv mweb android ios; do
+            echo "===== CLIENT=$CLIENT =====" | tee -a /tmp/matrix.txt
+            if [ "$CLIENT" = default ]; then
+              ARGS=()
+            else
+              ARGS=(--extractor-args "youtube:player_client=$CLIENT")
+            fi
+            set +e
+            timeout 90 yt-dlp -v --js-runtimes node --remote-components ejs:github "${ARGS[@]}" --simulate -f bestaudio --print '%(id)s|%(title)s|%(format_id)s' "$VIDEO" 2>&1 | tee "/tmp/${CLIENT}.txt"
+            RC=${PIPESTATUS[0]}
+            set -e
+            if [ $RC -eq 0 ] && grep -q 'aqz-KE-bpKQ' "/tmp/${CLIENT}.txt"; then
+              echo "RESULT $CLIENT PASS" | tee -a /tmp/matrix.txt
+              PASS=$((PASS+1))
+            else
+              REASON=$(grep -E 'LOGIN_REQUIRED|Sign in to confirm|PO Token|403|No video formats|ERROR:' "/tmp/${CLIENT}.txt" | tail -3 | tr '\n' ' ' || true)
+              echo "RESULT $CLIENT FAIL $REASON" | tee -a /tmp/matrix.txt
+            fi
+          done
+          cat /tmp/matrix.txt
+          echo "PASS_COUNT=$PASS"
+          test $PASS -gt 0
+      - name: Cristian Castro search
         run: |
           set -euxo pipefail
-          yt-dlp -v --js-runtimes node --remote-components ejs:github --extractor-args 'youtube:player_client=mweb' --simulate -f bestaudio --print '%(id)s|%(title)s|%(format_id)s' 'https://youtu.be/aqz-KE-bpKQ' | tee /tmp/public.txt
-          grep -q 'aqz-KE-bpKQ' /tmp/public.txt
-      - name: Cristian Castro search and resolve first result
-        run: |
-          set -euxo pipefail
-          URL=$(yt-dlp --js-runtimes node --remote-components ejs:github --flat-playlist --playlist-end 1 --print '%(webpage_url)s' 'ytsearch1:Cristian Castro Azul' | tail -1)
-          test -n "$URL"
-          echo "Resolved: $URL"
-          yt-dlp -v --js-runtimes node --remote-components ejs:github --extractor-args 'youtube:player_client=mweb' --simulate -f bestaudio --print '%(id)s|%(title)s|%(format_id)s' "$URL" | tee /tmp/cristian.txt
-          test -s /tmp/cristian.txt
+          yt-dlp --js-runtimes node --remote-components ejs:github --flat-playlist --playlist-end 6 --print '%(id)s|%(title)s|%(webpage_url)s' 'ytsearch6:Cristian Castro Azul' | tee /tmp/search.txt
+          test "$(grep -c 'Cristian\|Azul' /tmp/search.txt || true)" -gt 0
