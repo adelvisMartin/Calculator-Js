@@ -1,4 +1,4 @@
-name: InSave YouTube smoke
+name: InSave BotGuard request smoke
 on:
   push:
     branches:
@@ -6,57 +6,40 @@ on:
 jobs:
   smoke:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
     steps:
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.13'
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-      - name: Install current yt-dlp stack
-        run: |
-          set -euxo pipefail
-          python -m pip install -U 'yt-dlp[default]==2026.6.9' bgutil-ytdlp-pot-provider
-          git clone --depth 1 --branch 1.3.1 https://github.com/Brainicism/bgutil-ytdlp-pot-provider.git "$HOME/bgutil-ytdlp-pot-provider"
-          cd "$HOME/bgutil-ytdlp-pot-provider/server"
-          npm ci
-          npx tsc
-      - name: Verify current versions
-        run: |
-          yt-dlp --version
-          node --version
-      - name: Public YouTube client matrix
+      - name: Probe BotGuard Create request variants
         shell: bash
         run: |
-          set -uo pipefail
-          VIDEO='https://youtu.be/aqz-KE-bpKQ'
-          : > /tmp/matrix.txt
-          PASS=0
-          for CLIENT in default android_vr web_safari web_embedded tv mweb android ios; do
-            echo "===== CLIENT=$CLIENT =====" | tee -a /tmp/matrix.txt
-            if [ "$CLIENT" = default ]; then
-              ARGS=()
-            else
-              ARGS=(--extractor-args "youtube:player_client=$CLIENT")
-            fi
-            set +e
-            timeout 90 yt-dlp -v --js-runtimes node --remote-components ejs:github "${ARGS[@]}" --simulate -f bestaudio --print '%(id)s|%(title)s|%(format_id)s' "$VIDEO" 2>&1 | tee "/tmp/${CLIENT}.txt"
-            RC=${PIPESTATUS[0]}
-            set -e
-            if [ $RC -eq 0 ] && grep -q 'aqz-KE-bpKQ' "/tmp/${CLIENT}.txt"; then
-              echo "RESULT $CLIENT PASS" | tee -a /tmp/matrix.txt
-              PASS=$((PASS+1))
-            else
-              REASON=$(grep -E 'LOGIN_REQUIRED|Sign in to confirm|PO Token|403|No video formats|ERROR:' "/tmp/${CLIENT}.txt" | tail -3 | tr '\n' ' ' || true)
-              echo "RESULT $CLIENT FAIL $REASON" | tee -a /tmp/matrix.txt
-            fi
-          done
-          cat /tmp/matrix.txt
-          echo "PASS_COUNT=$PASS"
-          test $PASS -gt 0
-      - name: Cristian Castro search
-        run: |
-          set -euxo pipefail
-          yt-dlp --js-runtimes node --remote-components ejs:github --flat-playlist --playlist-end 6 --print '%(id)s|%(title)s|%(webpage_url)s' 'ytsearch6:Cristian Castro Azul' | tee /tmp/search.txt
-          test "$(grep -c 'Cristian\|Azul' /tmp/search.txt || true)" -gt 0
+          set -euo pipefail
+          URL='https://www.youtube.com/api/jnn/v1/Create'
+          KEY='O43z0dpjhgX20SCx4KAo'
+          API='AIzaSyDyT5W0Jh49F30Pqqtyfdf7pDLFKLJoAnw'
+          BODY='["'$KEY'"]'
+          UA_YTDLNIS='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.3'
+          UA_INSAVE='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
+          : > /tmp/results.txt
+          pass=0
+          probe() {
+            name="$1"; ua="$2"; accept="$3"; ctype="$4"
+            echo "===== $name ====="
+            code=$(curl -sS --max-time 20 -o "/tmp/$name.body" -w '%{http_code}' \
+              -X POST "$URL" \
+              -H "User-Agent: $ua" \
+              -H "Accept: $accept" \
+              -H "Content-Type: $ctype" \
+              -H "x-goog-api-key: $API" \
+              -H 'x-user-agent: grpc-web-javascript/0.1' \
+              --data-binary "$BODY" || true)
+            bytes=$(wc -c < "/tmp/$name.body" || echo 0)
+            prefix=$(head -c 240 "/tmp/$name.body" | tr '\n' ' ' || true)
+            echo "$name HTTP=$code bytes=$bytes prefix=$prefix" | tee -a /tmp/results.txt
+            if [ "$code" = 200 ]; then pass=$((pass+1)); fi
+          }
+          probe ytdlnis_exact "$UA_YTDLNIS" 'application/json' 'application/json+protobuf'
+          probe insave_ua "$UA_INSAVE" 'application/json' 'application/json+protobuf'
+          probe protobuf_accept "$UA_YTDLNIS" 'application/json+protobuf' 'application/json+protobuf'
+          probe json_content "$UA_YTDLNIS" 'application/json' 'application/json'
+          cat /tmp/results.txt
+          echo "PASS_COUNT=$pass"
+          test "$pass" -gt 0
