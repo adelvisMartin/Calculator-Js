@@ -271,7 +271,7 @@ class InSaveHubActivity : AppCompatActivity() {
     }
 
     private fun autoPasteUrlIfAllowed() {
-        if (!window.hasWindowFocus()) return
+        if (!window.decorView.hasWindowFocus()) return
         val manager = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
         val clip = manager.primaryClip ?: return
         val description = manager.primaryClipDescription ?: return
