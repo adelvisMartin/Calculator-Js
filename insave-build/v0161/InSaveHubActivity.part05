@@ -98,11 +98,11 @@
         prefs.edit()
             .putString("preferred_download_type", DownloadType.audio.toString())
             .putString("audio_format", "mp3")
-            .putString("audio_bitrate", prefs.getString("audio_bitrate", "320").orEmpty().ifBlank { "320" })
+            .putString("audio_bitrate", prefs.getString("audio_bitrate", "320K").orEmpty().ifBlank { "320K" })
             .putBoolean("remember_download_type", false)
             .apply()
         startActivity(Intent(this, MainActivity::class.java))
-        toast("Modo lista MP3 activo · ${prefs.getString("audio_bitrate", "320").orEmpty().ifBlank { "320" }} kbps")
+        toast("Modo lista MP3 activo · ${prefs.getString("audio_bitrate", "320K").orEmpty().ifBlank { "320K" }.removeSuffix("K") } kbps")
     }
 
     private fun openDownloader(type: DownloadType) {
