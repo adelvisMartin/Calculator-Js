@@ -30,6 +30,8 @@ jobs:
         run: |
           mkdir -p insave-build/insave-build-status
           printf 'started_commit=%s\n' "$GITHUB_SHA" > insave-build/insave-build-status/status.txt
+          printf 'run_id=%s\n' "$GITHUB_RUN_ID" >> insave-build/insave-build-status/status.txt
+          printf 'run_attempt=%s\n' "$GITHUB_RUN_ATTEMPT" >> insave-build/insave-build-status/status.txt
           echo 'previous_unit_tests=pass' >> insave-build/insave-build-status/status.txt
           echo 'lint=upstream-errors-nonblocking' >> insave-build/insave-build-status/status.txt
 
@@ -128,26 +130,24 @@ jobs:
           fi
           cp "$APK" InSave-v0.16.0-RC-arm64.apk
           sha256sum InSave-v0.16.0-RC-arm64.apk | tee InSave-v0.16.0-RC-arm64.sha256
-          mkdir -p insave-build/insave-artifacts
-          cp InSave-v0.16.0-RC-arm64.apk insave-build/insave-artifacts/
-          cp InSave-v0.16.0-RC-arm64.sha256 insave-build/insave-artifacts/
           cp InSave-v0.16.0-RC-arm64.sha256 insave-build/insave-build-status/
           echo 'apk_verify=pass' >> insave-build/insave-build-status/status.txt
           echo 'result=pass' >> insave-build/insave-build-status/status.txt
           ls -lh InSave-v0.16.0-RC-arm64.apk
 
-      - name: Upload Actions artifact
+      - name: Upload installable APK artifact
         if: success()
         uses: actions/upload-artifact@v4
         with:
           name: InSave-v0.16.0-RC-arm64
           if-no-files-found: error
           retention-days: 7
+          compression-level: 0
           path: |
             InSave-v0.16.0-RC-arm64.apk
             InSave-v0.16.0-RC-arm64.sha256
 
-      - name: Persist build status and APK on isolated branch
+      - name: Persist build status on isolated branch
         if: always()
         shell: bash
         run: |
@@ -155,7 +155,7 @@ jobs:
           echo 'job_status=${{ job.status }}' >> insave-build/insave-build-status/status.txt
           git -C insave-build config user.name 'github-actions[bot]'
           git -C insave-build config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git -C insave-build add -- insave-build-status insave-artifacts 2>/dev/null || git -C insave-build add -- insave-build-status
+          git -C insave-build add -- insave-build-status
           if git -C insave-build diff --cached --quiet; then
             exit 0
           fi
