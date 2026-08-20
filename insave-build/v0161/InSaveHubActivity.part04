@@ -1,0 +1,140 @@
+                if (statusRoot == null) {
+                    info.text = "No encontré .Statuses dentro del acceso guardado. Usa “Cambiar acceso” y selecciona Media o .Statuses una sola vez."
+                    recycler.adapter = StatusAdapter(emptyList())
+                } else {
+                    val images = all.count { it.mime.startsWith("image/") }
+                    val videos = all.count { it.mime.startsWith("video/") }
+                    info.text = "Imágenes · $images     Videos · $videos"
+                    recycler.adapter = StatusAdapter(filtered)
+                }
+            }
+        }
+    }
+
+    private fun resolveStatusesRoot(root: DocumentFile, source: InSaveStatusSource): DocumentFile? {
+        if (root.name.equals(".Statuses", true)) return root
+        root.findFile(".Statuses")?.let { if (it.isDirectory) return it }
+
+        val paths = if (source == InSaveStatusSource.WHATSAPP) listOf(
+            listOf("Media", ".Statuses"),
+            listOf("WhatsApp", "Media", ".Statuses"),
+            listOf("com.whatsapp", "WhatsApp", "Media", ".Statuses"),
+        ) else listOf(
+            listOf("Media", ".Statuses"),
+            listOf("WhatsApp Business", "Media", ".Statuses"),
+            listOf("com.whatsapp.w4b", "WhatsApp Business", "Media", ".Statuses"),
+        )
+        for (path in paths) descend(root, path)?.let { return it }
+        return null
+    }
+
+    private fun descend(root: DocumentFile, names: List<String>): DocumentFile? {
+        var current = root
+        for (name in names) {
+            current = current.findFile(name) ?: return null
+            if (!current.isDirectory) return null
+        }
+        return current
+    }
+
+    private fun launchStatusTree(source: InSaveStatusSource) {
+        val initial = initialStatusUri(source)
+        if (source == InSaveStatusSource.WHATSAPP) whatsappTreeLauncher.launch(initial)
+        else businessTreeLauncher.launch(initial)
+    }
+
+    private fun initialStatusUri(source: InSaveStatusSource): Uri? = runCatching {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return@runCatching null
+        val id = if (source == InSaveStatusSource.WHATSAPP) {
+            "primary:Android/media/com.whatsapp/WhatsApp/Media"
+        } else {
+            "primary:Android/media/com.whatsapp.w4b/WhatsApp Business/Media"
+        }
+        DocumentsContract.buildDocumentUri("com.android.externalstorage.documents", id)
+    }.getOrNull()
+
+    private fun persistStatusTree(source: InSaveStatusSource, uri: Uri) {
+        runCatching {
+            contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        prefs.edit().putString(statusKey(source), uri.toString()).apply()
+        statusSource = source
+        statusFilter = StatusFilter.IMAGES
+        showTab(InSaveTab.STATUSES)
+    }
+
+    private inner class StatusAdapter(private val items: List<InSaveStatus>) : RecyclerView.Adapter<StatusHolder>() {
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StatusHolder {
+            val frame = FrameLayout(parent.context).apply {
+                layoutParams = RecyclerView.LayoutParams(
+                    RecyclerView.LayoutParams.MATCH_PARENT, dp(176)
+                ).apply { setMargins(dp(4), dp(4), dp(4), dp(4)) }
+                background = rounded(CARD_BG, 18)
+                clipToOutline = true
+            }
+            val image = ImageView(parent.context).apply {
+                scaleType = ImageView.ScaleType.CENTER_CROP
+                setBackgroundColor(Color.rgb(30, 25, 31))
+            }
+            frame.addView(image, FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT
+            ))
+            val kind = TextView(parent.context).apply {
+                setTextColor(Color.WHITE)
+                textSize = 11f
+                setPadding(dp(8), dp(4), dp(8), dp(4))
+                background = rounded(Color.argb(180, 25, 16, 24), 12)
+            }
+            frame.addView(kind, FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT, Gravity.BOTTOM or Gravity.START
+            ).apply { setMargins(dp(8), dp(8), dp(8), dp(8)) })
+            val save = TextView(parent.context).apply {
+                text = "↓"
+                gravity = Gravity.CENTER
+                textSize = 25f
+                setTextColor(Color.WHITE)
+                background = rounded(ACCENT, 28)
+            }
+            frame.addView(save, FrameLayout.LayoutParams(dp(48), dp(48), Gravity.TOP or Gravity.END).apply {
+                setMargins(dp(8), dp(8), dp(8), dp(8))
+            })
+            return StatusHolder(frame, image, kind, save)
+        }
+
+        override fun getItemCount(): Int = items.size
+
+        override fun onBindViewHolder(holder: StatusHolder, position: Int) {
+            val item = items[position]
+            val token = item.uri.toString()
+            holder.image.tag = token
+            holder.image.setImageDrawable(null)
+            holder.kind.text = if (item.mime.startsWith("video/")) "▶ VIDEO" else "IMAGEN"
+            holder.itemView.setOnClickListener { previewStatus(item) }
+            holder.save.setOnClickListener { saveStatuses(listOf(item)) }
+            lifecycleScope.launch(Dispatchers.IO) {
+                val bitmap = statusThumbnail(item)
+                withContext(Dispatchers.Main) {
+                    if (holder.image.tag == token && bitmap != null) holder.image.setImageBitmap(bitmap)
+                }
+            }
+        }
+    }
+
+    private class StatusHolder(
+        root: View,
+        val image: ImageView,
+        val kind: TextView,
+        val save: TextView,
+    ) : RecyclerView.ViewHolder(root)
+
+    private fun statusThumbnail(item: InSaveStatus): Bitmap? = runCatching {
+        if (item.mime.startsWith("video/")) {
+            val retriever = MediaMetadataRetriever()
+            try {
+                retriever.setDataSource(this, item.uri)
+                retriever.getFrameAtTime(0, MediaMetadataRetriever.OPTION_CLOSEST_SYNC)
+            } finally {
+                retriever.release()
+            }
+        } else {
+            val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
