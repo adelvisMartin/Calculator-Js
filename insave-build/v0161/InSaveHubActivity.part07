@@ -1,0 +1,139 @@
+            .setView(ScrollView(this).apply { addView(content) })
+            .setPositiveButton("Cerrar", null)
+            .show()
+    }
+
+    private fun verticalPage(): LinearLayout = LinearLayout(this).apply {
+        orientation = LinearLayout.VERTICAL
+        setPadding(dp(16), dp(18), dp(16), dp(28))
+        setBackgroundColor(BG)
+    }
+
+    private fun appTitle(title: String, subtitle: String): View = LinearLayout(this).apply {
+        orientation = LinearLayout.VERTICAL
+        addView(TextView(this@InSaveHubActivity).apply {
+            text = title
+            textSize = 27f
+            setTextColor(TEXT)
+            setTypeface(typeface, Typeface.BOLD)
+        })
+        addView(TextView(this@InSaveHubActivity).apply {
+            text = subtitle
+            textSize = 13.5f
+            setTextColor(MUTED)
+            setPadding(0, dp(4), 0, dp(14))
+        })
+    }
+
+    private fun card(): LinearLayout = LinearLayout(this).apply {
+        orientation = LinearLayout.VERTICAL
+        setPadding(dp(15), dp(14), dp(15), dp(14))
+        background = rounded(CARD_BG, 22)
+        layoutParams = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT
+        ).apply { bottomMargin = dp(12) }
+    }
+
+    private fun sectionTitle(text: String): TextView = TextView(this).apply {
+        this.text = text
+        textSize = 18f
+        setTextColor(TEXT)
+        setTypeface(typeface, Typeface.BOLD)
+        setPadding(0, 0, 0, dp(5))
+    }
+
+    private fun body(text: String): TextView = TextView(this).apply {
+        this.text = text
+        textSize = 13.5f
+        setTextColor(MUTED)
+        setPadding(0, 0, 0, dp(10))
+    }
+
+    private fun label(text: String): TextView = TextView(this).apply {
+        this.text = text
+        textSize = 13f
+        setTextColor(SOFT)
+        setTypeface(typeface, Typeface.BOLD)
+        setPadding(0, dp(10), 0, dp(4))
+    }
+
+    private fun primaryButton(text: String, action: () -> Unit): MaterialButton = MaterialButton(this).apply {
+        this.text = text
+        isAllCaps = false
+        textSize = 15f
+        setTextColor(Color.WHITE)
+        backgroundTintList = ColorStateList.valueOf(ACCENT)
+        minHeight = dp(52)
+        setOnClickListener { action() }
+        layoutParams = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT
+        ).apply { topMargin = dp(8) }
+    }
+
+    private fun secondaryButton(text: String, action: () -> Unit): MaterialButton = MaterialButton(this).apply {
+        this.text = text
+        isAllCaps = false
+        textSize = 14f
+        setTextColor(TEXT)
+        backgroundTintList = ColorStateList.valueOf(SECONDARY)
+        minHeight = dp(48)
+        setOnClickListener { action() }
+        layoutParams = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT
+        ).apply { topMargin = dp(7) }
+    }
+
+    private fun smallButton(text: String, action: () -> Unit): Button = Button(this).apply {
+        this.text = text
+        isAllCaps = false
+        setTextColor(TEXT)
+        backgroundTintList = ColorStateList.valueOf(SECONDARY)
+        setOnClickListener { action() }
+    }
+
+    private fun horizontalButtons(vararg buttons: Button): LinearLayout = LinearLayout(this).apply {
+        orientation = LinearLayout.HORIZONTAL
+        buttons.forEach { addView(it, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply {
+            setMargins(dp(3), dp(4), dp(3), 0)
+        }) }
+    }
+
+    private fun toggleButton(text: String, selected: Boolean, action: () -> Unit, weight: Float): Button = Button(this).apply {
+        this.text = text
+        isAllCaps = false
+        setTextColor(if (selected) Color.WHITE else TEXT)
+        backgroundTintList = ColorStateList.valueOf(if (selected) ACCENT else SECONDARY)
+        setOnClickListener { action() }
+        layoutParams = LinearLayout.LayoutParams(0, dp(46), weight).apply { setMargins(dp(3), dp(3), dp(3), dp(3)) }
+    }
+
+    private fun rounded(color: Int, radiusDp: Int): GradientDrawable = GradientDrawable().apply {
+        shape = GradientDrawable.RECTANGLE
+        setColor(color)
+        cornerRadius = dp(radiusDp).toFloat()
+    }
+
+    private fun confirm(title: String, message: String, action: () -> Unit) {
+        AlertDialog.Builder(this)
+            .setTitle(title)
+            .setMessage(message)
+            .setPositiveButton("Continuar") { _, _ -> action() }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
+    private fun toast(message: String) = Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+    private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
+
+    companion object {
+        private val BG = Color.rgb(18, 13, 19)
+        private val NAV_BG = Color.rgb(40, 29, 39)
+        private val CARD_BG = Color.rgb(45, 34, 46)
+        private val SECONDARY = Color.rgb(72, 55, 72)
+        private val TEXT = Color.rgb(247, 238, 244)
+        private val SOFT = Color.rgb(239, 164, 204)
+        private val MUTED = Color.rgb(193, 176, 190)
+        private val ACCENT = Color.rgb(185, 45, 126)
+        private val ACCENT_SOFT = Color.rgb(245, 185, 218)
+    }
+}
