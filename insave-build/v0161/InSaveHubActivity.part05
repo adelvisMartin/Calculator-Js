@@ -1,0 +1,140 @@
+            contentResolver.openInputStream(item.uri)?.use { BitmapFactory.decodeStream(it, null, bounds) }
+            var sample = 1
+            while (bounds.outWidth / sample > 720 || bounds.outHeight / sample > 720) sample *= 2
+            val options = BitmapFactory.Options().apply { inSampleSize = sample.coerceAtLeast(1) }
+            contentResolver.openInputStream(item.uri)?.use { BitmapFactory.decodeStream(it, null, options) }
+        }
+    }.getOrNull()
+
+    private fun previewStatus(item: InSaveStatus) {
+        val holder = FrameLayout(this).apply {
+            setPadding(dp(8), dp(8), dp(8), dp(8))
+            setBackgroundColor(Color.BLACK)
+        }
+        if (item.mime.startsWith("video/")) {
+            val video = VideoView(this).apply {
+                setVideoURI(item.uri)
+                setOnPreparedListener { mp ->
+                    mp.isLooping = true
+                    start()
+                }
+            }
+            holder.addView(video, FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT, dp(460)
+            ))
+        } else {
+            val image = ImageView(this).apply {
+                scaleType = ImageView.ScaleType.FIT_CENTER
+                setImageURI(item.uri)
+            }
+            holder.addView(image, FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT, dp(460)
+            ))
+        }
+        AlertDialog.Builder(this)
+            .setTitle(if (item.mime.startsWith("video/")) "Vista previa de video" else "Vista previa de imagen")
+            .setView(holder)
+            .setPositiveButton("Guardar") { _, _ -> saveStatuses(listOf(item)) }
+            .setNegativeButton("Cerrar", null)
+            .show()
+    }
+
+    private fun saveStatuses(items: List<InSaveStatus>) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            var saved = 0
+            items.forEach { if (copyStatusToDownloads(it)) saved++ }
+            withContext(Dispatchers.Main) { toast("Estado guardado en Downloads/InSave ($saved/${items.size}).") }
+        }
+    }
+
+    private fun copyStatusToDownloads(item: InSaveStatus): Boolean = runCatching {
+        val input = contentResolver.openInputStream(item.uri) ?: return@runCatching false
+        input.use { src ->
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                val collection = if (item.mime.startsWith("video/")) {
+                    MediaStore.Video.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+                } else {
+                    MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+                }
+                val values = ContentValues().apply {
+                    put(MediaStore.MediaColumns.DISPLAY_NAME, item.name)
+                    put(MediaStore.MediaColumns.MIME_TYPE, item.mime)
+                    put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/InSave")
+                    put(MediaStore.MediaColumns.IS_PENDING, 1)
+                }
+                val outUri = contentResolver.insert(collection, values) ?: return@runCatching false
+                contentResolver.openOutputStream(outUri, "w")!!.use { out -> src.copyTo(out) }
+                contentResolver.update(outUri, ContentValues().apply {
+                    put(MediaStore.MediaColumns.IS_PENDING, 0)
+                }, null, null)
+            } else {
+                val dir = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "InSave").apply { mkdirs() }
+                FileOutputStream(File(dir, item.name)).use { out -> src.copyTo(out) }
+            }
+        }
+        true
+    }.getOrDefault(false)
+
+    private fun openUrlAs(type: DownloadType) {
+        prefs.edit()
+            .putString("preferred_download_type", type.toString())
+            .putBoolean("remember_download_type", false)
+            .apply()
+        val url = if (::urlInput.isInitialized) normalizeUrl(urlInput.text.toString()) else null
+        if (url == null) {
+            openDownloader(type)
+            return
+        }
+        startActivity(Intent(this, ShareActivity::class.java).apply {
+            action = Intent.ACTION_SEND
+            this.type = "text/plain"
+            putExtra(Intent.EXTRA_TEXT, url)
+            putExtra("TYPE", type.toString())
+            putExtra("BACKGROUND", false)
+        })
+    }
+
+    private fun openAudioSearch() {
+        prefs.edit()
+            .putString("preferred_download_type", DownloadType.audio.toString())
+            .putString("audio_format", "mp3")
+            .putString("audio_bitrate", prefs.getString("audio_bitrate", "320").orEmpty().ifBlank { "320" })
+            .putBoolean("remember_download_type", false)
+            .apply()
+        startActivity(Intent(this, MainActivity::class.java))
+        toast("Modo lista MP3 activo · ${prefs.getString("audio_bitrate", "320").orEmpty().ifBlank { "320" }} kbps")
+    }
+
+    private fun openDownloader(type: DownloadType) {
+        prefs.edit().putString("preferred_download_type", type.toString()).putBoolean("remember_download_type", false).apply()
+        startActivity(Intent(this, MainActivity::class.java))
+    }
+
+    private fun pasteIntoUrl() {
+        val manager = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+        val value = manager.primaryClip?.getItemAt(0)?.coerceToText(this)?.toString().orEmpty()
+        normalizeUrl(value)?.let {
+            urlInput.setText(it)
+            urlInput.setSelection(it.length)
+        } ?: toast("El portapapeles no contiene un enlace válido.")
+    }
+
+    private fun generatePoTokenNoLogin() {
+        poTokenLauncher.launch(Intent(this, PoTokenWebViewLoginActivity::class.java).apply {
+            putExtra("url", "https://www.youtube.com")
+            putExtra("redirect_url", "https://www.youtube.com/watch?v=aqz-KE-bpKQ")
+            putExtra("no_auth", true)
+        })
+    }
+
+    private fun storePoTokens(data: Intent): Boolean {
+        val streaming = data.getStringExtra("streaming_potoken").orEmpty()
+        val player = data.getStringExtra("player_potoken").orEmpty()
+        val subs = data.getStringExtra("subs_potoken").orEmpty()
+        val visitorData = data.getStringExtra("visitor_data").orEmpty()
+        if (streaming.isBlank() || player.isBlank()) return false
+        val current = runCatching {
+            Gson().fromJson(
+                prefs.getString("youtube_generated_po_tokens", "[]").orEmpty().ifEmpty { "[]" },
+                Array<YoutubeGeneratePoTokenItem>::class.java
+            ).toMutableList()
