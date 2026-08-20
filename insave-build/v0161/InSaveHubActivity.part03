@@ -1,0 +1,140 @@
+
+        val sourceRow = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
+        sourceRow.addView(toggleButton("WhatsApp", statusSource == InSaveStatusSource.WHATSAPP) {
+            statusSource = InSaveStatusSource.WHATSAPP
+            showTab(InSaveTab.STATUSES)
+        }, 1f)
+        sourceRow.addView(toggleButton("Business", statusSource == InSaveStatusSource.WHATSAPP_BUSINESS) {
+            statusSource = InSaveStatusSource.WHATSAPP_BUSINESS
+            showTab(InSaveTab.STATUSES)
+        }, 1f)
+        root.addView(sourceRow)
+
+        val filterRow = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
+        filterRow.addView(toggleButton("Imágenes", statusFilter == StatusFilter.IMAGES) {
+            statusFilter = StatusFilter.IMAGES
+            showTab(InSaveTab.STATUSES)
+        }, 1f)
+        filterRow.addView(toggleButton("Videos", statusFilter == StatusFilter.VIDEOS) {
+            statusFilter = StatusFilter.VIDEOS
+            showTab(InSaveTab.STATUSES)
+        }, 1f)
+        root.addView(filterRow)
+
+        val stored = prefs.getString(statusKey(statusSource), null)?.let(Uri::parse)
+        if (stored == null) {
+            root.addView(card().apply {
+                addView(sectionTitle(if (statusSource == InSaveStatusSource.WHATSAPP) "Conectar WhatsApp" else "Conectar WhatsApp Business"))
+                addView(body("Android exige autorizar la carpeta de estados una sola vez. Entrar a Estados ya no abrirá el explorador automáticamente."))
+                addView(primaryButton("Conectar una sola vez") { launchStatusTree(statusSource) })
+            })
+        } else {
+            val info = TextView(this).apply {
+                text = "Cargando estados…"
+                setTextColor(MUTED)
+                setPadding(dp(2), dp(14), dp(2), dp(10))
+            }
+            root.addView(info)
+            val recycler = RecyclerView(this).apply {
+                layoutManager = GridLayoutManager(this@InSaveHubActivity, 2)
+                overScrollMode = View.OVER_SCROLL_NEVER
+                isNestedScrollingEnabled = false
+            }
+            root.addView(recycler, LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT
+            ))
+            root.addView(secondaryButton("Cambiar acceso de carpeta") {
+                prefs.edit().remove(statusKey(statusSource)).apply()
+                launchStatusTree(statusSource)
+            })
+            loadStatuses(stored, info, recycler)
+        }
+        return ScrollView(this).apply { addView(root) }
+    }
+
+    private fun buildDownloadsView(): View {
+        val root = verticalPage()
+        root.addView(appTitle("Descargas", "Audio primero. El gestor avanzado queda disponible sin dominar la interfaz."))
+        root.addView(card().apply {
+            addView(sectionTitle("Nueva descarga"))
+            addView(primaryButton("Buscar / descargar lista MP3") { openAudioSearch() })
+            addView(secondaryButton("Abrir gestor avanzado") { openDownloader(DownloadType.audio) })
+        })
+        root.addView(card().apply {
+            addView(sectionTitle("Limpiar cola"))
+            addView(body("Los cientos de elementos cancelados que viste pertenecen a la cola del motor. Puedes borrarlos sin tocar tus archivos ya descargados."))
+            addView(secondaryButton("Eliminar cancelados") {
+                confirm("Eliminar cancelados", "Borra de la cola todos los elementos cancelados. No elimina tus MP3/MP4 ya guardados.") {
+                    downloadViewModel.deleteCancelled()
+                    toast("Cola de cancelados limpiada.")
+                }
+            })
+            addView(secondaryButton("Eliminar errores") {
+                confirm("Eliminar errores", "Borra de la cola los elementos marcados con error.") {
+                    downloadViewModel.deleteErrored()
+                    toast("Elementos con error limpiados.")
+                }
+            })
+        })
+        return ScrollView(this).apply { addView(root) }
+    }
+
+    private fun buildFollowersView(): View {
+        val root = verticalPage()
+        root.addView(appTitle("Seguidores", "Análisis local de la exportación de Instagram."))
+        root.addView(card().apply {
+            addView(sectionTitle("Importar exportación"))
+            addView(body("No se abrirá el explorador al entrar aquí. Toca Importar solo cuando quieras analizar tus archivos JSON."))
+            addView(primaryButton("Importar seguidores / seguidos") {
+                followersJson = null
+                followingJson = null
+                followersFileLauncher.launch(arrayOf("application/json", "text/json", "text/plain"))
+            })
+        })
+        return ScrollView(this).apply { addView(root) }
+    }
+
+    private fun buildSettingsView(): View {
+        val root = verticalPage()
+        root.addView(appTitle("Ajustes", "Preferencias principales de InSave."))
+        root.addView(card().apply {
+            addView(sectionTitle("Audio"))
+            addView(body("Predeterminado actual: MP3 · ${prefs.getString("audio_bitrate", "320").orEmpty().ifBlank { "320" }} kbps"))
+            val boost = MaterialSwitch(this@InSaveHubActivity).apply {
+                text = "Volumen reforzado · loudness protegido"
+                setTextColor(TEXT)
+                isChecked = prefs.getBoolean("insave_loudness_boost", true)
+                setOnCheckedChangeListener { _, checked -> prefs.edit().putBoolean("insave_loudness_boost", checked).apply() }
+            }
+            addView(boost)
+        })
+        root.addView(card().apply {
+            addView(sectionTitle("Avanzado"))
+            addView(secondaryButton("Ajustes del motor") { startActivity(Intent(this@InSaveHubActivity, SettingsActivity::class.java)) })
+            addView(secondaryButton("Reparar YouTube sin login") { generatePoTokenNoLogin() })
+        })
+        return ScrollView(this).apply { addView(root) }
+    }
+
+    private fun loadStatuses(tree: Uri, info: TextView, recycler: RecyclerView) {
+        val sourceSnapshot = statusSource
+        val filterSnapshot = statusFilter
+        lifecycleScope.launch(Dispatchers.IO) {
+            val granted = DocumentFile.fromTreeUri(this@InSaveHubActivity, tree)
+            val statusRoot = granted?.let { resolveStatusesRoot(it, sourceSnapshot) }
+            val all = statusRoot?.listFiles()?.asSequence()
+                ?.filter { it.isFile }
+                ?.mapNotNull { file ->
+                    val name = file.name ?: return@mapNotNull null
+                    val mime = file.type ?: mimeFromName(name) ?: return@mapNotNull null
+                    if (!mime.startsWith("image/") && !mime.startsWith("video/")) return@mapNotNull null
+                    InSaveStatus(file.uri, name, mime, file.lastModified())
+                }
+                ?.sortedByDescending { it.modified }
+                ?.take(180)
+                ?.toList().orEmpty()
+            val filtered = all.filter {
+                if (filterSnapshot == StatusFilter.IMAGES) it.mime.startsWith("image/") else it.mime.startsWith("video/")
+            }
+            withContext(Dispatchers.Main) {
+                if (currentTab != InSaveTab.STATUSES || sourceSnapshot != statusSource || filterSnapshot != statusFilter) return@withContext
