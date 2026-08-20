@@ -11,6 +11,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: insave-v0.16.0-rc-build
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -20,6 +24,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           path: insave-build
+
+      - name: Prepare build diagnostics
+        shell: bash
+        run: |
+          mkdir -p insave-build/insave-build-status
+          printf 'started_commit=%s\n' "$GITHUB_SHA" > insave-build/insave-build-status/status.txt
 
       - name: Checkout maintained downloader engine
         uses: actions/checkout@v4
@@ -78,30 +88,49 @@ jobs:
           grep -q 'android:name=".insave.InSaveHubActivity"' upstream/app/src/main/AndroidManifest.xml
           grep -q 'android:targetActivity=".insave.InSaveHubActivity"' upstream/app/src/main/AndroidManifest.xml
           grep -q 'putExtra("no_auth", true)' upstream/app/src/main/java/com/deniscerri/ytdl/insave/InSaveHubActivity.kt
+          echo 'overlay=pass' >> insave-build/insave-build-status/status.txt
 
       - name: Compile unit tests
-        working-directory: upstream
-        run: ./gradlew --no-daemon :app:testGithubDebugUnitTest
+        shell: bash
+        run: |
+          set -o pipefail
+          (cd upstream && ./gradlew --no-daemon :app:testGithubDebugUnitTest) 2>&1 | tee insave-build/insave-build-status/unit-tests.log
+
+      - name: Mark unit tests
+        if: success()
+        run: echo 'unit_tests=pass' >> insave-build/insave-build-status/status.txt
 
       - name: Lint release
-        working-directory: upstream
-        run: ./gradlew --no-daemon :app:lintGithubRelease
+        shell: bash
+        run: |
+          set -o pipefail
+          (cd upstream && ./gradlew --no-daemon :app:lintGithubRelease) 2>&1 | tee insave-build/insave-build-status/lint.log
+
+      - name: Mark lint
+        if: success()
+        run: echo 'lint=pass' >> insave-build/insave-build-status/status.txt
 
       - name: Assemble release APK
-        working-directory: upstream
-        run: ./gradlew --no-daemon :app:assembleGithubRelease
+        shell: bash
+        run: |
+          set -o pipefail
+          (cd upstream && ./gradlew --no-daemon :app:assembleGithubRelease) 2>&1 | tee insave-build/insave-build-status/assemble.log
+
+      - name: Mark assemble
+        if: success()
+        run: echo 'assemble=pass' >> insave-build/insave-build-status/status.txt
 
       - name: Verify ARM64 APK and checksum
         shell: bash
         run: |
           set -euo pipefail
-          find upstream/app/build/outputs/apk -type f -name '*.apk' -print
+          find upstream/app/build/outputs/apk -type f -name '*.apk' -print | tee insave-build/insave-build-status/apks.txt
           APK=$(find upstream/app/build/outputs/apk -type f -name '*.apk' | grep -Ei 'arm64|v8a' | grep -Ei 'release' | head -1 || true)
           if [ -z "$APK" ]; then
             APK=$(find upstream/app/build/outputs/apk -type f -name '*.apk' | grep -Ei 'release' | head -1 || true)
           fi
           test -n "$APK"
-          unzip -t "$APK"
+          unzip -t "$APK" | tee insave-build/insave-build-status/zip-test.log
           unzip -l "$APK" | grep -q 'lib/arm64-v8a/'
           if unzip -l "$APK" | grep -Eq 'lib/(x86|x86_64|armeabi-v7a)/'; then
             echo 'Unexpected non-ARM64 native libraries' >&2
@@ -109,9 +138,12 @@ jobs:
           fi
           cp "$APK" InSave-v0.16.0-RC-arm64.apk
           sha256sum InSave-v0.16.0-RC-arm64.apk | tee InSave-v0.16.0-RC-arm64.sha256
+          cp InSave-v0.16.0-RC-arm64.sha256 insave-build/insave-build-status/
+          echo 'apk_verify=pass' >> insave-build/insave-build-status/status.txt
           ls -lh InSave-v0.16.0-RC-arm64.apk
 
       - name: Upload Actions artifact
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: InSave-v0.16.0-RC-arm64
@@ -121,15 +153,26 @@ jobs:
             InSave-v0.16.0-RC-arm64.apk
             InSave-v0.16.0-RC-arm64.sha256
 
-      - name: Publish APK back to isolated build branch
+      - name: Stage APK for branch publication
+        if: success()
         shell: bash
         run: |
-          set -euo pipefail
           mkdir -p insave-build/insave-artifacts
           cp InSave-v0.16.0-RC-arm64.apk insave-build/insave-artifacts/
           cp InSave-v0.16.0-RC-arm64.sha256 insave-build/insave-artifacts/
+          echo 'result=pass' >> insave-build/insave-build-status/status.txt
+
+      - name: Persist build status and APK on isolated branch
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo 'job_status=${{ job.status }}' >> insave-build/insave-build-status/status.txt
           git -C insave-build config user.name 'github-actions[bot]'
           git -C insave-build config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git -C insave-build add -- insave-artifacts/InSave-v0.16.0-RC-arm64.apk insave-artifacts/InSave-v0.16.0-RC-arm64.sha256
-          git -C insave-build commit -m 'artifact: InSave v0.16.0-RC arm64 APK'
+          git -C insave-build add -- insave-build-status insave-artifacts 2>/dev/null || git -C insave-build add -- insave-build-status
+          if git -C insave-build diff --cached --quiet; then
+            exit 0
+          fi
+          git -C insave-build commit -m 'ci: persist InSave Android build result'
           git -C insave-build push origin HEAD:build/insave-v0.16.0-rc
