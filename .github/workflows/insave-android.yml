@@ -45,11 +45,17 @@ jobs:
           java-version: '17'
           cache: gradle
 
+      - name: Bootstrap upstream Android CI requirements
+        shell: bash
+        run: |
+          chmod +x upstream/gradlew
+          touch upstream/local.properties
+          touch upstream/keystore.properties
+
       - name: Apply InSave hub and release identity
         shell: bash
         run: |
           set -euo pipefail
-          chmod +x upstream/gradlew
           mkdir -p upstream/app/src/main/java/com/deniscerri/ytdl/insave
           cp insave-build/insave-build/InSaveHubActivity.kt upstream/app/src/main/java/com/deniscerri/ytdl/insave/InSaveHubActivity.kt
           python3 - <<'PY'
