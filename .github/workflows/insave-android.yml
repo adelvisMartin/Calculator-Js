@@ -49,6 +49,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          chmod +x upstream/gradlew
           mkdir -p upstream/app/src/main/java/com/deniscerri/ytdl/insave
           cp insave-build/insave-build/InSaveHubActivity.kt upstream/app/src/main/java/com/deniscerri/ytdl/insave/InSaveHubActivity.kt
           python3 - <<'PY'
