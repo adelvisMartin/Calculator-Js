@@ -1,3 +1,3 @@
-started_commit=b1940558d6d61ceb794d3cd96cb5eac7862035e5
+started_commit=69ce87d722620e2be72aba941d9b5d082f66063b
 overlay=pass
 job_status=failure
