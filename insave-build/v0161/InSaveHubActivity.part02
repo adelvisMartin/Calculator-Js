@@ -10,7 +10,7 @@
             .putBoolean("remember_download_type", false)
             .putString("preferred_download_type", DownloadType.audio.toString())
             .putString("audio_format", "mp3")
-            .putString("audio_bitrate", prefs.getString("audio_bitrate", "320").orEmpty().ifBlank { "320" })
+            .putString("audio_bitrate", prefs.getString("audio_bitrate", "320K").orEmpty().ifBlank { "320K" })
             .putBoolean("insave_loudness_boost", prefs.getBoolean("insave_loudness_boost", true))
             .apply()
     }
@@ -94,11 +94,11 @@
 
             addView(label("Calidad MP3"))
             val bitrateGroup = ChipGroup(this@InSaveHubActivity).apply { isSingleSelection = true }
-            listOf("320", "256", "192").forEach { value ->
+            listOf("320K", "256K", "192K").forEach { value ->
                 bitrateGroup.addView(Chip(this@InSaveHubActivity).apply {
-                    text = "$value kbps"
+                    text = "${value.removeSuffix("K")} kbps"
                     isCheckable = true
-                    isChecked = prefs.getString("audio_bitrate", "320") == value
+                    isChecked = prefs.getString("audio_bitrate", "320K") == value
                     setOnClickListener { prefs.edit().putString("audio_bitrate", value).apply() }
                 })
             }
