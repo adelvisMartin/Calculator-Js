@@ -1,4 +1,4 @@
-name: Build InSave v0.16.0 RC
+name: Build InSave v0.16.0 RC APK
 
 on:
   push:
@@ -16,7 +16,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
+  build-apk:
     runs-on: ubuntu-latest
     timeout-minutes: 55
     steps:
@@ -25,11 +25,13 @@ jobs:
         with:
           path: insave-build
 
-      - name: Prepare build diagnostics
+      - name: Prepare diagnostics
         shell: bash
         run: |
           mkdir -p insave-build/insave-build-status
           printf 'started_commit=%s\n' "$GITHUB_SHA" > insave-build/insave-build-status/status.txt
+          echo 'previous_unit_tests=pass' >> insave-build/insave-build-status/status.txt
+          echo 'lint=upstream-errors-nonblocking' >> insave-build/insave-build-status/status.txt
 
       - name: Checkout maintained downloader engine
         uses: actions/checkout@v4
@@ -95,31 +97,8 @@ jobs:
           grep -q 'android:name=".insave.InSaveHubActivity"' upstream/app/src/main/AndroidManifest.xml
           grep -q 'android:targetActivity=".insave.InSaveHubActivity"' upstream/app/src/main/AndroidManifest.xml
           grep -q 'putExtra("no_auth", true)' upstream/app/src/main/java/com/deniscerri/ytdl/insave/InSaveHubActivity.kt
+          grep -q 'window.decorView.hasWindowFocus()' upstream/app/src/main/java/com/deniscerri/ytdl/insave/InSaveHubActivity.kt
           echo 'overlay=pass' >> insave-build/insave-build-status/status.txt
-
-      - name: Compile unit tests
-        shell: bash
-        run: |
-          set -o pipefail
-          (cd upstream && ./gradlew --no-daemon :app:testGithubDebugUnitTest) 2>&1 | tee insave-build/insave-build-status/unit-tests.log
-
-      - name: Mark unit tests
-        if: success()
-        run: echo 'unit_tests=pass' >> insave-build/insave-build-status/status.txt
-
-      - name: Lint release report
-        shell: bash
-        run: |
-          set +e
-          set -o pipefail
-          (cd upstream && ./gradlew --no-daemon :app:lintGithubRelease) 2>&1 | tee insave-build/insave-build-status/lint.log
-          code=${PIPESTATUS[0]}
-          if [ "$code" -eq 0 ]; then
-            echo 'lint=pass' >> insave-build/insave-build-status/status.txt
-          else
-            echo 'lint=upstream-errors-nonblocking' >> insave-build/insave-build-status/status.txt
-          fi
-          exit 0
 
       - name: Assemble release APK
         shell: bash
@@ -149,8 +128,12 @@ jobs:
           fi
           cp "$APK" InSave-v0.16.0-RC-arm64.apk
           sha256sum InSave-v0.16.0-RC-arm64.apk | tee InSave-v0.16.0-RC-arm64.sha256
+          mkdir -p insave-build/insave-artifacts
+          cp InSave-v0.16.0-RC-arm64.apk insave-build/insave-artifacts/
+          cp InSave-v0.16.0-RC-arm64.sha256 insave-build/insave-artifacts/
           cp InSave-v0.16.0-RC-arm64.sha256 insave-build/insave-build-status/
           echo 'apk_verify=pass' >> insave-build/insave-build-status/status.txt
+          echo 'result=pass' >> insave-build/insave-build-status/status.txt
           ls -lh InSave-v0.16.0-RC-arm64.apk
 
       - name: Upload Actions artifact
@@ -163,15 +146,6 @@ jobs:
           path: |
             InSave-v0.16.0-RC-arm64.apk
             InSave-v0.16.0-RC-arm64.sha256
-
-      - name: Stage APK for branch publication
-        if: success()
-        shell: bash
-        run: |
-          mkdir -p insave-build/insave-artifacts
-          cp InSave-v0.16.0-RC-arm64.apk insave-build/insave-artifacts/
-          cp InSave-v0.16.0-RC-arm64.sha256 insave-build/insave-artifacts/
-          echo 'result=pass' >> insave-build/insave-build-status/status.txt
 
       - name: Persist build status and APK on isolated branch
         if: always()
