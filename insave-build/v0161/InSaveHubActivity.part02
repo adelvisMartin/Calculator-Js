@@ -1,0 +1,140 @@
+
+    private fun applyInSaveDefaults() {
+        prefs.edit()
+            .putBoolean("insave_brand_initialized", true)
+            .putString("theme_accent", "purple")
+            .putString("ytdlnis_theme", "Dark")
+            .putString("search_engine", "ytsearch")
+            .putString("formats_source", "yt-dlp")
+            .putBoolean("download_card", true)
+            .putBoolean("remember_download_type", false)
+            .putString("preferred_download_type", DownloadType.audio.toString())
+            .putString("audio_format", "mp3")
+            .putString("audio_bitrate", prefs.getString("audio_bitrate", "320").orEmpty().ifBlank { "320" })
+            .putBoolean("insave_loudness_boost", prefs.getBoolean("insave_loudness_boost", true))
+            .apply()
+    }
+
+    private fun buildShell() {
+        val root = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setBackgroundColor(BG)
+        }
+        contentHost = FrameLayout(this).apply { setBackgroundColor(BG) }
+        root.addView(contentHost, LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f
+        ))
+        bottomNav = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER
+            setPadding(dp(4), dp(4), dp(4), dp(6))
+            setBackgroundColor(NAV_BG)
+        }
+        root.addView(bottomNav, LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT, dp(72)
+        ))
+        setContentView(root)
+        showTab(InSaveTab.HOME)
+    }
+
+    private fun showTab(tab: InSaveTab) {
+        currentTab = tab
+        contentHost.removeAllViews()
+        contentHost.addView(when (tab) {
+            InSaveTab.HOME -> buildHomeView()
+            InSaveTab.STATUSES -> buildStatusesView()
+            InSaveTab.DOWNLOADS -> buildDownloadsView()
+            InSaveTab.FOLLOWERS -> buildFollowersView()
+            InSaveTab.SETTINGS -> buildSettingsView()
+        })
+        rebuildBottomNav()
+    }
+
+    private fun rebuildBottomNav() {
+        bottomNav.removeAllViews()
+        listOf(
+            Triple(InSaveTab.HOME, "⌂", "Inicio"),
+            Triple(InSaveTab.STATUSES, "◫", "Estados"),
+            Triple(InSaveTab.DOWNLOADS, "↓", "Descargas"),
+            Triple(InSaveTab.FOLLOWERS, "◎", "Seguidores"),
+            Triple(InSaveTab.SETTINGS, "⚙", "Ajustes"),
+        ).forEach { (tab, icon, label) ->
+            bottomNav.addView(TextView(this).apply {
+                text = "$icon\n$label"
+                gravity = Gravity.CENTER
+                textSize = 11.5f
+                setTextColor(if (currentTab == tab) ACCENT_SOFT else MUTED)
+                typeface = if (currentTab == tab) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
+                setOnClickListener { showTab(tab) }
+            }, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f))
+        }
+    }
+
+    private fun buildHomeView(): View {
+        val root = verticalPage()
+        root.addView(appTitle("InSave", "Descarga música primero. Video cuando lo necesites."))
+
+        root.addView(card().apply {
+            addView(sectionTitle("Descargar música"))
+            addView(body("MP3 es el modo principal. Las búsquedas, selecciones múltiples y playlists usarán Audio por defecto."))
+            urlInput = EditText(this@InSaveHubActivity).apply {
+                hint = "Pega un enlace de YouTube, Instagram, Facebook o TikTok"
+                setHintTextColor(MUTED)
+                setTextColor(TEXT)
+                textSize = 14f
+                minHeight = dp(58)
+                backgroundTintList = ColorStateList.valueOf(ACCENT)
+                setPadding(dp(10), dp(8), dp(10), dp(8))
+            }
+            addView(urlInput)
+            addView(horizontalButtons(
+                smallButton("Pegar") { pasteIntoUrl() },
+                smallButton("Analizar") { openUrlAs(DownloadType.audio) }
+            ))
+
+            addView(label("Calidad MP3"))
+            val bitrateGroup = ChipGroup(this@InSaveHubActivity).apply { isSingleSelection = true }
+            listOf("320", "256", "192").forEach { value ->
+                bitrateGroup.addView(Chip(this@InSaveHubActivity).apply {
+                    text = "$value kbps"
+                    isCheckable = true
+                    isChecked = prefs.getString("audio_bitrate", "320") == value
+                    setOnClickListener { prefs.edit().putString("audio_bitrate", value).apply() }
+                })
+            }
+            addView(bitrateGroup)
+
+            val boost = MaterialSwitch(this@InSaveHubActivity).apply {
+                text = "Volumen reforzado · sin clipping"
+                setTextColor(TEXT)
+                isChecked = prefs.getBoolean("insave_loudness_boost", true)
+                setOnCheckedChangeListener { _, checked ->
+                    prefs.edit().putBoolean("insave_loudness_boost", checked).apply()
+                }
+            }
+            addView(boost)
+            addView(primaryButton("Descargar MP3") { openUrlAs(DownloadType.audio) })
+            addView(secondaryButton("Buscar música / lista MP3") { openAudioSearch() })
+        })
+
+        root.addView(card().apply {
+            addView(sectionTitle("Video"))
+            addView(body("Se mantiene MP4 y el resto de formatos, pero ya no es la prioridad de InSave."))
+            addView(secondaryButton("Descargar video") { openUrlAs(DownloadType.video) })
+            addView(secondaryButton("Buscar videos") { openDownloader(DownloadType.video) })
+        })
+
+        root.addView(card().apply {
+            addView(sectionTitle("YouTube"))
+            addView(body("InSave intenta contenido público sin sesión. Solo usa el reparador si YouTube devuelve un reto PO/BotGuard."))
+            addView(secondaryButton("Reparar YouTube sin login") { generatePoTokenNoLogin() })
+        })
+
+        val scroll = ScrollView(this).apply { addView(root) }
+        consumeIncomingIntent(intent)
+        return scroll
+    }
+
+    private fun buildStatusesView(): View {
+        val root = verticalPage()
+        root.addView(appTitle("Estados de WhatsApp", "Previsualiza primero y guarda cada estado dentro de InSave."))
