@@ -1,12 +1,15 @@
 name: Build InSave v0.16.0 RC
 
 on:
-  pull_request:
-    branches: [ main ]
+  push:
+    branches: [ build/insave-v0.16.0-rc ]
+    paths:
+      - '.github/workflows/insave-android.yml'
+      - 'insave-build/InSaveHubActivity.kt'
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -108,7 +111,7 @@ jobs:
           sha256sum InSave-v0.16.0-RC-arm64.apk | tee InSave-v0.16.0-RC-arm64.sha256
           ls -lh InSave-v0.16.0-RC-arm64.apk
 
-      - name: Upload installable APK
+      - name: Upload Actions artifact
         uses: actions/upload-artifact@v4
         with:
           name: InSave-v0.16.0-RC-arm64
@@ -117,3 +120,16 @@ jobs:
           path: |
             InSave-v0.16.0-RC-arm64.apk
             InSave-v0.16.0-RC-arm64.sha256
+
+      - name: Publish APK back to isolated build branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p insave-build/insave-artifacts
+          cp InSave-v0.16.0-RC-arm64.apk insave-build/insave-artifacts/
+          cp InSave-v0.16.0-RC-arm64.sha256 insave-build/insave-artifacts/
+          git -C insave-build config user.name 'github-actions[bot]'
+          git -C insave-build config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git -C insave-build add -- insave-artifacts/InSave-v0.16.0-RC-arm64.apk insave-artifacts/InSave-v0.16.0-RC-arm64.sha256
+          git -C insave-build commit -m 'artifact: InSave v0.16.0-RC arm64 APK'
+          git -C insave-build push origin HEAD:build/insave-v0.16.0-rc
