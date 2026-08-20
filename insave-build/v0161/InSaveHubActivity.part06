@@ -1,0 +1,140 @@
+        }.getOrDefault(mutableListOf())
+        current.removeAll { item -> item.clients.any { it.contains("web") } }
+        current += YoutubeGeneratePoTokenItem(
+            true,
+            mutableListOf("mweb"),
+            mutableListOf(
+                YoutubePoTokenItem("gvs", streaming),
+                YoutubePoTokenItem("player", player),
+                YoutubePoTokenItem("subs", if (subs.isBlank()) player else subs),
+            ),
+            visitorData,
+            visitorData.isNotBlank(),
+        )
+        prefs.edit().putString("youtube_generated_po_tokens", Gson().toJson(current)).apply()
+        return true
+    }
+
+    private fun consumeIncomingIntent(intent: Intent?) {
+        if (!::urlInput.isInitialized || intent == null) return
+        val candidate = when (intent.action) {
+            Intent.ACTION_SEND -> intent.getStringExtra(Intent.EXTRA_TEXT)
+            Intent.ACTION_VIEW -> intent.dataString
+            else -> null
+        }
+        normalizeUrl(candidate.orEmpty())?.let {
+            urlInput.setText(it)
+            urlInput.setSelection(it.length)
+        }
+    }
+
+    private fun autoPasteUrlIfAllowed() {
+        if (!window.decorView.hasWindowFocus()) return
+        val manager = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+        val clip = manager.primaryClip ?: return
+        val description = manager.primaryClipDescription ?: return
+        if (!description.hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN) &&
+            !description.hasMimeType(ClipDescription.MIMETYPE_TEXT_URILIST)) return
+        val value = clip.getItemAt(0).coerceToText(this)?.toString().orEmpty()
+        normalizeUrl(value)?.let {
+            if (urlInput.text.toString() != it) {
+                urlInput.setText(it)
+                urlInput.setSelection(it.length)
+            }
+        }
+    }
+
+    private fun normalizeUrl(raw: String): String? {
+        val candidate = raw.trim().lineSequence().firstOrNull().orEmpty().trim()
+        if (candidate.isBlank()) return null
+        val uri = runCatching { Uri.parse(candidate) }.getOrNull() ?: return null
+        if (uri.scheme?.lowercase() !in setOf("http", "https") || uri.host.isNullOrBlank()) return null
+        return candidate
+    }
+
+    private fun statusKey(source: InSaveStatusSource): String = "insave_status_tree_${source.name.lowercase()}"
+
+    private fun mimeFromName(name: String): String? = when (name.substringAfterLast('.', "").lowercase()) {
+        "jpg", "jpeg" -> "image/jpeg"
+        "png" -> "image/png"
+        "webp" -> "image/webp"
+        "heic", "heif" -> "image/heic"
+        "mp4" -> "video/mp4"
+        "webm" -> "video/webm"
+        "mkv" -> "video/x-matroska"
+        "mov" -> "video/quicktime"
+        "3gp" -> "video/3gpp"
+        else -> null
+    }
+
+    private fun readText(uri: Uri): String? = runCatching {
+        contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() }
+    }.getOrNull()
+
+    private fun maybeAnalyzeFollowers() {
+        if (followersJson == null || followingJson == null) return
+        val report = runCatching { analyzeInstagram(followersJson!!, followingJson!!) }.getOrElse {
+            toast("No pude interpretar esos archivos de Instagram.")
+            return
+        }
+        showFollowersReport(report)
+    }
+
+    private fun analyzeInstagram(followersRaw: String, followingRaw: String): InSaveFollowersReport {
+        val followers = collectUsernames(followersRaw).toSet()
+        val following = collectUsernames(followingRaw).toSet()
+        return InSaveFollowersReport(
+            followers,
+            following,
+            followers intersect following,
+            following - followers,
+            followers - following,
+        )
+    }
+
+    private fun collectUsernames(raw: String): List<String> {
+        val out = linkedSetOf<String>()
+        fun canonical(value: String): String? {
+            var v = value.trim()
+            if (v.isEmpty()) return null
+            v = v.substringAfterLast("instagram.com/", v).substringBefore('?').substringBefore('/').removePrefix("@").trim()
+            if (!Regex("^[A-Za-z0-9._]{1,30}$").matches(v)) return null
+            return v.lowercase()
+        }
+        fun walk(value: Any?) {
+            when (value) {
+                is JSONObject -> value.keys().forEach { key ->
+                    if (key == "value" || key == "title" || key == "href") canonical(value.optString(key))?.let(out::add)
+                    walk(value.opt(key))
+                }
+                is JSONArray -> for (i in 0 until value.length()) walk(value.opt(i))
+            }
+        }
+        val trimmed = raw.trim()
+        if (trimmed.startsWith("[")) walk(JSONArray(trimmed)) else if (trimmed.startsWith("{")) walk(JSONObject(trimmed))
+        return out.toList()
+    }
+
+    private fun showFollowersReport(report: InSaveFollowersReport) {
+        val text = buildString {
+            appendLine("Seguidores: ${report.followers.size}")
+            appendLine("Siguiendo: ${report.following.size}")
+            appendLine("Mutuos: ${report.mutuals.size}")
+            appendLine("No te siguen de vuelta: ${report.notFollowingBack.size}")
+            appendLine("Tú no sigues de vuelta: ${report.youDoNotFollowBack.size}")
+            appendLine()
+            appendLine("NO TE SIGUEN DE VUELTA")
+            report.notFollowingBack.sorted().take(500).forEach { appendLine("@$it") }
+            appendLine()
+            appendLine("TÚ NO SIGUES DE VUELTA")
+            report.youDoNotFollowBack.sorted().take(500).forEach { appendLine("@$it") }
+        }
+        val content = TextView(this).apply {
+            setText(text)
+            setTextColor(TEXT)
+            textSize = 14f
+            setPadding(dp(20), dp(12), dp(20), dp(12))
+            setTextIsSelectable(true)
+        }
+        AlertDialog.Builder(this)
+            .setTitle("Seguidores de Instagram")
