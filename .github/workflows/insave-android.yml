@@ -1,0 +1,119 @@
+name: Build InSave v0.16.0 RC
+
+on:
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - name: Checkout build overlay
+        uses: actions/checkout@v4
+        with:
+          path: insave-build
+
+      - name: Checkout maintained downloader engine
+        uses: actions/checkout@v4
+        with:
+          repository: deniscerri/ytdlnis
+          ref: c6084ed4f110efd4ba0c3f82bb16723b6529c8f0
+          path: upstream
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Apply InSave hub and release identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p upstream/app/src/main/java/com/deniscerri/ytdl/insave
+          cp insave-build/insave-build/InSaveHubActivity.kt upstream/app/src/main/java/com/deniscerri/ytdl/insave/InSaveHubActivity.kt
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          build = Path('upstream/app/build.gradle')
+          s = build.read_text()
+          s = s.replace('applicationId "com.deniscerri.ytdl"', 'applicationId "com.adelvis.insave.rc"')
+          s = s.replace('versionCode versionMajor * 1000000 + versionMinor * 10000 + versionPatch * 100 + versionBuild', 'versionCode 16001')
+          s = s.replace('versionName "${versionMajor}.${versionMinor}.${versionPatch}${versionExt}"', 'versionName "0.16.0-RC"')
+          s = s.replace('archivesBaseName = "YTDLnis-$versionName"', 'archivesBaseName = "InSave-0.16.0-RC"')
+          s = s.replace("include 'x86', 'x86_64', 'armeabi-v7a', 'arm64-v8a'", "include 'arm64-v8a'")
+          build.write_text(s)
+
+          strings = Path('upstream/app/src/main/res/values/strings.xml')
+          t = strings.read_text()
+          t = re.sub(r'<string name="app_name">.*?</string>', '<string name="app_name">InSave</string>', t, count=1)
+          strings.write_text(t)
+
+          theme = Path('upstream/app/src/main/java/com/deniscerri/ytdl/util/ThemeUtil.kt')
+          theme.write_text(theme.read_text().replace('>YTDL</span>nis', '>In</span>Save'))
+
+          manifest = Path('upstream/app/src/main/AndroidManifest.xml')
+          m = manifest.read_text()
+          m = m.replace('android:label="YTDLnis"', 'android:label="InSave"', 1)
+          marker = '        <activity\n            android:name=".MainActivity"'
+          insert = '        <activity\n            android:name=".insave.InSaveHubActivity"\n            android:exported="true"\n            android:launchMode="singleTask"\n            android:theme="@style/BaseTheme" />\n\n        <activity\n            android:name=".MainActivity"'
+          if marker not in m:
+              raise SystemExit('MainActivity marker missing')
+          m = m.replace(marker, insert, 1)
+          m = m.replace('android:targetActivity=".MainActivity"', 'android:targetActivity=".insave.InSaveHubActivity"')
+          manifest.write_text(m)
+          PY
+          grep -q 'applicationId "com.adelvis.insave.rc"' upstream/app/build.gradle
+          grep -q 'versionName "0.16.0-RC"' upstream/app/build.gradle
+          grep -q 'android:name=".insave.InSaveHubActivity"' upstream/app/src/main/AndroidManifest.xml
+          grep -q 'android:targetActivity=".insave.InSaveHubActivity"' upstream/app/src/main/AndroidManifest.xml
+          grep -q 'putExtra("no_auth", true)' upstream/app/src/main/java/com/deniscerri/ytdl/insave/InSaveHubActivity.kt
+
+      - name: Compile unit tests
+        working-directory: upstream
+        run: ./gradlew --no-daemon :app:testGithubDebugUnitTest
+
+      - name: Lint release
+        working-directory: upstream
+        run: ./gradlew --no-daemon :app:lintGithubRelease
+
+      - name: Assemble release APK
+        working-directory: upstream
+        run: ./gradlew --no-daemon :app:assembleGithubRelease
+
+      - name: Verify ARM64 APK and checksum
+        shell: bash
+        run: |
+          set -euo pipefail
+          find upstream/app/build/outputs/apk -type f -name '*.apk' -print
+          APK=$(find upstream/app/build/outputs/apk -type f -name '*.apk' | grep -Ei 'arm64|v8a' | grep -Ei 'release' | head -1 || true)
+          if [ -z "$APK" ]; then
+            APK=$(find upstream/app/build/outputs/apk -type f -name '*.apk' | grep -Ei 'release' | head -1 || true)
+          fi
+          test -n "$APK"
+          unzip -t "$APK"
+          unzip -l "$APK" | grep -q 'lib/arm64-v8a/'
+          if unzip -l "$APK" | grep -Eq 'lib/(x86|x86_64|armeabi-v7a)/'; then
+            echo 'Unexpected non-ARM64 native libraries' >&2
+            exit 1
+          fi
+          cp "$APK" InSave-v0.16.0-RC-arm64.apk
+          sha256sum InSave-v0.16.0-RC-arm64.apk | tee InSave-v0.16.0-RC-arm64.sha256
+          ls -lh InSave-v0.16.0-RC-arm64.apk
+
+      - name: Upload installable APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: InSave-v0.16.0-RC-arm64
+          if-no-files-found: error
+          retention-days: 7
+          path: |
+            InSave-v0.16.0-RC-arm64.apk
+            InSave-v0.16.0-RC-arm64.sha256
