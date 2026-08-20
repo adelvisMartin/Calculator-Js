@@ -99,7 +99,7 @@
         root.addView(appTitle("Ajustes", "Preferencias principales de InSave."))
         root.addView(card().apply {
             addView(sectionTitle("Audio"))
-            addView(body("Predeterminado actual: MP3 · ${prefs.getString("audio_bitrate", "320").orEmpty().ifBlank { "320" }} kbps"))
+            addView(body("Predeterminado actual: MP3 · ${prefs.getString("audio_bitrate", "320K").orEmpty().ifBlank { "320K" }.removeSuffix("K") } kbps"))
             val boost = MaterialSwitch(this@InSaveHubActivity).apply {
                 text = "Volumen reforzado · loudness protegido"
                 setTextColor(TEXT)
