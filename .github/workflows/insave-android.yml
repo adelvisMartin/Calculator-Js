@@ -1,18 +1,18 @@
-name: Build InSave v0.16.0 RC APK
+name: Build InSave v0.16.1 RC APK
 
 on:
   push:
-    branches: [ build/insave-v0.16.0-rc ]
+    branches: [ build/insave-v0.16.1-rc ]
     paths:
       - '.github/workflows/insave-android.yml'
-      - 'insave-build/InSaveHubActivity.kt'
+      - 'insave-build/v0161/**'
   workflow_dispatch:
 
 permissions:
   contents: write
 
 concurrency:
-  group: insave-v0.16.0-rc-build
+  group: insave-v0.16.1-rc-build
   cancel-in-progress: true
 
 jobs:
@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 55
     steps:
-      - name: Checkout build overlay
+      - name: Checkout InSave overlay
         uses: actions/checkout@v4
         with:
           path: insave-build
@@ -28,12 +28,11 @@ jobs:
       - name: Prepare diagnostics
         shell: bash
         run: |
-          mkdir -p insave-build/insave-build-status
-          printf 'started_commit=%s\n' "$GITHUB_SHA" > insave-build/insave-build-status/status.txt
-          printf 'run_id=%s\n' "$GITHUB_RUN_ID" >> insave-build/insave-build-status/status.txt
-          printf 'run_attempt=%s\n' "$GITHUB_RUN_ATTEMPT" >> insave-build/insave-build-status/status.txt
-          echo 'previous_unit_tests=pass' >> insave-build/insave-build-status/status.txt
-          echo 'lint=upstream-errors-nonblocking' >> insave-build/insave-build-status/status.txt
+          mkdir -p insave-build/insave-build-status-v0161
+          printf 'started_commit=%s\n' "$GITHUB_SHA" > insave-build/insave-build-status-v0161/status.txt
+          printf 'run_id=%s\n' "$GITHUB_RUN_ID" >> insave-build/insave-build-status-v0161/status.txt
+          printf 'run_attempt=%s\n' "$GITHUB_RUN_ATTEMPT" >> insave-build/insave-build-status-v0161/status.txt
+          echo 'target=InSave-v0.16.1-RC-arm64' >> insave-build/insave-build-status-v0161/status.txt
 
       - name: Checkout maintained downloader engine
         uses: actions/checkout@v4
@@ -49,19 +48,30 @@ jobs:
           java-version: '17'
           cache: gradle
 
-      - name: Bootstrap upstream Android CI requirements
+      - name: Bootstrap upstream Android CI
         shell: bash
         run: |
           chmod +x upstream/gradlew
           touch upstream/local.properties
           touch upstream/keystore.properties
 
-      - name: Apply InSave hub and release identity
+      - name: Assemble InSave v0.16.1 source overlay
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p upstream/app/src/main/java/com/deniscerri/ytdl/insave
-          cp insave-build/insave-build/InSaveHubActivity.kt upstream/app/src/main/java/com/deniscerri/ytdl/insave/InSaveHubActivity.kt
+          cat insave-build/insave-build/v0161/InSaveHubActivity.part* > upstream/app/src/main/java/com/deniscerri/ytdl/insave/InSaveHubActivity.kt
+          test $(find insave-build/insave-build/v0161 -name 'InSaveHubActivity.part*' | wc -l) -eq 7
+          grep -q 'Triple(InSaveTab.STATUSES' upstream/app/src/main/java/com/deniscerri/ytdl/insave/InSaveHubActivity.kt
+          grep -q 'Buscar música / lista MP3' upstream/app/src/main/java/com/deniscerri/ytdl/insave/InSaveHubActivity.kt
+          grep -q 'Conectar una sola vez' upstream/app/src/main/java/com/deniscerri/ytdl/insave/InSaveHubActivity.kt
+          grep -q 'audio_bitrate.*, "320K"' upstream/app/src/main/java/com/deniscerri/ytdl/insave/InSaveHubActivity.kt
+          echo 'source_overlay=pass' >> insave-build/insave-build-status-v0161/status.txt
+
+      - name: Apply InSave identity and audio policy
+        shell: bash
+        run: |
+          set -euo pipefail
           python3 - <<'PY'
           from pathlib import Path
           import re
@@ -69,9 +79,9 @@ jobs:
           build = Path('upstream/app/build.gradle')
           s = build.read_text()
           s = s.replace('applicationId "com.deniscerri.ytdl"', 'applicationId "com.adelvis.insave.rc"')
-          s = s.replace('versionCode versionMajor * 1000000 + versionMinor * 10000 + versionPatch * 100 + versionBuild', 'versionCode 16001')
-          s = s.replace('versionName "${versionMajor}.${versionMinor}.${versionPatch}${versionExt}"', 'versionName "0.16.0-RC"')
-          s = s.replace('archivesBaseName = "YTDLnis-$versionName"', 'archivesBaseName = "InSave-0.16.0-RC"')
+          s = s.replace('versionCode versionMajor * 1000000 + versionMinor * 10000 + versionPatch * 100 + versionBuild', 'versionCode 16002')
+          s = s.replace('versionName "${versionMajor}.${versionMinor}.${versionPatch}${versionExt}"', 'versionName "0.16.1-RC"')
+          s = s.replace('archivesBaseName = "YTDLnis-$versionName"', 'archivesBaseName = "InSave-0.16.1-RC"')
           s = s.replace("include 'x86', 'x86_64', 'armeabi-v7a', 'arm64-v8a'", "include 'arm64-v8a'")
           build.write_text(s)
 
@@ -93,71 +103,91 @@ jobs:
           m = m.replace(marker, insert, 1)
           m = m.replace('android:targetActivity=".MainActivity"', 'android:targetActivity=".insave.InSaveHubActivity"')
           manifest.write_text(m)
+
+          ytdlp = Path('upstream/app/src/main/java/com/deniscerri/ytdl/util/extractors/ytdlp/YTDLPUtil.kt')
+          y = ytdlp.read_text()
+          needle = '''                if (downloadItem.audioPreferences.bitrate.isNotBlank()) {
+                    request.addOption("--audio-quality", downloadItem.audioPreferences.bitrate)
+                }
+'''
+          replacement = needle + '''
+                if (sharedPreferences.getBoolean("insave_loudness_boost", false)) {
+                    request.addOption("--ppa", "ExtractAudio+ffmpeg_o:-af loudnorm=I=-11:LRA=7:TP=-1.0")
+                }
+'''
+          if needle not in y:
+              raise SystemExit('Audio bitrate insertion point missing')
+          ytdlp.write_text(y.replace(needle, replacement, 1))
           PY
           grep -q 'applicationId "com.adelvis.insave.rc"' upstream/app/build.gradle
-          grep -q 'versionName "0.16.0-RC"' upstream/app/build.gradle
+          grep -q 'versionCode 16002' upstream/app/build.gradle
+          grep -q 'versionName "0.16.1-RC"' upstream/app/build.gradle
           grep -q 'android:name=".insave.InSaveHubActivity"' upstream/app/src/main/AndroidManifest.xml
           grep -q 'android:targetActivity=".insave.InSaveHubActivity"' upstream/app/src/main/AndroidManifest.xml
-          grep -q 'putExtra("no_auth", true)' upstream/app/src/main/java/com/deniscerri/ytdl/insave/InSaveHubActivity.kt
-          grep -q 'window.decorView.hasWindowFocus()' upstream/app/src/main/java/com/deniscerri/ytdl/insave/InSaveHubActivity.kt
-          echo 'overlay=pass' >> insave-build/insave-build-status/status.txt
+          grep -q 'insave_loudness_boost' upstream/app/src/main/java/com/deniscerri/ytdl/util/extractors/ytdlp/YTDLPUtil.kt
+          grep -q 'loudnorm=I=-11:LRA=7:TP=-1.0' upstream/app/src/main/java/com/deniscerri/ytdl/util/extractors/ytdlp/YTDLPUtil.kt
+          echo 'identity_audio_policy=pass' >> insave-build/insave-build-status-v0161/status.txt
+
+      - name: Compile unit tests
+        shell: bash
+        run: |
+          set -o pipefail
+          (cd upstream && ./gradlew --no-daemon :app:testGithubDebugUnitTest) 2>&1 | tee insave-build/insave-build-status-v0161/unit-tests.log
+
+      - name: Mark unit tests
+        if: success()
+        run: echo 'unit_tests=pass' >> insave-build/insave-build-status-v0161/status.txt
 
       - name: Assemble release APK
         shell: bash
         run: |
           set -o pipefail
-          (cd upstream && ./gradlew --no-daemon :app:assembleGithubRelease) 2>&1 | tee insave-build/insave-build-status/assemble.log
+          (cd upstream && ./gradlew --no-daemon :app:assembleGithubRelease) 2>&1 | tee insave-build/insave-build-status-v0161/assemble.log
 
       - name: Mark assemble
         if: success()
-        run: echo 'assemble=pass' >> insave-build/insave-build-status/status.txt
+        run: echo 'assemble=pass' >> insave-build/insave-build-status-v0161/status.txt
 
       - name: Verify ARM64 APK and checksum
         shell: bash
         run: |
           set -euo pipefail
-          find upstream/app/build/outputs/apk -type f -name '*.apk' -print | tee insave-build/insave-build-status/apks.txt
+          find upstream/app/build/outputs/apk -type f -name '*.apk' -print | tee insave-build/insave-build-status-v0161/apks.txt
           APK=$(find upstream/app/build/outputs/apk -type f -name '*.apk' | grep -Ei 'arm64|v8a' | grep -Ei 'release' | head -1 || true)
-          if [ -z "$APK" ]; then
-            APK=$(find upstream/app/build/outputs/apk -type f -name '*.apk' | grep -Ei 'release' | head -1 || true)
-          fi
           test -n "$APK"
-          unzip -t "$APK" | tee insave-build/insave-build-status/zip-test.log
+          unzip -t "$APK" | tee insave-build/insave-build-status-v0161/zip-test.log
           unzip -l "$APK" | grep -q 'lib/arm64-v8a/'
           if unzip -l "$APK" | grep -Eq 'lib/(x86|x86_64|armeabi-v7a)/'; then
             echo 'Unexpected non-ARM64 native libraries' >&2
             exit 1
           fi
-          cp "$APK" InSave-v0.16.0-RC-arm64.apk
-          sha256sum InSave-v0.16.0-RC-arm64.apk | tee InSave-v0.16.0-RC-arm64.sha256
-          cp InSave-v0.16.0-RC-arm64.sha256 insave-build/insave-build-status/
-          echo 'apk_verify=pass' >> insave-build/insave-build-status/status.txt
-          echo 'result=pass' >> insave-build/insave-build-status/status.txt
-          ls -lh InSave-v0.16.0-RC-arm64.apk
+          cp "$APK" InSave-v0.16.1-RC-arm64.apk
+          sha256sum InSave-v0.16.1-RC-arm64.apk | tee InSave-v0.16.1-RC-arm64.sha256
+          cp InSave-v0.16.1-RC-arm64.sha256 insave-build/insave-build-status-v0161/
+          echo 'apk_verify=pass' >> insave-build/insave-build-status-v0161/status.txt
+          echo 'result=pass' >> insave-build/insave-build-status-v0161/status.txt
 
       - name: Upload installable APK artifact
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: InSave-v0.16.0-RC-arm64
+          name: InSave-v0.16.1-RC-arm64
           if-no-files-found: error
           retention-days: 7
           compression-level: 0
           path: |
-            InSave-v0.16.0-RC-arm64.apk
-            InSave-v0.16.0-RC-arm64.sha256
+            InSave-v0.16.1-RC-arm64.apk
+            InSave-v0.16.1-RC-arm64.sha256
 
-      - name: Persist build status on isolated branch
+      - name: Persist build status
         if: always()
         shell: bash
         run: |
           set -euo pipefail
-          echo 'job_status=${{ job.status }}' >> insave-build/insave-build-status/status.txt
+          echo 'job_status=${{ job.status }}' >> insave-build/insave-build-status-v0161/status.txt
           git -C insave-build config user.name 'github-actions[bot]'
           git -C insave-build config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git -C insave-build add -- insave-build-status
-          if git -C insave-build diff --cached --quiet; then
-            exit 0
-          fi
-          git -C insave-build commit -m 'ci: persist InSave Android build result'
-          git -C insave-build push origin HEAD:build/insave-v0.16.0-rc
+          git -C insave-build add -- insave-build-status-v0161
+          if git -C insave-build diff --cached --quiet; then exit 0; fi
+          git -C insave-build commit -m 'ci: persist InSave v0.16.1 Android build result'
+          git -C insave-build push origin HEAD:build/insave-v0.16.1-rc
