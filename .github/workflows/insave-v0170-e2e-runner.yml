@@ -4,6 +4,7 @@ on:
   push:
     branches: [ main ]
     paths: [ '.github/workflows/insave-v0170-e2e-runner.yml' ]
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -15,10 +16,10 @@ concurrency:
 jobs:
   android-p0:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 110
     steps:
       - name: Checkout recovery branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: recovery/insave-v0.17.0-lkg
           path: insave-build
@@ -32,7 +33,7 @@ jobs:
           printf 'run_id=%s\nrun_attempt=%s\nstate=e2e-running\ntarget=InSave-v0.17.0-Recovery-heavy\n' "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" > insave-build/insave-build-status-v0170/status.txt
 
       - name: Checkout maintained engine
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: deniscerri/ytdlnis
           ref: c6084ed4f110efd4ba0c3f82bb16723b6529c8f0
@@ -72,10 +73,15 @@ jobs:
           python3 -m py_compile insave-build/insave-build/v0170/apply_remote_fallback.py
           python3 insave-build/insave-build/v0170/apply_remote_fallback.py
 
+          # Playlist/Mix recovery: each selected entry remains an independent MP3 job.
+          cp insave-build/insave-build/v0170/InSavePlaylistPolicy.kt upstream/app/src/main/java/com/deniscerri/ytdl/insave/
+          python3 -m py_compile insave-build/insave-build/v0170/apply_playlist_mp3.py
+          python3 insave-build/insave-build/v0170/apply_playlist_mp3.py
+
           mkdir -p upstream/app/src/androidTest/java/com/deniscerri/ytdl/insave
           cp insave-build/insave-build/v0170/InSaveRecoveryInstrumentedTest.kt upstream/app/src/androidTest/java/com/deniscerri/ytdl/insave/
 
-          # Heavy/LKG runtime: align all youtubedl-android parts and deliberately preserve code/resources.
+          # Heavy/LKG runtime: align all youtubedl-android parts and preserve code/resources.
           python3 - <<'PY'
           from pathlib import Path
           p=Path('upstream/app/build.gradle')
@@ -96,9 +102,16 @@ jobs:
           grep -q 'resolveInSaveYoutubeAudioDirectUrl' upstream/app/src/main/java/com/deniscerri/ytdl/util/extractors/ytdlp/YTDLPUtil.kt
           grep -q 'InSaveCobaltResolver' upstream/app/src/main/java/com/deniscerri/ytdl/util/extractors/ytdlp/YTDLPUtil.kt
           grep -q 'inSaveCobalt.resolveAudio' upstream/app/src/main/java/com/deniscerri/ytdl/util/extractors/ytdlp/YTDLPUtil.kt
+          grep -q 'MAX_BATCH_ITEMS = 50' upstream/app/src/main/java/com/deniscerri/ytdl/insave/InSavePlaylistPolicy.kt
+          grep -q 'InSavePlaylistPolicy.applyMp3Preset' upstream/app/src/main/java/com/deniscerri/ytdl/database/viewmodel/DownloadViewModel.kt
+          grep -q 'putExtra("insave_query", query)' upstream/app/src/main/java/com/deniscerri/ytdl/insave/InSaveHubActivity.kt
+          grep -q 'request.addOption("--audio-format", "mp3")' upstream/app/src/main/java/com/deniscerri/ytdl/util/extractors/ytdlp/YTDLPUtil.kt
+          grep -q 'normalizedAudioBitrate' upstream/app/src/main/java/com/deniscerri/ytdl/util/extractors/ytdlp/YTDLPUtil.kt
+          grep -q 'fragment:exp=1:8' upstream/app/src/main/java/com/deniscerri/ytdl/util/extractors/ytdlp/YTDLPUtil.kt
           ! grep -R -q 'loudnorm=I=-11' upstream/app/src/main/java
           echo 'heavy_runtime_contract=pass' >> insave-build/insave-build-status-v0170/status.txt
           echo 'provider_c_contract=pass' >> insave-build/insave-build-status-v0170/status.txt
+          echo 'playlist_mp3_contract=pass' >> insave-build/insave-build-status-v0170/status.txt
 
       - name: Compile recovery and unit tests
         shell: bash
@@ -124,26 +137,39 @@ jobs:
           echo 'embedded_aria2c=pass' >> insave-build/insave-build-status-v0170/status.txt
           echo 'embedded_quickjs=pass' >> insave-build/insave-build-status-v0170/status.txt
 
+      - name: Enable KVM acceleration
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm || true
+          test -e /dev/kvm
+          sudo chmod 666 /dev/kvm
+          ls -l /dev/kvm
+          test -r /dev/kvm
+          test -w /dev/kvm
+          echo 'kvm_ready=pass' >> insave-build/insave-build-status-v0170/status.txt
+
       - name: Android API 35 functional gates
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 35
           arch: x86_64
           profile: pixel_6
+          cores: 2
+          ram-size: 3072M
+          disable-linux-hw-accel: false
           disable-animations: false
-          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
+          emulator-boot-timeout: 600
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -accel on
           script: |
             set -euo pipefail
             cd upstream
             adb wait-for-device
-            for i in $(seq 1 45); do
-              READY=$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r' || true)
-              [ "$READY" = "1" ] && break
-              sleep 2
-            done
             READY=$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r' || true)
             test "$READY" = "1"
-            sleep 15
+            sleep 5
 
             TARGET_APK=$(find app/build/outputs/apk/github/debug -name '*.apk' | head -1)
             test -n "$TARGET_APK"
@@ -166,6 +192,7 @@ jobs:
         run: |
           echo 'android_status_auto_e2e=pass' >> insave-build/insave-build-status-v0170/status.txt
           echo 'android_youtube_mp3_e2e=pass' >> insave-build/insave-build-status-v0170/status.txt
+          echo 'android_playlist_mp3_e2e=pass' >> insave-build/insave-build-status-v0170/status.txt
 
       - name: Apply heavy recovery identity
         shell: bash
