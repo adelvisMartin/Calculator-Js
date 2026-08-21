@@ -1,7 +1,4 @@
-run_id=32449834319
+run_id=32450758399
 run_attempt=1
-target=InSave-v0.17.0-Recovery-arm64
-source_contract=pass
-unit_tests=pass
-state=finished
-job_status=failure
+state=e2e-running
+target=InSave-v0.17.0-Recovery-heavy
