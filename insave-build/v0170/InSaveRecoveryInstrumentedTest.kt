@@ -6,6 +6,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.deniscerri.ytdl.core.RuntimeManager
 import com.deniscerri.ytdl.core.models.YTDLRequest
 import com.deniscerri.ytdl.util.extractors.newpipe.NewPipeUtil
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -33,8 +34,60 @@ class InSaveRecoveryInstrumentedTest {
     @Test
     fun publicYoutubeResolvesAndConvertsToMp3WithoutLogin() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        val youtubeUrl = "https://www.youtube.com/watch?v=BaW_jenozKc"
+        val directAudioUrl = resolveSignedPublicYoutubeAudio(context)
+        val outputDir = File(context.cacheDir, "insave-real-youtube-e2e").apply {
+            deleteRecursively()
+            mkdirs()
+        }
 
+        RuntimeManager.init(context)
+        val response = convertDirectAudioToMp3(
+            directAudioUrl = directAudioUrl,
+            outputDir = outputDir,
+            outputName = "insave-e2e",
+            processId = "insave-real-youtube-e2e",
+        )
+
+        val mp3 = outputDir.listFiles()?.firstOrNull { it.extension.equals("mp3", ignoreCase = true) }
+        assertTrue(
+            "yt-dlp/FFmpeg direct-stream conversion failed. stdout=${response.out.takeLast(1500)} stderr=${response.err.takeLast(1500)}",
+            mp3 != null && mp3.length() > 16_384
+        )
+        assertLooksLikeMp3(mp3!!)
+    }
+
+    @Test
+    fun selectedPlaylistEntriesConvertAsIndependent320kMp3Jobs() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val directAudioUrl = resolveSignedPublicYoutubeAudio(context)
+        val outputDir = File(context.cacheDir, "insave-playlist-mp3-e2e").apply {
+            deleteRecursively()
+            mkdirs()
+        }
+
+        RuntimeManager.init(context)
+        val created = (1..2).map { index ->
+            val name = "%03d - insave-playlist-e2e".format(index)
+            val response = convertDirectAudioToMp3(
+                directAudioUrl = directAudioUrl,
+                outputDir = outputDir,
+                outputName = name,
+                processId = "insave-playlist-e2e-$index",
+            )
+            val file = File(outputDir, "$name.mp3")
+            assertTrue(
+                "Independent playlist MP3 job $index failed. stdout=${response.out.takeLast(1200)} stderr=${response.err.takeLast(1200)}",
+                file.exists() && file.length() > 180_000
+            )
+            assertLooksLikeMp3(file)
+            file
+        }
+
+        assertEquals("Two selected entries must produce two independent MP3 files", 2, created.map { it.name }.distinct().size)
+    }
+
+    private fun resolveSignedPublicYoutubeAudio(context: Context): String {
+        val youtubeUrl = "https://www.youtube.com/watch?v=BaW_jenozKc"
         val formatsResult = NewPipeUtil(context).getFormats(youtubeUrl)
         assertTrue(
             "NewPipe/PO-token resolution failed: ${formatsResult.exceptionOrNull()?.message}",
@@ -49,36 +102,32 @@ class InSaveRecoveryInstrumentedTest {
             .maxByOrNull { bitrateNumber(it.tbr) }
 
         assertTrue("No signed direct audio stream was returned for public YouTube", audio?.url?.isNotBlank() == true)
+        return audio!!.url!!
+    }
 
-        val outputDir = File(context.cacheDir, "insave-real-youtube-e2e").apply {
-            deleteRecursively()
-            mkdirs()
-        }
-
-        RuntimeManager.init(context)
-        val request = YTDLRequest(audio!!.url!!)
+    private fun convertDirectAudioToMp3(
+        directAudioUrl: String,
+        outputDir: File,
+        outputName: String,
+        processId: String,
+    ) = RuntimeManager.execute(
+        request = YTDLRequest(directAudioUrl)
             .addOption("--no-playlist")
             .addOption("--force-overwrites")
+            .addOption("--retries", "10")
+            .addOption("--fragment-retries", "10")
             .addOption("-x")
             .addOption("--audio-format", "mp3")
-            .addOption("--audio-quality", "320k")
+            .addOption("--audio-quality", "320K")
             .addOption("-P", outputDir.absolutePath)
-            .addOption("-o", "insave-e2e.%(ext)s")
+            .addOption("-o", "$outputName.%(ext)s"),
+        processId = processId,
+        redirectErrorStream = true,
+        usingCacheDir = true,
+    )
 
-        val response = RuntimeManager.execute(
-            request = request,
-            processId = "insave-real-youtube-e2e",
-            redirectErrorStream = true,
-            usingCacheDir = true,
-        )
-
-        val mp3 = outputDir.listFiles()?.firstOrNull { it.extension.equals("mp3", ignoreCase = true) }
-        assertTrue(
-            "yt-dlp/FFmpeg direct-stream conversion failed. stdout=${response.out.takeLast(1500)} stderr=${response.err.takeLast(1500)}",
-            mp3 != null && mp3.length() > 16_384
-        )
-
-        val header = mp3!!.inputStream().use { stream -> ByteArray(12).also { stream.read(it) } }
+    private fun assertLooksLikeMp3(mp3: File) {
+        val header = mp3.inputStream().use { stream -> ByteArray(12).also { stream.read(it) } }
         val hasId3 = header.copyOfRange(0, 3).toString(Charsets.US_ASCII) == "ID3"
         val hasMp3Frame = (0 until (header.size - 1)).any { i: Int ->
             (header[i].toInt() and 0xFF) == 0xFF && (header[i + 1].toInt() and 0xE0) == 0xE0
