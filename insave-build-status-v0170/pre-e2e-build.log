@@ -151,40 +151,40 @@ Properties should be assigned using the 'propName = value' syntax. Setting a pro
 > Task :app:mergeGithubDebugResources
 > Task :app:processGithubDebugNavigationResources
 > Task :app:dataBindingGenBaseClassesGithubDebug
-> Task :app:mapGithubDebugSourceSetPaths
 > Task :app:compileGithubDebugNavigationResources
+> Task :app:mapGithubDebugSourceSetPaths
 > Task :app:createGithubDebugCompatibleScreenManifests
 > Task :app:extractDeepLinksGithubDebug
 > Task :app:processGithubDebugMainManifest
 > Task :app:processGithubDebugManifest
 > Task :app:preGithubDebugUnitTestBuild UP-TO-DATE
-> Task :app:javaPreCompileGithubDebugUnitTest
 > Task :app:javaPreCompileGithubDebug
 > Task :app:processGithubDebugManifestForPackage
+> Task :app:javaPreCompileGithubDebugUnitTest
 > Task :app:mergeGithubDebugNativeDebugMetadata NO-SOURCE
 > Task :app:mergeGithubDebugShaders
 > Task :app:compileGithubDebugShaders NO-SOURCE
 > Task :app:generateGithubDebugAssets UP-TO-DATE
 > Task :app:mergeGithubDebugAssets
 > Task :app:compressGithubDebugAssets
-> Task :app:desugarGithubDebugFileDependencies
-> Task :app:mergeGithubDebugJniLibFolders
 > Task :app:checkGithubDebugDuplicateClasses
+> Task :app:desugarGithubDebugFileDependencies
 > Task :app:processGithubDebugResources
-> Task :app:mergeGithubDebugNativeLibs
 > Task :app:l8DexDesugarLibGithubDebug
 > Task :app:mergeExtDexGithubDebug
+> Task :app:mergeGithubDebugJniLibFolders
 > Task :app:mergeLibDexGithubDebug
-
-> Task :app:stripGithubDebugDebugSymbols
-Unable to strip the following libraries, packaging them as they are: libandroidx.graphics.path.so, libaria2c.so, libaria2c.zip.so, libffmpeg.so, libffmpeg.zip.so, libffprobe.so, libpython.so, libpython.zip.so, libqjs.so. Run with --info option to learn more.
-
+> Task :app:mergeGithubDebugNativeLibs
 > Task :app:validateSigningGithubDebug
 > Task :app:writeGithubDebugAppMetadata
 > Task :app:writeGithubDebugSigningConfigVersions
 > Task :app:preGithubDebugAndroidTestBuild SKIPPED
-> Task :app:generateGithubDebugAndroidTestResValues
+
+> Task :app:stripGithubDebugDebugSymbols
+Unable to strip the following libraries, packaging them as they are: libandroidx.graphics.path.so, libaria2c.so, libaria2c.zip.so, libffmpeg.so, libffmpeg.zip.so, libffprobe.so, libpython.so, libpython.zip.so, libqjs.so. Run with --info option to learn more.
+
 > Task :app:dataBindingMergeDependencyArtifactsGithubDebugAndroidTest
+> Task :app:generateGithubDebugAndroidTestResValues
 > Task :app:generateGithubDebugAndroidTestResources
 > Task :app:mergeGithubDebugAndroidTestResources
 > Task :app:processGithubDebugAndroidTestManifest
@@ -199,8 +199,8 @@ Unable to strip the following libraries, packaging them as they are: libandroidx
 > Task :app:compileGithubDebugAndroidTestShaders NO-SOURCE
 > Task :app:generateGithubDebugAndroidTestAssets UP-TO-DATE
 > Task :app:mergeGithubDebugAndroidTestAssets
-> Task :app:processGithubDebugAndroidTestResources
 > Task :app:compressGithubDebugAndroidTestAssets
+> Task :app:processGithubDebugAndroidTestResources
 > Task :app:checkGithubDebugAndroidTestDuplicateClasses
 > Task :app:desugarGithubDebugAndroidTestFileDependencies
 > Task :app:mergeGithubDebugAndroidTestJniLibFolders
@@ -222,16 +222,16 @@ w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/ja
 w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/MainActivity.kt:294:38 The corresponding parameter in the supertype 'ComponentActivity' is named 'outState'. This may cause problems when calling this function with named arguments.
 w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/MainActivity.kt:383:20 'var statusBarColor: Int' is deprecated. Deprecated in Java.
 w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/MainActivity.kt:385:20 'var statusBarColor: Int' is deprecated. Deprecated in Java.
-w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/MainActivity.kt:404:28 'fun <T : Parcelable!> getParcelableExtra(p0: String!): T?' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/MainActivity.kt:413:28 'fun <T : Parcelable!> getParcelableExtra(p0: String!): T?' is deprecated. Deprecated in Java.
 w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/core/ZipUtils.kt:54:96 Unnecessary non-null assertion (!!) on a non-null receiver of type 'ZipArchiveEntry'.
 w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/core/ZipUtils.kt:56:26 Unnecessary non-null assertion (!!) on a non-null receiver of type 'ZipArchiveEntry'.
 w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/core/ZipUtils.kt:59:21 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'File?'.
 w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/database/dao/LogDao.kt:46:29 Elvis operator (?:) always returns the left operand of non-nullable type 'String'.
 w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/database/viewmodel/CommandTemplateViewModel.kt:178:23 'fun setText(p0: CharSequence!): Unit' is deprecated. Deprecated in Java.
 w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/database/viewmodel/CookieViewModel.kt:203:31 'fun setText(p0: CharSequence!): Unit' is deprecated. Deprecated in Java.
-w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/database/viewmodel/DownloadViewModel.kt:192:33 'constructor(p0: String!): Locale' is deprecated. Deprecated in Java.
-w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/database/viewmodel/DownloadViewModel.kt:192:54 'constructor(p0: String!, p1: String!): Locale' is deprecated. Deprecated in Java.
-w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/database/viewmodel/DownloadViewModel.kt:196:21 'constructor(p0: AssetManager!, p1: DisplayMetrics!, p2: Configuration!): Resources' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/database/viewmodel/DownloadViewModel.kt:193:33 'constructor(p0: String!): Locale' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/database/viewmodel/DownloadViewModel.kt:193:54 'constructor(p0: String!, p1: String!): Locale' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/database/viewmodel/DownloadViewModel.kt:197:21 'constructor(p0: AssetManager!, p1: DisplayMetrics!, p2: Configuration!): Resources' is deprecated. Deprecated in Java.
 w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/receiver/ResumeActivity.kt:48:52 'static field TYPE_SYSTEM_ALERT: Int' is deprecated. Deprecated in Java.
 w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/receiver/ShareActivity.kt:80:48 'static field TYPE_SYSTEM_ALERT: Int' is deprecated. Deprecated in Java.
 w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/receiver/ShareActivity.kt:112:56 'static field TYPE_SYSTEM_ALERT: Int' is deprecated. Deprecated in Java.
@@ -243,8 +243,8 @@ w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/ja
 w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/receiver/ShareActivity.kt:242:21 'static field SYSTEM_UI_FLAG_HIDE_NAVIGATION: Int' is deprecated. Deprecated in Java.
 w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/receiver/TransparentActivity.kt:52:56 'static field TYPE_SYSTEM_ALERT: Int' is deprecated. Deprecated in Java.
 w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/BaseActivity.kt:23:16 'var navigationBarColor: Int' is deprecated. Deprecated in Java.
-w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/HomeFragment.kt:478:37 There is more than one label with such a name in this scope.
-w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/HomeFragment.kt:841:48 The corresponding parameter in the supertype 'OnItemClickListener' is named 'isChecked'. This may cause problems when calling this function with named arguments.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/HomeFragment.kt:482:37 There is more than one label with such a name in this scope.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/HomeFragment.kt:845:48 The corresponding parameter in the supertype 'OnItemClickListener' is named 'isChecked'. This may cause problems when calling this function with named arguments.
 w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/adapter/ChangelogAdapter.kt:69:35 'static fun startActivity(p0: Context, p1: Intent, p2: Bundle?): Unit' is deprecated. Deprecated in Java.
 w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/adapter/ChangelogAdapter.kt:85:31 'static fun startActivity(p0: Context, p1: Intent, p2: Bundle?): Unit' is deprecated. Deprecated in Java.
 w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/adapter/PackageReleaseAdapter.kt:69:75 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'Date?'.
@@ -426,8 +426,8 @@ w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/ja
 > Task :app:kspGithubDebugUnitTestKotlin
 > Task :app:compileGithubDebugUnitTestKotlin
 > Task :app:mergeProjectDexGithubDebug
-> Task :app:compileGithubDebugUnitTestJavaWithJavac NO-SOURCE
 > Task :app:mergeGithubDebugJavaResource
+> Task :app:compileGithubDebugUnitTestJavaWithJavac NO-SOURCE
 > Task :app:processGithubDebugUnitTestJavaRes
 > Task :app:kspGithubDebugAndroidTestKotlin
 > Task :app:testGithubDebugUnitTest
@@ -435,17 +435,17 @@ w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/ja
 > Task :app:compileGithubDebugAndroidTestJavaWithJavac
 > Task :app:dexBuilderGithubDebugAndroidTest
 > Task :app:mergeGithubDebugAndroidTestGlobalSynthetics
-> Task :app:packageGithubDebug
-> Task :app:createGithubDebugApkListingFileRedirect
-> Task :app:assembleGithubDebug
 > Task :app:processGithubDebugAndroidTestJavaRes
 > Task :app:mergeProjectDexGithubDebugAndroidTest
 > Task :app:mergeGithubDebugAndroidTestJavaResource
 > Task :app:packageGithubDebugAndroidTest
 > Task :app:createGithubDebugAndroidTestApkListingFileRedirect
 > Task :app:assembleGithubDebugAndroidTest
+> Task :app:packageGithubDebug
+> Task :app:createGithubDebugApkListingFileRedirect
+> Task :app:assembleGithubDebug
 
 [Incubating] Problems report is available at: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/build/reports/problems/problems-report.html
 
-BUILD SUCCESSFUL in 4m 38s
+BUILD SUCCESSFUL in 4m 37s
 81 actionable tasks: 81 executed
