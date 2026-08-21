@@ -80,7 +80,7 @@ class InSaveRecoveryInstrumentedTest {
 
         val header = mp3!!.inputStream().use { stream -> ByteArray(12).also { stream.read(it) } }
         val hasId3 = header.copyOfRange(0, 3).toString(Charsets.US_ASCII) == "ID3"
-        val hasMp3Frame = header.indices.dropLast(1).any { i ->
+        val hasMp3Frame = (0 until (header.size - 1)).any { i: Int ->
             (header[i].toInt() and 0xFF) == 0xFF && (header[i + 1].toInt() and 0xE0) == 0xE0
         }
         assertTrue("Generated file does not look like a real MP3", hasId3 || hasMp3Frame)
