@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "release": "0.17.0-recovery",
+  "skills": [
+    "lkg-recovery",
+    "android-status-storage",
+    "youtube-dual-engine",
+    "media-ffmpeg",
+    "regression-qa",
+    "android-release",
+    "app-security",
+    "ui-accessibility"
+  ],
+  "rule": "A skill is complete only when its required evidence gate passes. Compilation alone is not runtime verification."
+}
