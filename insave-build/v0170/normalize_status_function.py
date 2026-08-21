@@ -3,11 +3,14 @@ from pathlib import Path
 hub_path = Path('upstream/app/src/main/java/com/deniscerri/ytdl/insave/InSaveHubActivity.kt')
 ytdlp_path = Path('upstream/app/src/main/java/com/deniscerri/ytdl/util/extractors/ytdlp/YTDLPUtil.kt')
 
-s = hub_path.read_text()
+# This script ONLY restores the exact pre-patch shape expected by apply_v0170.py.
+# It deliberately does not try to make the generated Kotlin final/compilable; the
+# post_v0170_compile_fixes.py stage owns that responsibility after the recovery patch.
+hub = hub_path.read_text()
 start_marker = '    private fun buildStatusesView(): View {'
 end_marker = '    private fun buildDownloadsView(): View {'
-start = s.find(start_marker)
-end = s.find(end_marker, start)
+start = hub.find(start_marker)
+end = hub.find(end_marker, start)
 if start < 0 or end < 0:
     raise SystemExit('Could not locate buildStatusesView boundaries')
 
@@ -16,25 +19,25 @@ canonical = '''    private fun buildStatusesView(): View {
         root.addView(appTitle("Estados de WhatsApp", "Previsualiza primero y guarda cada estado dentro de InSave."))
 
         val sourceRow = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
-        sourceRow.addView(toggleButton("WhatsApp", statusSource == InSaveStatusSource.WHATSAPP, {
+        sourceRow.addView(toggleButton("WhatsApp", statusSource == InSaveStatusSource.WHATSAPP) {
             statusSource = InSaveStatusSource.WHATSAPP
             showTab(InSaveTab.STATUSES)
-        }, 1f))
-        sourceRow.addView(toggleButton("Business", statusSource == InSaveStatusSource.WHATSAPP_BUSINESS, {
+        }, 1f)
+        sourceRow.addView(toggleButton("Business", statusSource == InSaveStatusSource.WHATSAPP_BUSINESS) {
             statusSource = InSaveStatusSource.WHATSAPP_BUSINESS
             showTab(InSaveTab.STATUSES)
-        }, 1f))
+        }, 1f)
         root.addView(sourceRow)
 
         val filterRow = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
-        filterRow.addView(toggleButton("Imágenes", statusFilter == StatusFilter.IMAGES, {
+        filterRow.addView(toggleButton("Imágenes", statusFilter == StatusFilter.IMAGES) {
             statusFilter = StatusFilter.IMAGES
             showTab(InSaveTab.STATUSES)
-        }, 1f))
-        filterRow.addView(toggleButton("Videos", statusFilter == StatusFilter.VIDEOS, {
+        }, 1f)
+        filterRow.addView(toggleButton("Videos", statusFilter == StatusFilter.VIDEOS) {
             statusFilter = StatusFilter.VIDEOS
             showTab(InSaveTab.STATUSES)
-        }, 1f))
+        }, 1f)
         root.addView(filterRow)
 
         val stored = prefs.getString(statusKey(statusSource), null)?.let(Uri::parse)
@@ -59,46 +62,34 @@ canonical = '''    private fun buildStatusesView(): View {
             root.addView(recycler, LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT
             ))
-            val accessButton = secondaryButton("Cambiar acceso de carpeta") {
+            root.addView(secondaryButton("Cambiar acceso de carpeta") {
                 prefs.edit().remove(statusKey(statusSource)).apply()
                 launchStatusTree(statusSource)
-            }
-            root.addView(accessButton)
-            loadStatuses(stored, info, recycler, accessButton)
+            })
+            loadStatuses(stored, info, recycler)
         }
         return ScrollView(this).apply { addView(root) }
     }
 
 '''
+hub_path.write_text(hub[:start] + canonical + hub[end:])
 
-# v0.16.2 changed loadStatuses to a four-argument helper. The v0.17 patch still contains
-# a legacy three-argument fallback call, so provide a small overload to preserve compatibility.
-overload = '''    private fun loadStatuses(tree: Uri, info: TextView, recycler: RecyclerView) {
-        val accessButton = secondaryButton("Cambiar acceso de carpeta") { launchStatusTree(statusSource) }
-        loadStatuses(tree, info, recycler, accessButton)
-    }
-
-'''
-new_hub = s[:start] + canonical + s[end:]
-if 'private fun loadStatuses(tree: Uri, info: TextView, recycler: RecyclerView) {' not in new_hub:
-    insert_at = new_hub.find(end_marker)
-    if insert_at < 0:
-        raise SystemExit('Could not insert loadStatuses compatibility overload')
-    new_hub = new_hub[:insert_at] + overload + new_hub[insert_at:]
-hub_path.write_text(new_hub)
-
-# apply_v0170 adds its direct-stream info-json guard by replacing the first textual match.
-# Make the earlier getFormats() check equivalent but textually different so the recovery guard
-# lands inside buildYTDLRequest, where the direct-stream variable actually exists.
-y = ytdlp_path.read_text()
-build_pos = y.find('    fun buildYTDLRequest(downloadItem: DownloadItem) : YTDLRequest {')
+# apply_v0170.py adds a direct-stream info-json guard by textual replacement.
+# Make the earlier getFormats() check textually distinct so that replacement lands
+# inside buildYTDLRequest(), where inSaveDirectYoutubeAudioUrl is in scope.
+ytdlp = ytdlp_path.read_text()
+build_marker = '    fun buildYTDLRequest(downloadItem: DownloadItem) : YTDLRequest {'
+build_pos = ytdlp.find(build_marker)
 if build_pos < 0:
-    raise SystemExit('buildYTDLRequest not found during normalization')
-head = y[:build_pos]
-tail = y[build_pos:]
+    raise SystemExit('buildYTDLRequest not found during pre-normalization')
+head = ytdlp[:build_pos]
+tail = ytdlp[build_pos:]
 old = '!request.toString().contains("--download-sections")'
 if old in head:
     head = head.replace(old, '!request.buildCommand().contains("--download-sections")', 1)
 ytdlp_path.write_text(head + tail)
 
-print('InSave status/YTDLP pre-patch normalization: PASS')
+# Contract expected by apply_v0170.py.
+normalized = hub_path.read_text()
+assert '        val stored = prefs.getString(statusKey(statusSource), null)?.let(Uri::parse)\n        if (stored == null) {' in normalized
+print('InSave v0.17 pre-patch normalization: PASS')
