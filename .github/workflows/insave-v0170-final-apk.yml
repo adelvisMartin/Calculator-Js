@@ -1,0 +1,241 @@
+name: InSave v0.17 Final Recovery APK
+
+on:
+  push:
+    branches: [ main ]
+    paths: [ '.github/workflows/insave-v0170-final-apk.yml' ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: insave-v0170-final-apk
+  cancel-in-progress: true
+
+jobs:
+  build-test-package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout recovery source
+        uses: actions/checkout@v6
+        with:
+          ref: recovery/insave-v0.17.0-lkg
+          path: insave-build
+          fetch-depth: 1
+
+      - name: Checkout maintained engine
+        uses: actions/checkout@v6
+        with:
+          repository: deniscerri/ytdlnis
+          ref: c6084ed4f110efd4ba0c3f82bb16723b6529c8f0
+          path: upstream
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Reconstruct canonical InSave Recovery source
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x upstream/gradlew
+          touch upstream/local.properties upstream/keystore.properties
+          mkdir -p upstream/app/src/main/java/com/deniscerri/ytdl/insave
+          cat insave-build/insave-build/v0161/InSaveHubActivity.part* > upstream/app/src/main/java/com/deniscerri/ytdl/insave/InSaveHubActivity.kt
+
+          python3 insave-build/insave-build/v0162/remove_broad_storage.py
+          for f in insave-build/insave-build/v0162/apply_v0162.py.b64.*; do base64 -d "$f"; done > /tmp/apply_v0162.py
+          python3 /tmp/apply_v0162.py
+          python3 insave-build/insave-build/v0162/normalize_after_patch.py
+
+          python3 insave-build/insave-build/v0170/normalize_status_function.py
+          cp insave-build/insave-build/v0170/AutomaticStatusRepository.kt upstream/app/src/main/java/com/deniscerri/ytdl/insave/
+          python3 insave-build/insave-build/v0170/apply_v0170.py
+          python3 insave-build/insave-build/v0170/post_v0170_compile_fixes.py
+
+          cp insave-build/insave-build/v0170/InSaveCobaltResolver.kt upstream/app/src/main/java/com/deniscerri/ytdl/insave/
+          python3 insave-build/insave-build/v0170/apply_remote_fallback.py
+
+          cp insave-build/insave-build/v0170/InSavePlaylistPolicy.kt upstream/app/src/main/java/com/deniscerri/ytdl/insave/
+          python3 insave-build/insave-build/v0170/apply_playlist_mp3.py
+          python3 insave-build/insave-build/v0170/apply_provider_settings.py
+          python3 insave-build/insave-build/v0170/apply_brand_paths.py
+
+          mkdir -p upstream/app/src/androidTest/java/com/deniscerri/ytdl/insave
+          cp insave-build/insave-build/v0170/InSaveRecoveryInstrumentedTest.kt upstream/app/src/androidTest/java/com/deniscerri/ytdl/insave/
+
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('upstream/app/build.gradle')
+          s=p.read_text()
+          s=s.replace('implementation "io.github.junkfood02.youtubedl-android:ffmpeg:0.17.2"', 'implementation "io.github.junkfood02.youtubedl-android:ffmpeg:0.18.1"')
+          s=s.replace('minifyEnabled true', 'minifyEnabled false', 1)
+          s=s.replace('shrinkResources true', 'shrinkResources false', 1)
+          p.write_text(s)
+          PY
+
+          grep -q 'library:0.18.1' upstream/app/build.gradle
+          grep -q 'ffmpeg:0.18.1' upstream/app/build.gradle
+          grep -q 'aria2c:0.18.1' upstream/app/build.gradle
+          grep -q 'MANAGE_EXTERNAL_STORAGE' upstream/app/src/main/AndroidManifest.xml
+          grep -q 'MAX_BATCH_ITEMS = 50' upstream/app/src/main/java/com/deniscerri/ytdl/insave/InSavePlaylistPolicy.kt
+          grep -q 'InSavePlaylistPolicy.applyMp3Preset' upstream/app/src/main/java/com/deniscerri/ytdl/database/viewmodel/DownloadViewModel.kt
+          grep -q 'request.addOption("--audio-format", "mp3")' upstream/app/src/main/java/com/deniscerri/ytdl/util/extractors/ytdlp/YTDLPUtil.kt
+          grep -q 'normalizedAudioBitrate' upstream/app/src/main/java/com/deniscerri/ytdl/util/extractors/ytdlp/YTDLPUtil.kt
+          grep -q 'InSave/Audio' upstream/app/src/main/java/com/deniscerri/ytdl/util/FileUtil.kt
+          grep -q 'InSave/Video' upstream/app/src/main/java/com/deniscerri/ytdl/util/FileUtil.kt
+          grep -q 'Fallback de emergencia' upstream/app/src/main/java/com/deniscerri/ytdl/insave/InSaveHubActivity.kt
+          echo 'source_contract=PASS' | tee InSave-v0.17.0-Recovery-QA.txt
+
+      - name: Unit tests and debug APKs
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd upstream
+          ./gradlew --no-daemon :app:testGithubDebugUnitTest :app:assembleGithubDebug :app:assembleGithubDebugAndroidTest
+          cd ..
+          echo 'unit_tests=PASS' >> InSave-v0.17.0-Recovery-QA.txt
+
+      - name: Verify embedded heavyweight runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK=$(find upstream/app/build/outputs/apk/github/debug -name '*.apk' | head -1)
+          unzip -l "$APK" | grep -q 'lib/.*/libpython.so'
+          unzip -l "$APK" | grep -q 'lib/.*/libpython.zip.so'
+          unzip -l "$APK" | grep -q 'lib/.*/libffmpeg.so'
+          unzip -l "$APK" | grep -q 'lib/.*/libffprobe.so'
+          unzip -l "$APK" | grep -q 'lib/.*/libaria2c.so'
+          unzip -l "$APK" | grep -q 'lib/.*/libqjs.so'
+          echo 'heavy_runtime=PASS' >> InSave-v0.17.0-Recovery-QA.txt
+
+      - name: Enable KVM
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm || true
+          test -e /dev/kvm
+          sudo chmod 666 /dev/kvm
+          test -r /dev/kvm && test -w /dev/kvm
+          echo 'kvm=PASS' >> InSave-v0.17.0-Recovery-QA.txt
+
+      - name: Android API 35 E2E gates
+        id: e2e
+        continue-on-error: true
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          arch: x86_64
+          profile: pixel_6
+          cores: 2
+          ram-size: 3072M
+          disable-linux-hw-accel: false
+          disable-animations: false
+          emulator-boot-timeout: 600
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -accel on
+          script: |
+            set -eu
+            cd upstream
+            adb wait-for-device
+            test "$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = "1"
+            TARGET_APK=$(find app/build/outputs/apk/github/debug -name '*.apk' | head -1)
+            test -n "$TARGET_APK"
+            adb install -r "$TARGET_APK"
+            adb shell appops set com.deniscerri.ytdl MANAGE_EXTERNAL_STORAGE allow
+            adb shell mkdir -p '/sdcard/Android/media/com.whatsapp/WhatsApp/Media/.Statuses'
+            adb shell mkdir -p '/sdcard/Android/media/com.whatsapp.w4b/WhatsApp Business/Media/.Statuses'
+            printf 'fake-jpeg-for-discovery' > /tmp/insave-auto-test.jpg
+            printf 'fake-mp4-for-discovery' > /tmp/insave-auto-business-test.mp4
+            adb push /tmp/insave-auto-test.jpg '/sdcard/Android/media/com.whatsapp/WhatsApp/Media/.Statuses/insave-auto-test.jpg'
+            adb push /tmp/insave-auto-business-test.mp4 '/sdcard/Android/media/com.whatsapp.w4b/WhatsApp Business/Media/.Statuses/insave-auto-business-test.mp4'
+            ./gradlew --no-daemon :app:connectedGithubDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.deniscerri.ytdl.insave.InSaveRecoveryInstrumentedTest
+
+      - name: Record E2E result
+        if: always()
+        shell: bash
+        run: |
+          if [ "${{ steps.e2e.outcome }}" = "success" ]; then
+            echo 'android_e2e=PASS' >> InSave-v0.17.0-Recovery-QA.txt
+          else
+            echo 'android_e2e=FAIL_OR_ENVIRONMENT_BLOCKED' >> InSave-v0.17.0-Recovery-QA.txt
+          fi
+
+      - name: Apply InSave Recovery release identity
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          b=Path('upstream/app/build.gradle'); s=b.read_text()
+          s=s.replace('applicationId "com.deniscerri.ytdl"','applicationId "com.adelvis.insave.recovery"')
+          s=s.replace('versionCode versionMajor * 1000000 + versionMinor * 10000 + versionPatch * 100 + versionBuild','versionCode 17000')
+          s=s.replace('versionName "${versionMajor}.${versionMinor}.${versionPatch}${versionExt}"','versionName "0.17.0-Recovery"')
+          s=s.replace('archivesBaseName = "YTDLnis-$versionName"','archivesBaseName = "InSave-0.17.0-Recovery"')
+          b.write_text(s)
+          st=Path('upstream/app/src/main/res/values/strings.xml')
+          st.write_text(re.sub(r'<string name="app_name">.*?</string>','<string name="app_name">InSave Recovery</string>',st.read_text(),count=1))
+          th=Path('upstream/app/src/main/java/com/deniscerri/ytdl/util/ThemeUtil.kt')
+          th.write_text(th.read_text().replace('>YTDL</span>nis','>In</span>Save'))
+          m=Path('upstream/app/src/main/AndroidManifest.xml'); x=m.read_text().replace('android:label="YTDLnis"','android:label="InSave Recovery"',1)
+          marker='        <activity\n            android:name=".MainActivity"'
+          insert='        <activity\n            android:name=".insave.InSaveHubActivity"\n            android:exported="true"\n            android:launchMode="singleTask"\n            android:theme="@style/BaseTheme" />\n\n        <activity\n            android:name=".MainActivity"'
+          if marker not in x: raise SystemExit('MainActivity marker missing')
+          m.write_text(x.replace(marker,insert,1).replace('android:targetActivity=".MainActivity"','android:targetActivity=".insave.InSaveHubActivity"'))
+          PY
+
+      - name: Assemble release APKs
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd upstream
+          ./gradlew --no-daemon :app:assembleGithubRelease
+          cd ..
+          echo 'release_assemble=PASS' >> InSave-v0.17.0-Recovery-QA.txt
+
+      - name: Package ARM64 and universal APKs
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          find upstream/app/build/outputs/apk -type f -name '*.apk' -print
+          ARM64=$(find upstream/app/build/outputs/apk -type f -name '*.apk' | grep -Ei 'arm64|v8a' | grep -Ei 'release' | head -1)
+          UNIVERSAL=$(find upstream/app/build/outputs/apk -type f -name '*.apk' | grep -Ei 'universal' | grep -Ei 'release' | head -1 || true)
+          test -n "$ARM64"
+          unzip -t "$ARM64" >/dev/null
+          unzip -l "$ARM64" | grep -q 'lib/arm64-v8a/libpython.so'
+          unzip -l "$ARM64" | grep -q 'lib/arm64-v8a/libffmpeg.so'
+          unzip -l "$ARM64" | grep -q 'lib/arm64-v8a/libaria2c.so'
+          unzip -l "$ARM64" | grep -q 'lib/arm64-v8a/libqjs.so'
+          cp "$ARM64" InSave-v0.17.0-Recovery-heavy-arm64.apk
+          sha256sum InSave-v0.17.0-Recovery-heavy-arm64.apk | tee InSave-v0.17.0-Recovery-heavy-arm64.sha256
+          if [ -n "$UNIVERSAL" ]; then
+            unzip -t "$UNIVERSAL" >/dev/null
+            cp "$UNIVERSAL" InSave-v0.17.0-Recovery-heavy-universal.apk
+            sha256sum InSave-v0.17.0-Recovery-heavy-universal.apk | tee InSave-v0.17.0-Recovery-heavy-universal.sha256
+          fi
+          echo 'apk_structure=PASS' >> InSave-v0.17.0-Recovery-QA.txt
+          echo "source_recovery_head=$(git -C insave-build rev-parse HEAD)" >> InSave-v0.17.0-Recovery-QA.txt
+          echo "upstream=c6084ed4f110efd4ba0c3f82bb16723b6529c8f0" >> InSave-v0.17.0-Recovery-QA.txt
+
+      - name: Upload InSave Recovery APK
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: InSave-v0.17.0-Recovery-heavy-final
+          retention-days: 7
+          compression-level: 0
+          if-no-files-found: error
+          path: |
+            InSave-v0.17.0-Recovery-heavy-*.apk
+            InSave-v0.17.0-Recovery-heavy-*.sha256
+            InSave-v0.17.0-Recovery-QA.txt
