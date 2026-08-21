@@ -20,6 +20,12 @@ python3 -m py_compile /tmp/apply_v0162.py
 python3 /tmp/apply_v0162.py
 python3 "$OVERLAY/insave-build/v0162/normalize_after_patch.py"
 
+# Provider B dynamic per-video PO token support. This reuses the maintained
+# NewPipe/BotGuard provider but injects the freshly generated Player/GVS tokens
+# into yt-dlp itself, without making cookies/login mandatory.
+python3 -m py_compile "$OVERLAY/insave-build/v0163/apply_v0163.py"
+python3 "$OVERLAY/insave-build/v0163/apply_v0163.py"
+
 python3 "$OVERLAY/insave-build/v0170/normalize_status_function.py"
 cp "$OVERLAY/insave-build/v0170/AutomaticStatusRepository.kt" "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/insave/"
 python3 -m py_compile "$OVERLAY/insave-build/v0170/apply_v0170.py" "$OVERLAY/insave-build/v0170/post_v0170_compile_fixes.py"
@@ -33,6 +39,11 @@ python3 "$OVERLAY/insave-build/v0170/apply_remote_fallback.py"
 cp "$OVERLAY/insave-build/v0170/InSavePlaylistPolicy.kt" "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/insave/"
 python3 -m py_compile "$OVERLAY/insave-build/v0170/apply_playlist_mp3.py"
 python3 "$OVERLAY/insave-build/v0170/apply_playlist_mp3.py"
+
+# Final P0 provider order correction: A(NewPipe) -> B(local yt-dlp + dynamic PO)
+# -> C(optional self-hosted Cobalt only after B throws).
+python3 -m py_compile "$OVERLAY/insave-build/v0170/apply_youtube_p0.py"
+python3 "$OVERLAY/insave-build/v0170/apply_youtube_p0.py"
 
 python3 -m py_compile "$OVERLAY/insave-build/v0170/apply_provider_settings.py"
 python3 "$OVERLAY/insave-build/v0170/apply_provider_settings.py"
@@ -65,7 +76,13 @@ grep -q 'shrinkResources false' "$UPSTREAM/app/build.gradle"
 grep -q 'MANAGE_EXTERNAL_STORAGE' "$UPSTREAM/app/src/main/AndroidManifest.xml"
 grep -q 'AutomaticStatusRepository().scan' "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/insave/InSaveHubActivity.kt"
 grep -q 'resolveInSaveYoutubeAudioDirectUrl' "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/util/extractors/ytdlp/YTDLPUtil.kt"
-grep -q 'InSaveCobaltResolver' "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/util/extractors/ytdlp/YTDLPUtil.kt"
+grep -q 'getWebClientPoToken(videoId)' "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/util/extractors/ytdlp/YTDLPUtil.kt"
+grep -q 'web.player+' "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/util/extractors/ytdlp/YTDLPUtil.kt"
+grep -q 'web.gvs+' "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/util/extractors/ytdlp/YTDLPUtil.kt"
+! grep -q 'poTokens.isNotEmpty() && sharedPreferences.getBoolean("use_cookies"' "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/util/extractors/ytdlp/YTDLPUtil.kt"
+grep -q 'resolveInSaveCobaltFallbackUrl' "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/util/extractors/ytdlp/YTDLPUtil.kt"
+grep -q 'recoverCatching { providerBError' "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/work/download/DownloadWorker.kt"
+grep -q 'Provider B failed; retrying optional Provider C' "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/work/download/DownloadWorker.kt"
 grep -q 'MAX_BATCH_ITEMS = 50' "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/insave/InSavePlaylistPolicy.kt"
 grep -q 'request.addOption("--audio-format", "mp3")' "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/util/extractors/ytdlp/YTDLPUtil.kt"
 grep -q 'normalizedAudioBitrate' "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/util/extractors/ytdlp/YTDLPUtil.kt"
