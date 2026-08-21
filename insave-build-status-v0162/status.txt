@@ -1,7 +1,11 @@
-started_commit=2c49c0ccaad0dc381eac704ae36976c8b31431b5
-run_id=32442850473
+started_commit=5b1920f1338aac77abbe14127284d26ca8002985
+run_id=32443103848
 run_attempt=1
 target=InSave-v0.16.2-RC-arm64
 source_contract=pass
 identity=pass
-job_status=failure
+unit_tests=pass
+assemble=pass
+apk_verify=pass
+result=pass
+job_status=success

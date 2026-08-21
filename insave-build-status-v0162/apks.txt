@@ -1,0 +1,2 @@
+upstream/app/build/outputs/apk/github/release/InSave-0.16.2-RC-github-arm64-v8a-release.apk
+upstream/app/build/outputs/apk/github/release/InSave-0.16.2-RC-github-universal-release.apk

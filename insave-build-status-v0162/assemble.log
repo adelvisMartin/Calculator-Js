@@ -1,13 +1,3 @@
-
-Welcome to Gradle 8.13!
-
-Here are the highlights of this release:
- - Daemon JVM auto-provisioning
- - Enhancements for Scala plugin and JUnit testing
- - Improvements for build authors and plugin developers
-
-For more details see https://docs.gradle.org/8.13/release-notes.html
-
 To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.13/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
 Daemon will be stopped at the end of the build 
 Settings file '/home/runner/work/Calculator-Js/Calculator-Js/upstream/settings.gradle': line 6
@@ -136,36 +126,57 @@ Properties should be assigned using the 'propName = value' syntax. Setting a pro
 	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1$_closure15.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:146)
 	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
 
-> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
 > Task :app:preBuild UP-TO-DATE
-> Task :app:preGithubDebugBuild UP-TO-DATE
-> Task :app:dataBindingMergeDependencyArtifactsGithubDebug
-> Task :app:generateGithubDebugResValues
-> Task :app:generateGithubDebugResources
-> Task :app:generateGithubDebugBuildConfig
-> Task :app:checkGithubDebugAarMetadata
-> Task :app:processGithubDebugNavigationResources
-> Task :app:compileGithubDebugNavigationResources
-> Task :app:mapGithubDebugSourceSetPaths
-> Task :app:createGithubDebugCompatibleScreenManifests
-> Task :app:extractDeepLinksGithubDebug
-> Task :app:mergeGithubDebugResources
-> Task :app:processGithubDebugMainManifest
-> Task :app:dataBindingGenBaseClassesGithubDebug
-> Task :app:processGithubDebugManifest
-> Task :app:preGithubDebugUnitTestBuild UP-TO-DATE
-> Task :app:javaPreCompileGithubDebug
-> Task :app:javaPreCompileGithubDebugUnitTest
-> Task :app:processGithubDebugManifestForPackage
-> Task :app:processGithubDebugResources
+> Task :app:preGithubReleaseBuild UP-TO-DATE
+> Task :app:mergeGithubReleaseJniLibFolders
+> Task :app:mergeGithubReleaseArtProfile
+> Task :app:buildKotlinToolingMetadata
+> Task :app:mergeGithubReleaseNativeLibs
+> Task :app:expandGithubReleaseL8ArtProfileWildcards
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:checkGithubReleaseDuplicateClasses
 
-> Task :app:kspGithubDebugKotlin
+> Task :app:stripGithubReleaseDebugSymbols
+Unable to strip the following libraries, packaging them as they are: libandroidx.graphics.path.so, libaria2c.so, libaria2c.zip.so, libffmpeg.so, libffmpeg.zip.so, libffprobe.so, libpython.so, libpython.zip.so, libqjs.so. Run with --info option to learn more.
+
+> Task :app:dataBindingMergeDependencyArtifactsGithubRelease
+> Task :app:generateGithubReleaseResValues
+> Task :app:extractGithubReleaseNativeSymbolTables
+> Task :app:generateGithubReleaseResources
+> Task :app:mergeGithubReleaseNativeDebugMetadata NO-SOURCE
+> Task :app:generateGithubReleaseBuildConfig
+> Task :app:checkGithubReleaseAarMetadata
+> Task :app:processGithubReleaseNavigationResources
+> Task :app:compileGithubReleaseNavigationResources
+> Task :app:mapGithubReleaseSourceSetPaths
+> Task :app:createGithubReleaseCompatibleScreenManifests
+> Task :app:extractDeepLinksGithubRelease
+> Task :app:processGithubReleaseMainManifest
+> Task :app:processGithubReleaseManifest
+> Task :app:mergeGithubReleaseResources
+> Task :app:javaPreCompileGithubRelease
+> Task :app:dataBindingGenBaseClassesGithubRelease
+> Task :app:extractProguardFiles
+> Task :app:mergeGithubReleaseStartupProfile
+> Task :app:mergeGithubReleaseShaders
+> Task :app:compileGithubReleaseShaders NO-SOURCE
+> Task :app:generateGithubReleaseAssets UP-TO-DATE
+> Task :app:processGithubReleaseManifestForPackage
+> Task :app:mergeGithubReleaseAssets
+> Task :app:compressGithubReleaseAssets
+> Task :app:extractGithubReleaseVersionControlInfo
+> Task :app:validateSigningGithubRelease
+> Task :app:writeGithubReleaseAppMetadata
+> Task :app:writeGithubReleaseSigningConfigVersions
+> Task :app:processGithubReleaseResources
+
+> Task :app:kspGithubReleaseKotlin
 w: [ksp] /home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/database/dao/TerminalDao.kt:15:  com.deniscerri.ytdl.database.models.TerminalItem has some properties [log] which are not returned by the query. If they are not supposed to be read from the result, you can mark them with @Ignore annotation. You can suppress this warning by annotating the function with @SuppressWarnings(RoomWarnings.QUERY_MISMATCH). Columns returned by the query: id, command.
 w: [ksp] /home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/database/dao/TerminalDao.kt:18:  com.deniscerri.ytdl.database.models.TerminalItem has some properties [log] which are not returned by the query. If they are not supposed to be read from the result, you can mark them with @Ignore annotation. You can suppress this warning by annotating the function with @SuppressWarnings(RoomWarnings.QUERY_MISMATCH). Columns returned by the query: id, command.
 
-> Task :app:compileGithubDebugKotlin
-w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build/generated/ksp/githubDebug/kotlin/com/deniscerri/ytdl/database/dao/ResultDao_Impl.kt:67:13 Condition is always 'false'.
-w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build/generated/ksp/githubDebug/kotlin/com/deniscerri/ytdl/database/dao/ResultDao_Impl.kt:106:13 Condition is always 'false'.
+> Task :app:compileGithubReleaseKotlin
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build/generated/ksp/githubRelease/kotlin/com/deniscerri/ytdl/database/dao/ResultDao_Impl.kt:67:13 Condition is always 'false'.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build/generated/ksp/githubRelease/kotlin/com/deniscerri/ytdl/database/dao/ResultDao_Impl.kt:106:13 Condition is always 'false'.
 w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/MainActivity.kt:117:16 'var navigationBarColor: Int' is deprecated. Deprecated in Java.
 w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/MainActivity.kt:294:38 The corresponding parameter in the supertype 'ComponentActivity' is named 'outState'. This may cause problems when calling this function with named arguments.
 w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/MainActivity.kt:383:20 'var statusBarColor: Int' is deprecated. Deprecated in Java.
@@ -365,17 +376,28 @@ w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/ja
 w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/work/download/DownloadWorker.kt:126:54 'constructor(p0: String!, p1: String!): Locale' is deprecated. Deprecated in Java.
 w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/work/download/DownloadWorker.kt:130:25 'constructor(p0: AssetManager!, p1: DisplayMetrics!, p2: Configuration!): Resources' is deprecated. Deprecated in Java.
 
-> Task :app:compileGithubDebugJavaWithJavac
-> Task :app:processGithubDebugJavaRes
-> Task :app:bundleGithubDebugClassesToRuntimeJar
-> Task :app:bundleGithubDebugClassesToCompileJar
-> Task :app:kspGithubDebugUnitTestKotlin
-> Task :app:compileGithubDebugUnitTestKotlin
-> Task :app:compileGithubDebugUnitTestJavaWithJavac NO-SOURCE
-> Task :app:processGithubDebugUnitTestJavaRes
-> Task :app:testGithubDebugUnitTest
+> Task :app:compileGithubReleaseJavaWithJavac
+> Task :app:mergeGithubReleaseGeneratedProguardFiles
+> Task :app:processGithubReleaseJavaRes
+> Task :app:generateGithubReleaseLintVitalReportModel
+> Task :app:expandGithubReleaseArtProfileWildcards
+> Task :app:mergeGithubReleaseJavaResource
+> Task :app:produceGithubReleaseComposeMapping
+> Task :app:reportGithubReleaseComposeMappingErrors
+> Task :app:lintVitalAnalyzeGithubRelease
+> Task :app:minifyGithubReleaseWithR8
+> Task :app:lintVitalReportGithubRelease
+> Task :app:lintVitalGithubRelease
+> Task :app:mergeGithubReleaseComposeMapping
+> Task :app:convertShrunkResourcesToBinaryGithubRelease
+> Task :app:optimizeGithubReleaseResources
+> Task :app:l8DexDesugarLibGithubRelease
+> Task :app:compileGithubReleaseArtProfile
+> Task :app:packageGithubRelease
+> Task :app:createGithubReleaseApkListingFileRedirect
+> Task :app:assembleGithubRelease
 
 [Incubating] Problems report is available at: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/build/reports/problems/problems-report.html
 
-BUILD SUCCESSFUL in 2m 7s
-28 actionable tasks: 28 executed
+BUILD SUCCESSFUL in 5m 44s
+55 actionable tasks: 55 executed
