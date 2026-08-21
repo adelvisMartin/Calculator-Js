@@ -57,6 +57,7 @@ jobs:
           set -euo pipefail
           mkdir -p upstream/app/src/main/java/com/deniscerri/ytdl/insave
           cat insave-build/insave-build/v0161/InSaveHubActivity.part* > upstream/app/src/main/java/com/deniscerri/ytdl/insave/InSaveHubActivity.kt
+          python3 insave-build/insave-build/v0162/remove_broad_storage.py
           for f in insave-build/insave-build/v0162/apply_v0162.py.b64.*; do base64 -d "$f"; done > /tmp/apply_v0162.py
           python3 -m py_compile /tmp/apply_v0162.py
           python3 /tmp/apply_v0162.py | tee insave-build/insave-build-status-v0162/source-contract.log
