@@ -1,4 +1,12 @@
-run_id=32450758399
+run_id=32451243750
 run_attempt=1
-state=e2e-running
 target=InSave-v0.17.0-Recovery-heavy
+heavy_runtime_contract=pass
+provider_c_contract=pass
+unit_tests=pass
+embedded_python=pass
+embedded_ffmpeg=pass
+embedded_aria2c=pass
+embedded_quickjs=pass
+state=finished
+job_status=failure
