@@ -56,7 +56,10 @@ class InSaveRecoveryInstrumentedTest {
         val request = util.buildYTDLRequest(item)
         val rendered = util.parseYTDLRequestString(request)
         assertTrue("P0 request must stay MP3", rendered.contains("--audio-format") && rendered.contains("mp3"))
-        assertTrue("P0 request must keep 320k", rendered.contains("--audio-quality") && rendered.contains("320k"))
+        assertTrue(
+            "P0 request must keep 320 kbps. request=$rendered",
+            rendered.contains("--audio-quality") && rendered.contains("320K", ignoreCase = true)
+        )
 
         val response = RuntimeManager.execute(
             request = request,
@@ -91,7 +94,10 @@ class InSaveRecoveryInstrumentedTest {
         assertTrue("Provider B must receive a dynamic web GVS PO token", rendered.contains("web.gvs+"))
         assertFalse("Provider B P0 must not require cookies", rendered.contains("--cookies"))
         assertTrue("Provider B must request MP3", rendered.contains("--audio-format") && rendered.contains("mp3"))
-        assertTrue("Provider B must request 320k", rendered.contains("--audio-quality") && rendered.contains("320k"))
+        assertTrue(
+            "Provider B must request 320 kbps. request=$rendered",
+            rendered.contains("--audio-quality") && rendered.contains("320K", ignoreCase = true)
+        )
 
         val response = RuntimeManager.execute(
             request = request,
@@ -127,7 +133,10 @@ class InSaveRecoveryInstrumentedTest {
             val request = util.buildYTDLRequest(item)
             val rendered = util.parseYTDLRequestString(request)
             assertTrue("Batch job $index lost MP3", rendered.contains("--audio-format") && rendered.contains("mp3"))
-            assertTrue("Batch job $index lost 320k", rendered.contains("--audio-quality") && rendered.contains("320k"))
+            assertTrue(
+                "Batch job $index lost 320 kbps. request=$rendered",
+                rendered.contains("--audio-quality") && rendered.contains("320K", ignoreCase = true)
+            )
             assertTrue("Batch job $index lost dynamic Player PO", rendered.contains("web.player+"))
             assertTrue("Batch job $index lost dynamic GVS PO", rendered.contains("web.gvs+"))
 
