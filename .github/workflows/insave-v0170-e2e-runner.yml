@@ -55,7 +55,6 @@ jobs:
           mkdir -p upstream/app/src/main/java/com/deniscerri/ytdl/insave
           cat insave-build/insave-build/v0161/InSaveHubActivity.part* > upstream/app/src/main/java/com/deniscerri/ytdl/insave/InSaveHubActivity.kt
 
-          # Keep the proven selection/queue fixes from 0.16.2, then restore LKG behavior.
           python3 insave-build/insave-build/v0162/remove_broad_storage.py
           for f in insave-build/insave-build/v0162/apply_v0162.py.b64.*; do base64 -d "$f"; done > /tmp/apply_v0162.py
           python3 -m py_compile /tmp/apply_v0162.py
@@ -68,20 +67,20 @@ jobs:
           python3 insave-build/insave-build/v0170/apply_v0170.py
           python3 insave-build/insave-build/v0170/post_v0170_compile_fixes.py
 
-          # Provider C is optional/self-hosted only. Provider A/B stay fully local.
           cp insave-build/insave-build/v0170/InSaveCobaltResolver.kt upstream/app/src/main/java/com/deniscerri/ytdl/insave/
           python3 -m py_compile insave-build/insave-build/v0170/apply_remote_fallback.py
           python3 insave-build/insave-build/v0170/apply_remote_fallback.py
 
-          # Playlist/Mix recovery: each selected entry remains an independent MP3 job.
           cp insave-build/insave-build/v0170/InSavePlaylistPolicy.kt upstream/app/src/main/java/com/deniscerri/ytdl/insave/
           python3 -m py_compile insave-build/insave-build/v0170/apply_playlist_mp3.py
           python3 insave-build/insave-build/v0170/apply_playlist_mp3.py
 
+          python3 -m py_compile insave-build/insave-build/v0170/apply_provider_settings.py
+          python3 insave-build/insave-build/v0170/apply_provider_settings.py
+
           mkdir -p upstream/app/src/androidTest/java/com/deniscerri/ytdl/insave
           cp insave-build/insave-build/v0170/InSaveRecoveryInstrumentedTest.kt upstream/app/src/androidTest/java/com/deniscerri/ytdl/insave/
 
-          # Heavy/LKG runtime: align all youtubedl-android parts and preserve code/resources.
           python3 - <<'PY'
           from pathlib import Path
           p=Path('upstream/app/build.gradle')
@@ -101,7 +100,8 @@ jobs:
           grep -q 'AutomaticStatusRepository().scan' upstream/app/src/main/java/com/deniscerri/ytdl/insave/InSaveHubActivity.kt
           grep -q 'resolveInSaveYoutubeAudioDirectUrl' upstream/app/src/main/java/com/deniscerri/ytdl/util/extractors/ytdlp/YTDLPUtil.kt
           grep -q 'InSaveCobaltResolver' upstream/app/src/main/java/com/deniscerri/ytdl/util/extractors/ytdlp/YTDLPUtil.kt
-          grep -q 'inSaveCobalt.resolveAudio' upstream/app/src/main/java/com/deniscerri/ytdl/util/extractors/ytdlp/YTDLPUtil.kt
+          grep -q 'normalizeCobaltBitrate' upstream/app/src/main/java/com/deniscerri/ytdl/insave/InSaveCobaltResolver.kt
+          grep -q 'Fallback de emergencia' upstream/app/src/main/java/com/deniscerri/ytdl/insave/InSaveHubActivity.kt
           grep -q 'MAX_BATCH_ITEMS = 50' upstream/app/src/main/java/com/deniscerri/ytdl/insave/InSavePlaylistPolicy.kt
           grep -q 'InSavePlaylistPolicy.applyMp3Preset' upstream/app/src/main/java/com/deniscerri/ytdl/database/viewmodel/DownloadViewModel.kt
           grep -q 'putExtra("insave_query", query)' upstream/app/src/main/java/com/deniscerri/ytdl/insave/InSaveHubActivity.kt
@@ -111,6 +111,7 @@ jobs:
           ! grep -R -q 'loudnorm=I=-11' upstream/app/src/main/java
           echo 'heavy_runtime_contract=pass' >> insave-build/insave-build-status-v0170/status.txt
           echo 'provider_c_contract=pass' >> insave-build/insave-build-status-v0170/status.txt
+          echo 'provider_settings_contract=pass' >> insave-build/insave-build-status-v0170/status.txt
           echo 'playlist_mp3_contract=pass' >> insave-build/insave-build-status-v0170/status.txt
 
       - name: Compile recovery and unit tests
@@ -269,8 +270,8 @@ jobs:
           git -C insave-build config user.name 'github-actions[bot]'
           git -C insave-build config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git -C insave-build add insave-build-status-v0170
-          git -C insave-build commit -m 'ci: persist v0.17 P0 E2E evidence'
+          git -C insave-build commit -m 'ci: persist v0.17 P0 E2E evidence' || true
           git -C insave-build fetch origin recovery/insave-v0.17.0-lkg
-          git -C insave-build rebase origin/recovery/insave-v0.17.0-lkg
-          git -C insave-build push origin HEAD:recovery/insave-v0.17.0-lkg
+          git -C insave-build rebase origin/recovery/insave-v0.17.0-lkg || true
+          git -C insave-build push origin HEAD:recovery/insave-v0.17.0-lkg || true
           exit 0
