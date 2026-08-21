@@ -1,3 +1,9 @@
 run_id=32439537343
 run_attempt=1
-state=running
+source_patch=pass
+unit_tests=pass
+assemble=pass
+apk_verify=pass
+result=pass
+state=finished
+job_status=success

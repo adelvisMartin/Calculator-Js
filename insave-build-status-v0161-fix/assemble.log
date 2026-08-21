@@ -1,0 +1,403 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.13/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+Settings file '/home/runner/work/Calculator-Js/Calculator-Js/upstream/settings.gradle': line 6
+Properties should be assigned using the 'propName = value' syntax. Setting a property via the Gradle-generated 'propName value' or 'propName(value)' syntax in Groovy DSL has been deprecated. This is scheduled to be removed in Gradle 10.0. Use assignment ('url = <value>') instead. Consult the upgrading guide for further information: https://docs.gradle.org/8.13/userguide/upgrading_version_8.html#groovy_space_assignment_syntax
+	at settings_78x6cf6ghrmplonyvlf6j9s1x$_run_closure1$_closure2$_closure3.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/settings.gradle:6)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+	at settings_78x6cf6ghrmplonyvlf6j9s1x$_run_closure1$_closure2.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/settings.gradle:6)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+Settings file '/home/runner/work/Calculator-Js/Calculator-Js/upstream/settings.gradle': line 14
+Properties should be assigned using the 'propName = value' syntax. Setting a property via the Gradle-generated 'propName value' or 'propName(value)' syntax in Groovy DSL has been deprecated. This is scheduled to be removed in Gradle 10.0. Use assignment ('url = <value>') instead. Consult the upgrading guide for further information: https://docs.gradle.org/8.13/userguide/upgrading_version_8.html#groovy_space_assignment_syntax
+	at settings_78x6cf6ghrmplonyvlf6j9s1x$_run_closure1$_closure2$_closure3.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/settings.gradle:14)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+	at settings_78x6cf6ghrmplonyvlf6j9s1x$_run_closure1$_closure2.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/settings.gradle:14)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+Configuring project ':common' without an existing directory is deprecated. The configured projectDirectory '/home/runner/work/Calculator-Js/Calculator-Js/upstream/common' does not exist, can't be written to or is not a directory. This behavior has been deprecated. This will fail with an error in Gradle 9.0. Make sure the project directory exists and can be written. Consult the upgrading guide for further information: https://docs.gradle.org/8.13/userguide/upgrading_version_8.html#deprecated_missing_project_directory
+Configuring project ':library' without an existing directory is deprecated. The configured projectDirectory '/home/runner/work/Calculator-Js/Calculator-Js/upstream/library' does not exist, can't be written to or is not a directory. This behavior has been deprecated. This will fail with an error in Gradle 9.0. Make sure the project directory exists and can be written. Consult the upgrading guide for further information: https://docs.gradle.org/8.13/userguide/upgrading_version_8.html#deprecated_missing_project_directory
+Configuring project ':ffmpeg' without an existing directory is deprecated. The configured projectDirectory '/home/runner/work/Calculator-Js/Calculator-Js/upstream/ffmpeg' does not exist, can't be written to or is not a directory. This behavior has been deprecated. This will fail with an error in Gradle 9.0. Make sure the project directory exists and can be written. Consult the upgrading guide for further information: https://docs.gradle.org/8.13/userguide/upgrading_version_8.html#deprecated_missing_project_directory
+
+> Configure project :
+Build file '/home/runner/work/Calculator-Js/Calculator-Js/upstream/build.gradle': line 25
+Properties should be assigned using the 'propName = value' syntax. Setting a property via the Gradle-generated 'propName value' or 'propName(value)' syntax in Groovy DSL has been deprecated. This is scheduled to be removed in Gradle 10.0. Use assignment ('url = <value>') instead. Consult the upgrading guide for further information: https://docs.gradle.org/8.13/userguide/upgrading_version_8.html#groovy_space_assignment_syntax
+	at build_rl77e5r4g7us2jyrnyzf3gci$_run_closure1$_closure4$_closure5.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/build.gradle:25)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+	at build_rl77e5r4g7us2jyrnyzf3gci$_run_closure1$_closure4.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/build.gradle:25)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+Build file '/home/runner/work/Calculator-Js/Calculator-Js/upstream/build.gradle': line 26
+Properties should be assigned using the 'propName = value' syntax. Setting a property via the Gradle-generated 'propName value' or 'propName(value)' syntax in Groovy DSL has been deprecated. This is scheduled to be removed in Gradle 10.0. Use assignment ('url = <value>') instead. Consult the upgrading guide for further information: https://docs.gradle.org/8.13/userguide/upgrading_version_8.html#groovy_space_assignment_syntax
+	at build_rl77e5r4g7us2jyrnyzf3gci$_run_closure1$_closure4$_closure6.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/build.gradle:26)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+	at build_rl77e5r4g7us2jyrnyzf3gci$_run_closure1$_closure4.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/build.gradle:26)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+
+> Configure project :app
+Build file '/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle': line 28
+Properties should be assigned using the 'propName = value' syntax. Setting a property via the Gradle-generated 'propName value' or 'propName(value)' syntax in Groovy DSL has been deprecated. This is scheduled to be removed in Gradle 10.0. Use assignment ('namespace = <value>') instead. Consult the upgrading guide for further information: https://docs.gradle.org/8.13/userguide/upgrading_version_8.html#groovy_space_assignment_syntax
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:28)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+	at build_ax2tb8mloiy0xmo88zg9klp7d.run(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:27)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+Build file '/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle': line 54
+The org.gradle.api.plugins.BasePluginConvention type has been deprecated. This is scheduled to be removed in Gradle 9.0. Consult the upgrading guide for further information: https://docs.gradle.org/8.13/userguide/upgrading_version_8.html#base_convention_deprecation
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1$_closure4.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:54)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1$_closure4.doCall(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+Build file '/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle': line 54
+The BasePluginExtension.archivesBaseName property has been deprecated. This is scheduled to be removed in Gradle 9.0. Please use the archivesName property instead. For more information, please refer to https://docs.gradle.org/8.13/dsl/org.gradle.api.plugins.BasePluginExtension.html#org.gradle.api.plugins.BasePluginExtension:archivesName in the Gradle documentation.
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1$_closure4.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:54)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+Build file '/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle': line 56
+Properties should be assigned using the 'propName = value' syntax. Setting a property via the Gradle-generated 'propName value' or 'propName(value)' syntax in Groovy DSL has been deprecated. This is scheduled to be removed in Gradle 10.0. Use assignment ('useSupportLibrary = <value>') instead. Consult the upgrading guide for further information: https://docs.gradle.org/8.13/userguide/upgrading_version_8.html#groovy_space_assignment_syntax
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1$_closure4$_closure18.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:56)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1$_closure4.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:55)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+Build file '/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle': line 74
+Properties should be assigned using the 'propName = value' syntax. Setting a property via the Gradle-generated 'propName value' or 'propName(value)' syntax in Groovy DSL has been deprecated. This is scheduled to be removed in Gradle 10.0. Use assignment ('shrinkResources = <value>') instead. Consult the upgrading guide for further information: https://docs.gradle.org/8.13/userguide/upgrading_version_8.html#groovy_space_assignment_syntax
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1$_closure6$_closure20.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:74)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1$_closure6.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:72)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+Build file '/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle': line 77
+Properties should be assigned using the 'propName = value' syntax. Setting a property via the Gradle-generated 'propName value' or 'propName(value)' syntax in Groovy DSL has been deprecated. This is scheduled to be removed in Gradle 10.0. Use assignment ('signingConfig = <value>') instead. Consult the upgrading guide for further information: https://docs.gradle.org/8.13/userguide/upgrading_version_8.html#groovy_space_assignment_syntax
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1$_closure6$_closure20.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:77)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1$_closure6.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:72)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+Build file '/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle': line 84
+Properties should be assigned using the 'propName = value' syntax. Setting a property via the Gradle-generated 'propName value' or 'propName(value)' syntax in Groovy DSL has been deprecated. This is scheduled to be removed in Gradle 10.0. Use assignment ('signingConfig = <value>') instead. Consult the upgrading guide for further information: https://docs.gradle.org/8.13/userguide/upgrading_version_8.html#groovy_space_assignment_syntax
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1$_closure6$_closure21.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:84)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1$_closure6.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:80)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+Build file '/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle': line 92
+Properties should be assigned using the 'propName = value' syntax. Setting a property via the Gradle-generated 'propName value' or 'propName(value)' syntax in Groovy DSL has been deprecated. This is scheduled to be removed in Gradle 10.0. Use assignment ('isDefault = <value>') instead. Consult the upgrading guide for further information: https://docs.gradle.org/8.13/userguide/upgrading_version_8.html#groovy_space_assignment_syntax
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1$_closure7$_closure22.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:92)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1$_closure7.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:90)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+Build file '/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle': line 112
+Properties should be assigned using the 'propName = value' syntax. Setting a property via the Gradle-generated 'propName value' or 'propName(value)' syntax in Groovy DSL has been deprecated. This is scheduled to be removed in Gradle 10.0. Use assignment ('viewBinding = <value>') instead. Consult the upgrading guide for further information: https://docs.gradle.org/8.13/userguide/upgrading_version_8.html#groovy_space_assignment_syntax
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1$_closure9.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:112)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:111)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+Build file '/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle': line 113
+Properties should be assigned using the 'propName = value' syntax. Setting a property via the Gradle-generated 'propName value' or 'propName(value)' syntax in Groovy DSL has been deprecated. This is scheduled to be removed in Gradle 10.0. Use assignment ('buildConfig = <value>') instead. Consult the upgrading guide for further information: https://docs.gradle.org/8.13/userguide/upgrading_version_8.html#groovy_space_assignment_syntax
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1$_closure9.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:113)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:111)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+Build file '/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle': line 114
+Properties should be assigned using the 'propName = value' syntax. Setting a property via the Gradle-generated 'propName value' or 'propName(value)' syntax in Groovy DSL has been deprecated. This is scheduled to be removed in Gradle 10.0. Use assignment ('compose = <value>') instead. Consult the upgrading guide for further information: https://docs.gradle.org/8.13/userguide/upgrading_version_8.html#groovy_space_assignment_syntax
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1$_closure9.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:114)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:111)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+Build file '/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle': line 118
+Properties should be assigned using the 'propName = value' syntax. Setting a property via the Gradle-generated 'propName value' or 'propName(value)' syntax in Groovy DSL has been deprecated. This is scheduled to be removed in Gradle 10.0. Use assignment ('coreLibraryDesugaringEnabled = <value>') instead. Consult the upgrading guide for further information: https://docs.gradle.org/8.13/userguide/upgrading_version_8.html#groovy_space_assignment_syntax
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1$_closure10.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:118)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:117)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+Build file '/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle': line 129
+Properties should be assigned using the 'propName = value' syntax. Setting a property via the Gradle-generated 'propName value' or 'propName(value)' syntax in Groovy DSL has been deprecated. This is scheduled to be removed in Gradle 10.0. Use assignment ('enable = <value>') instead. Consult the upgrading guide for further information: https://docs.gradle.org/8.13/userguide/upgrading_version_8.html#groovy_space_assignment_syntax
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1$_closure12$_closure25.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:129)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1$_closure12.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:128)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+Build file '/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle': line 132
+Properties should be assigned using the 'propName = value' syntax. Setting a property via the Gradle-generated 'propName value' or 'propName(value)' syntax in Groovy DSL has been deprecated. This is scheduled to be removed in Gradle 10.0. Use assignment ('universalApk = <value>') instead. Consult the upgrading guide for further information: https://docs.gradle.org/8.13/userguide/upgrading_version_8.html#groovy_space_assignment_syntax
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1$_closure12$_closure25.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:132)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1$_closure12.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:128)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+Build file '/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle': line 136
+Properties should be assigned using the 'propName = value' syntax. Setting a property via the Gradle-generated 'propName value' or 'propName(value)' syntax in Groovy DSL has been deprecated. This is scheduled to be removed in Gradle 10.0. Use assignment ('kotlinCompilerExtensionVersion = <value>') instead. Consult the upgrading guide for further information: https://docs.gradle.org/8.13/userguide/upgrading_version_8.html#groovy_space_assignment_syntax
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1$_closure13.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:136)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:135)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+Build file '/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle': line 147
+Properties should be assigned using the 'propName = value' syntax. Setting a property via the Gradle-generated 'propName value' or 'propName(value)' syntax in Groovy DSL has been deprecated. This is scheduled to be removed in Gradle 10.0. Use assignment ('useLegacyPackaging = <value>') instead. Consult the upgrading guide for further information: https://docs.gradle.org/8.13/userguide/upgrading_version_8.html#groovy_space_assignment_syntax
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1$_closure15$_closure26.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:147)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1$_closure15.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:146)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preGithubReleaseBuild UP-TO-DATE
+> Task :app:mergeGithubReleaseJniLibFolders
+> Task :app:mergeGithubReleaseNativeLibs
+> Task :app:mergeGithubReleaseArtProfile
+
+> Task :app:stripGithubReleaseDebugSymbols
+Unable to strip the following libraries, packaging them as they are: libandroidx.graphics.path.so, libaria2c.so, libaria2c.zip.so, libffmpeg.so, libffmpeg.zip.so, libffprobe.so, libpython.so, libpython.zip.so, libqjs.so. Run with --info option to learn more.
+
+> Task :app:extractGithubReleaseNativeSymbolTables
+> Task :app:buildKotlinToolingMetadata
+> Task :app:mergeGithubReleaseNativeDebugMetadata NO-SOURCE
+> Task :app:expandGithubReleaseL8ArtProfileWildcards
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:checkGithubReleaseDuplicateClasses
+> Task :app:dataBindingMergeDependencyArtifactsGithubRelease
+> Task :app:generateGithubReleaseResValues
+> Task :app:generateGithubReleaseResources
+> Task :app:generateGithubReleaseBuildConfig
+> Task :app:checkGithubReleaseAarMetadata
+> Task :app:processGithubReleaseNavigationResources
+> Task :app:compileGithubReleaseNavigationResources
+> Task :app:mapGithubReleaseSourceSetPaths
+> Task :app:createGithubReleaseCompatibleScreenManifests
+> Task :app:extractDeepLinksGithubRelease
+> Task :app:processGithubReleaseMainManifest
+> Task :app:processGithubReleaseManifest
+> Task :app:mergeGithubReleaseResources
+> Task :app:javaPreCompileGithubRelease
+> Task :app:dataBindingGenBaseClassesGithubRelease
+> Task :app:extractProguardFiles
+> Task :app:mergeGithubReleaseStartupProfile
+> Task :app:mergeGithubReleaseShaders
+> Task :app:compileGithubReleaseShaders NO-SOURCE
+> Task :app:generateGithubReleaseAssets UP-TO-DATE
+> Task :app:mergeGithubReleaseAssets
+> Task :app:processGithubReleaseManifestForPackage
+> Task :app:compressGithubReleaseAssets
+> Task :app:extractGithubReleaseVersionControlInfo
+> Task :app:validateSigningGithubRelease
+> Task :app:writeGithubReleaseAppMetadata
+> Task :app:writeGithubReleaseSigningConfigVersions
+> Task :app:processGithubReleaseResources
+
+> Task :app:kspGithubReleaseKotlin
+w: [ksp] /home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/database/dao/TerminalDao.kt:15:  com.deniscerri.ytdl.database.models.TerminalItem has some properties [log] which are not returned by the query. If they are not supposed to be read from the result, you can mark them with @Ignore annotation. You can suppress this warning by annotating the function with @SuppressWarnings(RoomWarnings.QUERY_MISMATCH). Columns returned by the query: id, command.
+w: [ksp] /home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/database/dao/TerminalDao.kt:18:  com.deniscerri.ytdl.database.models.TerminalItem has some properties [log] which are not returned by the query. If they are not supposed to be read from the result, you can mark them with @Ignore annotation. You can suppress this warning by annotating the function with @SuppressWarnings(RoomWarnings.QUERY_MISMATCH). Columns returned by the query: id, command.
+
+> Task :app:compileGithubReleaseKotlin
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build/generated/ksp/githubRelease/kotlin/com/deniscerri/ytdl/database/dao/ResultDao_Impl.kt:67:13 Condition is always 'false'.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build/generated/ksp/githubRelease/kotlin/com/deniscerri/ytdl/database/dao/ResultDao_Impl.kt:106:13 Condition is always 'false'.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/MainActivity.kt:117:16 'var navigationBarColor: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/MainActivity.kt:294:38 The corresponding parameter in the supertype 'ComponentActivity' is named 'outState'. This may cause problems when calling this function with named arguments.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/MainActivity.kt:383:20 'var statusBarColor: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/MainActivity.kt:385:20 'var statusBarColor: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/MainActivity.kt:404:28 'fun <T : Parcelable!> getParcelableExtra(p0: String!): T?' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/core/ZipUtils.kt:54:96 Unnecessary non-null assertion (!!) on a non-null receiver of type 'ZipArchiveEntry'.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/core/ZipUtils.kt:56:26 Unnecessary non-null assertion (!!) on a non-null receiver of type 'ZipArchiveEntry'.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/core/ZipUtils.kt:59:21 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'File?'.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/database/dao/LogDao.kt:46:29 Elvis operator (?:) always returns the left operand of non-nullable type 'String'.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/database/viewmodel/CommandTemplateViewModel.kt:178:23 'fun setText(p0: CharSequence!): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/database/viewmodel/CookieViewModel.kt:203:31 'fun setText(p0: CharSequence!): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/database/viewmodel/DownloadViewModel.kt:192:33 'constructor(p0: String!): Locale' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/database/viewmodel/DownloadViewModel.kt:192:54 'constructor(p0: String!, p1: String!): Locale' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/database/viewmodel/DownloadViewModel.kt:196:21 'constructor(p0: AssetManager!, p1: DisplayMetrics!, p2: Configuration!): Resources' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/receiver/ResumeActivity.kt:48:52 'static field TYPE_SYSTEM_ALERT: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/receiver/ShareActivity.kt:80:48 'static field TYPE_SYSTEM_ALERT: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/receiver/ShareActivity.kt:112:56 'static field TYPE_SYSTEM_ALERT: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/receiver/ShareActivity.kt:237:26 'var systemUiVisibility: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/receiver/ShareActivity.kt:238:18 'static field SYSTEM_UI_FLAG_LAYOUT_STABLE: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/receiver/ShareActivity.kt:239:21 'static field SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/receiver/ShareActivity.kt:240:21 'static field SYSTEM_UI_FLAG_FULLSCREEN: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/receiver/ShareActivity.kt:241:21 'static field SYSTEM_UI_FLAG_IMMERSIVE_STICKY: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/receiver/ShareActivity.kt:242:21 'static field SYSTEM_UI_FLAG_HIDE_NAVIGATION: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/receiver/TransparentActivity.kt:52:56 'static field TYPE_SYSTEM_ALERT: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/BaseActivity.kt:23:16 'var navigationBarColor: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/HomeFragment.kt:434:37 There is more than one label with such a name in this scope.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/HomeFragment.kt:792:48 The corresponding parameter in the supertype 'OnItemClickListener' is named 'isChecked'. This may cause problems when calling this function with named arguments.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/adapter/ChangelogAdapter.kt:69:35 'static fun startActivity(p0: Context, p1: Intent, p2: Bundle?): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/adapter/ChangelogAdapter.kt:85:31 'static fun startActivity(p0: Context, p1: Intent, p2: Bundle?): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/adapter/PackageReleaseAdapter.kt:69:75 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'Date?'.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/adapter/PlaylistAdapter.kt:67:65 Unnecessary non-null assertion (!!) on a non-null receiver of type 'ResultItem'.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/adapter/PlaylistAdapter.kt:69:60 Unnecessary non-null assertion (!!) on a non-null receiver of type 'ResultItem'.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/AddExtraCommandsDialog.kt:68:44 'static field SOFT_INPUT_ADJUST_RESIZE: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/AddExtraCommandsDialog.kt:71:24 'var navigationBarColor: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/ConfigureDownloadBottomSheetDialog.kt:66:24 'var navigationBarColor: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/ConfigureDownloadBottomSheetDialog.kt:70:45 'val defaultDisplay: Display!' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/ConfigureDownloadBottomSheetDialog.kt:70:60 'fun getMetrics(p0: DisplayMetrics!): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/CutVideoBottomSheetDialog.kt:115:24 'var navigationBarColor: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/CutVideoBottomSheetDialog.kt:127:45 'val defaultDisplay: Display!' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/CutVideoBottomSheetDialog.kt:127:60 'fun getMetrics(p0: DisplayMetrics!): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/DownloadBottomSheetDialog.kt:106:27 'fun getSerializable(p0: String?): Serializable?' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/DownloadBottomSheetDialog.kt:132:24 'var navigationBarColor: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/DownloadBottomSheetDialog.kt:138:45 'val defaultDisplay: Display!' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/DownloadBottomSheetDialog.kt:138:60 'fun getMetrics(p0: DisplayMetrics!): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/DownloadBottomSheetDialog.kt:699:21 'val fragmentManager: FragmentManager?' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/DownloadBottomSheetDialog.kt:711:13 'val fragmentManager: FragmentManager?' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/DownloadMultipleBottomSheetDialog.kt:152:24 'var navigationBarColor: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/DownloadMultipleBottomSheetDialog.kt:158:45 'val defaultDisplay: Display!' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/DownloadMultipleBottomSheetDialog.kt:158:60 'fun getMetrics(p0: DisplayMetrics!): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/DownloadMultipleBottomSheetDialog.kt:460:57 'val defaultDisplay: Display!' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/DownloadMultipleBottomSheetDialog.kt:460:72 'fun getMetrics(p0: DisplayMetrics!): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/DownloadMultipleBottomSheetDialog.kt:644:69 'val defaultDisplay: Display!' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/DownloadMultipleBottomSheetDialog.kt:644:84 'fun getMetrics(p0: DisplayMetrics!): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/DownloadMultipleBottomSheetDialog.kt:760:69 'val defaultDisplay: Display!' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/DownloadMultipleBottomSheetDialog.kt:760:84 'fun getMetrics(p0: DisplayMetrics!): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/DownloadMultipleBottomSheetDialog.kt:840:69 'val defaultDisplay: Display!' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/DownloadMultipleBottomSheetDialog.kt:840:84 'fun getMetrics(p0: DisplayMetrics!): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/DownloadMultipleBottomSheetDialog.kt:1124:45 'val defaultDisplay: Display!' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/DownloadMultipleBottomSheetDialog.kt:1124:60 'fun getMetrics(p0: DisplayMetrics!): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/DownloadMultipleBottomSheetDialog.kt:1171:15 Elvis operator (?:) always returns the left operand of non-nullable type 'DownloadItem'.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/DownloadMultipleBottomSheetDialog.kt:1265:44 'constructor(p0: Context!, p1: Canvas!, p2: RecyclerView!, p3: RecyclerView.ViewHolder!, p4: Float, p5: Float, p6: Int, p7: Boolean): RecyclerViewSwipeDecorator.Builder' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/DownloadsAlreadyExistDialog.kt:63:28 'fun <T : Parcelable!> getParcelableArrayList(p0: String?): ArrayList<T!>?' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/DownloadsAlreadyExistDialog.kt:80:24 'var navigationBarColor: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/DownloadsAlreadyExistDialog.kt:84:45 'val defaultDisplay: Display!' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/DownloadsAlreadyExistDialog.kt:84:60 'fun getMetrics(p0: DisplayMetrics!): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/FormatSelectionBottomSheetDialog.kt:106:45 'val defaultDisplay: Display!' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/FormatSelectionBottomSheetDialog.kt:106:60 'fun getMetrics(p0: DisplayMetrics!): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/FormatSelectionBottomSheetDialog.kt:392:45 'val defaultDisplay: Display!' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/FormatSelectionBottomSheetDialog.kt:392:60 'fun getMetrics(p0: DisplayMetrics!): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/ObserveSourcesBottomSheetDialog.kt:113:24 'fun <T : Parcelable!> getParcelable(p0: String?): T?' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/ObserveSourcesBottomSheetDialog.kt:116:70 'fun getSerializable(p0: String?): Serializable?' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/ObserveSourcesBottomSheetDialog.kt:130:24 'var navigationBarColor: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/ObserveSourcesBottomSheetDialog.kt:135:45 'val defaultDisplay: Display!' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/ObserveSourcesBottomSheetDialog.kt:135:60 'fun getMetrics(p0: DisplayMetrics!): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/ObserveSourcesBottomSheetDialog.kt:575:25 'val fragmentManager: FragmentManager?' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/ObserveSourcesBottomSheetDialog.kt:579:25 'val fragmentManager: FragmentManager?' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/ObserveSourcesBottomSheetDialog.kt:583:25 'val fragmentManager: FragmentManager?' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/ResultCardDetailsDialog.kt:126:24 'var navigationBarColor: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/ResultCardDetailsDialog.kt:131:45 'val defaultDisplay: Display!' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/ResultCardDetailsDialog.kt:131:60 'fun getMetrics(p0: DisplayMetrics!): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/ResultCardDetailsDialog.kt:145:24 'fun <T : Parcelable!> getParcelable(p0: String?): T?' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/ResultCardDetailsDialog.kt:203:25 Condition is always 'false'.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/ResultCardDetailsDialog.kt:427:44 'constructor(p0: Context!, p1: Canvas!, p2: RecyclerView!, p3: RecyclerView.ViewHolder!, p4: Float, p5: Float, p6: Int, p7: Boolean): RecyclerViewSwipeDecorator.Builder' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/SelectPlaylistItemsDialog.kt:89:24 'var navigationBarColor: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/SelectPlaylistItemsDialog.kt:94:45 'val defaultDisplay: Display!' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/SelectPlaylistItemsDialog.kt:94:60 'fun getMetrics(p0: DisplayMetrics!): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/crop/CropVideoBottomSheetDialog.kt:124:24 'var navigationBarColor: Int' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/crop/CropVideoBottomSheetDialog.kt:137:45 'val defaultDisplay: Display!' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloadcard/crop/CropVideoBottomSheetDialog.kt:137:60 'fun getMetrics(p0: DisplayMetrics!): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloads/CancelledDownloadsFragment.kt:427:44 'constructor(p0: Context!, p1: Canvas!, p2: RecyclerView!, p3: RecyclerView.ViewHolder!, p4: Float, p5: Float, p6: Int, p7: Boolean): RecyclerViewSwipeDecorator.Builder' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloads/CancelledDownloadsFragment.kt:451:31 Unnecessary non-null assertion (!!) on a non-null receiver of type 'RecyclerView.ViewHolder'.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloads/ErroredDownloadsFragment.kt:430:44 'constructor(p0: Context!, p1: Canvas!, p2: RecyclerView!, p3: RecyclerView.ViewHolder!, p4: Float, p5: Float, p6: Int, p7: Boolean): RecyclerViewSwipeDecorator.Builder' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloads/HistoryFragment.kt:377:53 'val defaultDisplay: Display!' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloads/HistoryFragment.kt:377:68 'fun getMetrics(p0: DisplayMetrics!): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloads/HistoryFragment.kt:412:49 Unnecessary non-null assertion (!!) on a non-null receiver of type 'HistoryRepository.HistorySortType'.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloads/HistoryFragment.kt:413:112 Unnecessary non-null assertion (!!) on a non-null receiver of type 'DBManager.SORTING'.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloads/HistoryFragment.kt:414:114 Unnecessary non-null assertion (!!) on a non-null receiver of type 'DBManager.SORTING'.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloads/HistoryFragment.kt:415:116 Unnecessary non-null assertion (!!) on a non-null receiver of type 'DBManager.SORTING'.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloads/HistoryFragment.kt:416:120 Unnecessary non-null assertion (!!) on a non-null receiver of type 'DBManager.SORTING'.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloads/HistoryFragment.kt:422:70 Unnecessary non-null assertion (!!) on a non-null receiver of type 'DBManager.SORTING'.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloads/HistoryFragment.kt:427:71 Unnecessary non-null assertion (!!) on a non-null receiver of type 'DBManager.SORTING'.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloads/HistoryFragment.kt:432:72 Unnecessary non-null assertion (!!) on a non-null receiver of type 'DBManager.SORTING'.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloads/HistoryFragment.kt:437:74 Unnecessary non-null assertion (!!) on a non-null receiver of type 'DBManager.SORTING'.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloads/HistoryFragment.kt:440:45 'val defaultDisplay: Display!' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloads/HistoryFragment.kt:440:60 'fun getMetrics(p0: DisplayMetrics!): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloads/HistoryFragment.kt:757:44 'constructor(p0: Context!, p1: Canvas!, p2: RecyclerView!, p3: RecyclerView.ViewHolder!, p4: Float, p5: Float, p6: Int, p7: Boolean): RecyclerViewSwipeDecorator.Builder' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloads/HistoryFragment.kt:790:46 The corresponding parameter in the supertype 'OnItemClickListener' is named 'filePresent'. This may cause problems when calling this function with named arguments.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloads/QueuedDownloadsFragment.kt:327:44 'constructor(p0: Context!, p1: Canvas!, p2: RecyclerView!, p3: RecyclerView.ViewHolder!, p4: Float, p5: Float, p6: Int, p7: Boolean): RecyclerViewSwipeDecorator.Builder' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloads/SavedDownloadsFragment.kt:170:17 Condition is always 'true'.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloads/SavedDownloadsFragment.kt:419:44 'constructor(p0: Context!, p1: Canvas!, p2: RecyclerView!, p3: RecyclerView.ViewHolder!, p4: Float, p5: Float, p6: Int, p7: Boolean): RecyclerViewSwipeDecorator.Builder' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloads/ScheduledDownloadsFragment.kt:413:44 'constructor(p0: Context!, p1: Canvas!, p2: RecyclerView!, p3: RecyclerView.ViewHolder!, p4: Float, p5: Float, p6: Int, p7: Boolean): RecyclerViewSwipeDecorator.Builder' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/more/CommandTemplatesFragment.kt:231:45 'val defaultDisplay: Display!' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/more/CommandTemplatesFragment.kt:231:60 'fun getMetrics(p0: DisplayMetrics!): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/more/CommandTemplatesFragment.kt:362:58 Unnecessary non-null assertion (!!) on a non-null receiver of type 'Boolean'.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/more/CommandTemplatesFragment.kt:381:35 'fun setText(p0: CharSequence!): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/more/CommandTemplatesFragment.kt:433:44 'constructor(p0: Context!, p1: Canvas!, p2: RecyclerView!, p3: RecyclerView.ViewHolder!, p4: Float, p5: Float, p6: Int, p7: Boolean): RecyclerViewSwipeDecorator.Builder' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/more/cookies/CookiesFragment.kt:304:44 'constructor(p0: Context!, p1: Canvas!, p2: RecyclerView!, p3: RecyclerView.ViewHolder!, p4: Float, p5: Float, p6: Int, p7: Boolean): RecyclerViewSwipeDecorator.Builder' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/more/downloadLogs/DownloadLogFragment.kt:98:23 'fun setText(p0: CharSequence!): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/more/downloadLogs/DownloadLogListFragment.kt:203:58 Unnecessary non-null assertion (!!) on a non-null receiver of type 'Boolean'.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/more/downloadLogs/DownloadLogListFragment.kt:267:44 'constructor(p0: Context!, p1: Canvas!, p2: RecyclerView!, p3: RecyclerView.ViewHolder!, p4: Float, p5: Float, p6: Int, p7: Boolean): RecyclerViewSwipeDecorator.Builder' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/more/settings/BaseSettingsFragment.kt:49:45 No cast needed.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/more/settings/MainSettingsFragment.kt:96:29 'constructor(p0: String!): Locale' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/more/settings/MainSettingsFragment.kt:200:69 Elvis operator (?:) always returns the left operand of non-nullable type 'String'.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/more/settings/advanced/generateyoutubepotokens/webview/PoTokenWebViewLoginActivity.kt:34:8 'class AccompanistWebChromeClient : WebChromeClient' is deprecated. accompanist/web is deprecated and the API is no longer maintained. 
+We recommend forking the implementation and customising it to your needs. 
+For more information please visit https://google.github.io/accompanist/web.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/more/settings/advanced/generateyoutubepotokens/webview/PoTokenWebViewLoginActivity.kt:35:8 'class AccompanistWebViewClient : WebViewClient' is deprecated. accompanist/web is deprecated and the API is no longer maintained. 
+We recommend forking the implementation and customising it to your needs. 
+For more information please visit https://google.github.io/accompanist/web.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/more/settings/advanced/generateyoutubepotokens/webview/PoTokenWebViewLoginActivity.kt:51:41 'class AccompanistWebViewClient : WebViewClient' is deprecated. accompanist/web is deprecated and the API is no longer maintained. 
+We recommend forking the implementation and customising it to your needs. 
+For more information please visit https://google.github.io/accompanist/web.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/more/settings/advanced/generateyoutubepotokens/webview/PoTokenWebViewLoginActivity.kt:98:38 'class AccompanistWebViewClient : WebViewClient' is deprecated. accompanist/web is deprecated and the API is no longer maintained. 
+We recommend forking the implementation and customising it to your needs. 
+For more information please visit https://google.github.io/accompanist/web.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/more/settings/advanced/generateyoutubepotokens/webview/PoTokenWebViewLoginActivity.kt:102:45 Unnecessary safe call on a non-null receiver of type 'WebView'.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/more/settings/advanced/generateyoutubepotokens/webview/PoTokenWebViewLoginActivity.kt:232:49 'class AccompanistWebViewClient : WebViewClient' is deprecated. accompanist/web is deprecated and the API is no longer maintained. 
+We recommend forking the implementation and customising it to your needs. 
+For more information please visit https://google.github.io/accompanist/web.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/more/settings/advanced/generateyoutubepotokens/webview/PoTokenWebViewLoginActivity.kt:237:22 'class AccompanistWebChromeClient : WebChromeClient' is deprecated. accompanist/web is deprecated and the API is no longer maintained. 
+We recommend forking the implementation and customising it to your needs. 
+For more information please visit https://google.github.io/accompanist/web.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/more/settings/advanced/generateyoutubepotokens/webview/PoTokenWebViewLoginActivity.kt:263:40 'fun WebView(state: WebViewState, modifier: Modifier = ..., captureBackPresses: Boolean = ..., navigator: WebViewNavigator = ..., onCreated: (WebView) -> Unit = ..., onDispose: (WebView) -> Unit = ..., client: AccompanistWebViewClient = ..., chromeClient: AccompanistWebChromeClient = ..., factory: ((Context) -> WebView)? = ...): Unit' is deprecated. accompanist/web is deprecated and the API is no longer maintained. 
+We recommend forking the implementation and customising it to your needs. 
+For more information please visit https://google.github.io/accompanist/web.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/more/settings/advanced/generateyoutubepotokens/webview/PoTokenWebViewLoginActivity.kt:264:25 'fun rememberWebViewState(url: String, additionalHttpHeaders: Map<String, String> = ...): WebViewState' is deprecated. accompanist/web is deprecated and the API is no longer maintained. 
+We recommend forking the implementation and customising it to your needs. 
+For more information please visit https://google.github.io/accompanist/web.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/more/settings/downloading/DownloadSettingsModule.kt:196:90 No cast needed.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/more/settings/downloading/DownloadSettingsModule.kt:197:88 No cast needed.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/more/settings/folder/FolderSettingsModule.kt:171:45 Unchecked cast of 'Any!' to 'HashSet<String>'.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/more/settings/folder/FolderSettingsModule.kt:366:41 Condition is always 'false'.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/more/settings/general/GeneralSettingsModule.kt:228:28 'val defaultDisplay: Display!' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/more/settings/general/GeneralSettingsModule.kt:228:43 'fun getMetrics(p0: DisplayMetrics!): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/more/settings/updating/PackagesFragment.kt:140:41 'val defaultDisplay: Display!' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/more/settings/updating/PackagesFragment.kt:140:56 'fun getMetrics(p0: DisplayMetrics!): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/more/terminal/TerminalActivity.kt:56:28 'fun <T : Parcelable!> getParcelableExtra(p0: String!): T?' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/more/terminal/TerminalFragment.kt:125:41 'val defaultDisplay: Display!' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/more/terminal/TerminalFragment.kt:125:56 'fun getMetrics(p0: DisplayMetrics!): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/more/terminal/TerminalFragment.kt:288:35 'fun setText(p0: CharSequence!): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/util/Extensions.kt:138:23 Check for instance is always 'true'.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/util/ThemeUtil.kt:60:9 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/util/ThemeUtil.kt:61:9 This annotation is currently applied to the value parameter only, but in the future it will also be applied to field.
+- To opt in to applying to both value parameter and field, add '-Xannotation-default-target=param-property' to your compiler arguments.
+- To keep applying to the value parameter only, use the '@param:' annotation target.
+
+See https://youtrack.jetbrains.com/issue/KT-73255 for more details.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/util/UiUtil.kt:762:31 'val defaultDisplay: Display!' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/util/UiUtil.kt:762:46 'fun getMetrics(p0: DisplayMetrics!): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/util/UiUtil.kt:957:31 'val defaultDisplay: Display!' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/util/UiUtil.kt:957:46 'fun getMetrics(p0: DisplayMetrics!): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/util/UiUtil.kt:1080:32 'val defaultDisplay: Display!' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/util/UiUtil.kt:1080:47 'fun getMetrics(p0: DisplayMetrics!): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/util/UiUtil.kt:1134:39 'constructor(p0: String!): Locale' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/util/UiUtil.kt:1138:29 'constructor(p0: String!): Locale' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/util/UiUtil.kt:1140:29 'constructor(p0: String!, p1: String!): Locale' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/util/UiUtil.kt:1273:36 'val defaultDisplay: Display!' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/util/UiUtil.kt:1273:51 'fun getMetrics(p0: DisplayMetrics!): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/util/UiUtil.kt:1305:36 'val defaultDisplay: Display!' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/util/UiUtil.kt:1305:51 'fun getMetrics(p0: DisplayMetrics!): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/util/UiUtil.kt:2095:23 'fun setText(p0: CharSequence!): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/util/UiUtil.kt:2127:27 'fun setText(p0: CharSequence!): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/util/UiUtil.kt:2604:31 'val defaultDisplay: Display!' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/util/UiUtil.kt:2604:46 'fun getMetrics(p0: DisplayMetrics!): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/util/UiUtil.kt:3098:35 'val defaultDisplay: Display!' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/util/UiUtil.kt:3098:50 'fun getMetrics(p0: DisplayMetrics!): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/util/UiUtil.kt:3106:31 'val defaultDisplay: Display!' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/util/UiUtil.kt:3106:46 'fun getMetrics(p0: DisplayMetrics!): Unit' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/util/extractors/newpipe/NewPipeDownloaderImpl.kt:24:39 'fun create(contentType: MediaType?, content: ByteArray, offset: Int = ..., byteCount: Int = ...): RequestBody' is deprecated. Moved to extension function. Put the 'content' argument first to fix Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/util/extractors/newpipe/NewPipeUtil.kt:409:62 Unnecessary safe call on a non-null receiver of type 'Format'.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/util/extractors/ytdlp/YTDLPUtil.kt:551:21 Condition is always 'false'.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/work/download/DownloadWorker.kt:126:33 'constructor(p0: String!): Locale' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/work/download/DownloadWorker.kt:126:54 'constructor(p0: String!, p1: String!): Locale' is deprecated. Deprecated in Java.
+w: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/work/download/DownloadWorker.kt:130:25 'constructor(p0: AssetManager!, p1: DisplayMetrics!, p2: Configuration!): Resources' is deprecated. Deprecated in Java.
+
+> Task :app:compileGithubReleaseJavaWithJavac
+> Task :app:mergeGithubReleaseGeneratedProguardFiles
+> Task :app:processGithubReleaseJavaRes
+> Task :app:expandGithubReleaseArtProfileWildcards
+> Task :app:mergeGithubReleaseJavaResource
+> Task :app:produceGithubReleaseComposeMapping
+> Task :app:generateGithubReleaseLintVitalReportModel
+> Task :app:reportGithubReleaseComposeMappingErrors
+> Task :app:minifyGithubReleaseWithR8
+> Task :app:lintVitalAnalyzeGithubRelease
+> Task :app:lintVitalReportGithubRelease
+> Task :app:lintVitalGithubRelease
+> Task :app:mergeGithubReleaseComposeMapping
+> Task :app:convertShrunkResourcesToBinaryGithubRelease
+> Task :app:optimizeGithubReleaseResources
+> Task :app:l8DexDesugarLibGithubRelease
+> Task :app:compileGithubReleaseArtProfile
+> Task :app:packageGithubRelease
+> Task :app:createGithubReleaseApkListingFileRedirect
+> Task :app:assembleGithubRelease
+
+[Incubating] Problems report is available at: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/build/reports/problems/problems-report.html
+
+BUILD SUCCESSFUL in 4m 23s
+55 actionable tasks: 55 executed
