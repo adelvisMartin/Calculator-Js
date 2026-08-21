@@ -14,8 +14,8 @@ echo "E2E APK: $TARGET_APK"
 adb install -r "$TARGET_APK"
 adb shell appops set com.deniscerri.ytdl MANAGE_EXTERNAL_STORAGE allow
 
-adb shell mkdir -p '/sdcard/Android/media/com.whatsapp/WhatsApp/Media/.Statuses'
-adb shell mkdir -p '/sdcard/Android/media/com.whatsapp.w4b/WhatsApp Business/Media/.Statuses'
+adb shell 'mkdir -p "/sdcard/Android/media/com.whatsapp/WhatsApp/Media/.Statuses"'
+adb shell 'mkdir -p "/sdcard/Android/media/com.whatsapp.w4b/WhatsApp Business/Media/.Statuses"'
 printf 'fake-jpeg-for-discovery' > /tmp/insave-auto-test.jpg
 printf 'fake-mp4-for-discovery' > /tmp/insave-auto-business-test.mp4
 adb push /tmp/insave-auto-test.jpg '/sdcard/Android/media/com.whatsapp/WhatsApp/Media/.Statuses/insave-auto-test.jpg'
