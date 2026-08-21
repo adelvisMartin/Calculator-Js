@@ -1,0 +1,204 @@
+
+Welcome to Gradle 8.13!
+
+Here are the highlights of this release:
+ - Daemon JVM auto-provisioning
+ - Enhancements for Scala plugin and JUnit testing
+ - Improvements for build authors and plugin developers
+
+For more details see https://docs.gradle.org/8.13/release-notes.html
+
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.13/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+Settings file '/home/runner/work/Calculator-Js/Calculator-Js/upstream/settings.gradle': line 6
+Properties should be assigned using the 'propName = value' syntax. Setting a property via the Gradle-generated 'propName value' or 'propName(value)' syntax in Groovy DSL has been deprecated. This is scheduled to be removed in Gradle 10.0. Use assignment ('url = <value>') instead. Consult the upgrading guide for further information: https://docs.gradle.org/8.13/userguide/upgrading_version_8.html#groovy_space_assignment_syntax
+	at settings_78x6cf6ghrmplonyvlf6j9s1x$_run_closure1$_closure2$_closure3.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/settings.gradle:6)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+	at settings_78x6cf6ghrmplonyvlf6j9s1x$_run_closure1$_closure2.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/settings.gradle:6)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+Settings file '/home/runner/work/Calculator-Js/Calculator-Js/upstream/settings.gradle': line 14
+Properties should be assigned using the 'propName = value' syntax. Setting a property via the Gradle-generated 'propName value' or 'propName(value)' syntax in Groovy DSL has been deprecated. This is scheduled to be removed in Gradle 10.0. Use assignment ('url = <value>') instead. Consult the upgrading guide for further information: https://docs.gradle.org/8.13/userguide/upgrading_version_8.html#groovy_space_assignment_syntax
+	at settings_78x6cf6ghrmplonyvlf6j9s1x$_run_closure1$_closure2$_closure3.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/settings.gradle:14)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+	at settings_78x6cf6ghrmplonyvlf6j9s1x$_run_closure1$_closure2.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/settings.gradle:14)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+Configuring project ':common' without an existing directory is deprecated. The configured projectDirectory '/home/runner/work/Calculator-Js/Calculator-Js/upstream/common' does not exist, can't be written to or is not a directory. This behavior has been deprecated. This will fail with an error in Gradle 9.0. Make sure the project directory exists and can be written. Consult the upgrading guide for further information: https://docs.gradle.org/8.13/userguide/upgrading_version_8.html#deprecated_missing_project_directory
+Configuring project ':library' without an existing directory is deprecated. The configured projectDirectory '/home/runner/work/Calculator-Js/Calculator-Js/upstream/library' does not exist, can't be written to or is not a directory. This behavior has been deprecated. This will fail with an error in Gradle 9.0. Make sure the project directory exists and can be written. Consult the upgrading guide for further information: https://docs.gradle.org/8.13/userguide/upgrading_version_8.html#deprecated_missing_project_directory
+Configuring project ':ffmpeg' without an existing directory is deprecated. The configured projectDirectory '/home/runner/work/Calculator-Js/Calculator-Js/upstream/ffmpeg' does not exist, can't be written to or is not a directory. This behavior has been deprecated. This will fail with an error in Gradle 9.0. Make sure the project directory exists and can be written. Consult the upgrading guide for further information: https://docs.gradle.org/8.13/userguide/upgrading_version_8.html#deprecated_missing_project_directory
+
+> Configure project :
+Build file '/home/runner/work/Calculator-Js/Calculator-Js/upstream/build.gradle': line 25
+Properties should be assigned using the 'propName = value' syntax. Setting a property via the Gradle-generated 'propName value' or 'propName(value)' syntax in Groovy DSL has been deprecated. This is scheduled to be removed in Gradle 10.0. Use assignment ('url = <value>') instead. Consult the upgrading guide for further information: https://docs.gradle.org/8.13/userguide/upgrading_version_8.html#groovy_space_assignment_syntax
+	at build_rl77e5r4g7us2jyrnyzf3gci$_run_closure1$_closure4$_closure5.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/build.gradle:25)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+	at build_rl77e5r4g7us2jyrnyzf3gci$_run_closure1$_closure4.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/build.gradle:25)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+Build file '/home/runner/work/Calculator-Js/Calculator-Js/upstream/build.gradle': line 26
+Properties should be assigned using the 'propName = value' syntax. Setting a property via the Gradle-generated 'propName value' or 'propName(value)' syntax in Groovy DSL has been deprecated. This is scheduled to be removed in Gradle 10.0. Use assignment ('url = <value>') instead. Consult the upgrading guide for further information: https://docs.gradle.org/8.13/userguide/upgrading_version_8.html#groovy_space_assignment_syntax
+	at build_rl77e5r4g7us2jyrnyzf3gci$_run_closure1$_closure4$_closure6.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/build.gradle:26)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+	at build_rl77e5r4g7us2jyrnyzf3gci$_run_closure1$_closure4.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/build.gradle:26)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+
+> Configure project :app
+Build file '/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle': line 28
+Properties should be assigned using the 'propName = value' syntax. Setting a property via the Gradle-generated 'propName value' or 'propName(value)' syntax in Groovy DSL has been deprecated. This is scheduled to be removed in Gradle 10.0. Use assignment ('namespace = <value>') instead. Consult the upgrading guide for further information: https://docs.gradle.org/8.13/userguide/upgrading_version_8.html#groovy_space_assignment_syntax
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:28)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+	at build_ax2tb8mloiy0xmo88zg9klp7d.run(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:27)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+Build file '/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle': line 54
+The org.gradle.api.plugins.BasePluginConvention type has been deprecated. This is scheduled to be removed in Gradle 9.0. Consult the upgrading guide for further information: https://docs.gradle.org/8.13/userguide/upgrading_version_8.html#base_convention_deprecation
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1$_closure4.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:54)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1$_closure4.doCall(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+Build file '/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle': line 54
+The BasePluginExtension.archivesBaseName property has been deprecated. This is scheduled to be removed in Gradle 9.0. Please use the archivesName property instead. For more information, please refer to https://docs.gradle.org/8.13/dsl/org.gradle.api.plugins.BasePluginExtension.html#org.gradle.api.plugins.BasePluginExtension:archivesName in the Gradle documentation.
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1$_closure4.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:54)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+Build file '/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle': line 56
+Properties should be assigned using the 'propName = value' syntax. Setting a property via the Gradle-generated 'propName value' or 'propName(value)' syntax in Groovy DSL has been deprecated. This is scheduled to be removed in Gradle 10.0. Use assignment ('useSupportLibrary = <value>') instead. Consult the upgrading guide for further information: https://docs.gradle.org/8.13/userguide/upgrading_version_8.html#groovy_space_assignment_syntax
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1$_closure4$_closure18.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:56)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1$_closure4.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:55)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+Build file '/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle': line 74
+Properties should be assigned using the 'propName = value' syntax. Setting a property via the Gradle-generated 'propName value' or 'propName(value)' syntax in Groovy DSL has been deprecated. This is scheduled to be removed in Gradle 10.0. Use assignment ('shrinkResources = <value>') instead. Consult the upgrading guide for further information: https://docs.gradle.org/8.13/userguide/upgrading_version_8.html#groovy_space_assignment_syntax
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1$_closure6$_closure20.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:74)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1$_closure6.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:72)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+Build file '/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle': line 77
+Properties should be assigned using the 'propName = value' syntax. Setting a property via the Gradle-generated 'propName value' or 'propName(value)' syntax in Groovy DSL has been deprecated. This is scheduled to be removed in Gradle 10.0. Use assignment ('signingConfig = <value>') instead. Consult the upgrading guide for further information: https://docs.gradle.org/8.13/userguide/upgrading_version_8.html#groovy_space_assignment_syntax
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1$_closure6$_closure20.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:77)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1$_closure6.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:72)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+Build file '/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle': line 84
+Properties should be assigned using the 'propName = value' syntax. Setting a property via the Gradle-generated 'propName value' or 'propName(value)' syntax in Groovy DSL has been deprecated. This is scheduled to be removed in Gradle 10.0. Use assignment ('signingConfig = <value>') instead. Consult the upgrading guide for further information: https://docs.gradle.org/8.13/userguide/upgrading_version_8.html#groovy_space_assignment_syntax
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1$_closure6$_closure21.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:84)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1$_closure6.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:80)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+Build file '/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle': line 92
+Properties should be assigned using the 'propName = value' syntax. Setting a property via the Gradle-generated 'propName value' or 'propName(value)' syntax in Groovy DSL has been deprecated. This is scheduled to be removed in Gradle 10.0. Use assignment ('isDefault = <value>') instead. Consult the upgrading guide for further information: https://docs.gradle.org/8.13/userguide/upgrading_version_8.html#groovy_space_assignment_syntax
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1$_closure7$_closure22.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:92)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1$_closure7.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:90)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+Build file '/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle': line 112
+Properties should be assigned using the 'propName = value' syntax. Setting a property via the Gradle-generated 'propName value' or 'propName(value)' syntax in Groovy DSL has been deprecated. This is scheduled to be removed in Gradle 10.0. Use assignment ('viewBinding = <value>') instead. Consult the upgrading guide for further information: https://docs.gradle.org/8.13/userguide/upgrading_version_8.html#groovy_space_assignment_syntax
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1$_closure9.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:112)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:111)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+Build file '/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle': line 113
+Properties should be assigned using the 'propName = value' syntax. Setting a property via the Gradle-generated 'propName value' or 'propName(value)' syntax in Groovy DSL has been deprecated. This is scheduled to be removed in Gradle 10.0. Use assignment ('buildConfig = <value>') instead. Consult the upgrading guide for further information: https://docs.gradle.org/8.13/userguide/upgrading_version_8.html#groovy_space_assignment_syntax
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1$_closure9.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:113)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:111)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+Build file '/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle': line 114
+Properties should be assigned using the 'propName = value' syntax. Setting a property via the Gradle-generated 'propName value' or 'propName(value)' syntax in Groovy DSL has been deprecated. This is scheduled to be removed in Gradle 10.0. Use assignment ('compose = <value>') instead. Consult the upgrading guide for further information: https://docs.gradle.org/8.13/userguide/upgrading_version_8.html#groovy_space_assignment_syntax
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1$_closure9.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:114)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:111)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+Build file '/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle': line 118
+Properties should be assigned using the 'propName = value' syntax. Setting a property via the Gradle-generated 'propName value' or 'propName(value)' syntax in Groovy DSL has been deprecated. This is scheduled to be removed in Gradle 10.0. Use assignment ('coreLibraryDesugaringEnabled = <value>') instead. Consult the upgrading guide for further information: https://docs.gradle.org/8.13/userguide/upgrading_version_8.html#groovy_space_assignment_syntax
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1$_closure10.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:118)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:117)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+Build file '/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle': line 129
+Properties should be assigned using the 'propName = value' syntax. Setting a property via the Gradle-generated 'propName value' or 'propName(value)' syntax in Groovy DSL has been deprecated. This is scheduled to be removed in Gradle 10.0. Use assignment ('enable = <value>') instead. Consult the upgrading guide for further information: https://docs.gradle.org/8.13/userguide/upgrading_version_8.html#groovy_space_assignment_syntax
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1$_closure12$_closure25.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:129)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1$_closure12.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:128)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+Build file '/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle': line 132
+Properties should be assigned using the 'propName = value' syntax. Setting a property via the Gradle-generated 'propName value' or 'propName(value)' syntax in Groovy DSL has been deprecated. This is scheduled to be removed in Gradle 10.0. Use assignment ('universalApk = <value>') instead. Consult the upgrading guide for further information: https://docs.gradle.org/8.13/userguide/upgrading_version_8.html#groovy_space_assignment_syntax
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1$_closure12$_closure25.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:132)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1$_closure12.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:128)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+Build file '/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle': line 136
+Properties should be assigned using the 'propName = value' syntax. Setting a property via the Gradle-generated 'propName value' or 'propName(value)' syntax in Groovy DSL has been deprecated. This is scheduled to be removed in Gradle 10.0. Use assignment ('kotlinCompilerExtensionVersion = <value>') instead. Consult the upgrading guide for further information: https://docs.gradle.org/8.13/userguide/upgrading_version_8.html#groovy_space_assignment_syntax
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1$_closure13.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:136)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:135)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+Build file '/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle': line 147
+Properties should be assigned using the 'propName = value' syntax. Setting a property via the Gradle-generated 'propName value' or 'propName(value)' syntax in Groovy DSL has been deprecated. This is scheduled to be removed in Gradle 10.0. Use assignment ('useLegacyPackaging = <value>') instead. Consult the upgrading guide for further information: https://docs.gradle.org/8.13/userguide/upgrading_version_8.html#groovy_space_assignment_syntax
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1$_closure15$_closure26.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:147)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+	at build_ax2tb8mloiy0xmo88zg9klp7d$_run_closure1$_closure15.doCall$original(/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build.gradle:146)
+	(Run with --stacktrace to get the full stack trace of this deprecation warning.)
+
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preGithubDebugBuild UP-TO-DATE
+> Task :app:generateGithubDebugResValues
+> Task :app:dataBindingMergeDependencyArtifactsGithubDebug
+> Task :app:generateGithubDebugResources
+> Task :app:generateGithubDebugBuildConfig
+> Task :app:checkGithubDebugAarMetadata
+> Task :app:processGithubDebugNavigationResources
+> Task :app:compileGithubDebugNavigationResources
+> Task :app:mapGithubDebugSourceSetPaths
+> Task :app:createGithubDebugCompatibleScreenManifests
+> Task :app:extractDeepLinksGithubDebug
+> Task :app:mergeGithubDebugResources
+
+> Task :app:processGithubDebugMainManifest
+/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/AndroidManifest.xml:11:5-13:38 Warning:
+	Element uses-permission#android.permission.READ_EXTERNAL_STORAGE at AndroidManifest.xml:11:5-13:38 duplicated with element declared at AndroidManifest.xml:7:5-107
+/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/AndroidManifest.xml:14:5-75 Warning:
+	Element uses-permission#android.permission.READ_MEDIA_VIDEO at AndroidManifest.xml:14:5-75 duplicated with element declared at AndroidManifest.xml:6:5-75
+
+> Task :app:dataBindingGenBaseClassesGithubDebug
+
+> Task :app:processGithubDebugManifest
+/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build/intermediates/merged_manifest/githubDebug/processGithubDebugMainManifest/AndroidManifest.xml:14:5-75 Warning:
+	Element uses-permission#android.permission.READ_MEDIA_VIDEO at AndroidManifest.xml:14:5-75 duplicated with element declared at AndroidManifest.xml:13:5-75
+/home/runner/work/Calculator-Js/Calculator-Js/upstream/app/build/intermediates/merged_manifest/githubDebug/processGithubDebugMainManifest/AndroidManifest.xml:18:5-20:38 Warning:
+	Element uses-permission#android.permission.READ_EXTERNAL_STORAGE at AndroidManifest.xml:18:5-20:38 duplicated with element declared at AndroidManifest.xml:15:5-17:38
+
+> Task :app:processGithubDebugManifestForPackage
+> Task :app:javaPreCompileGithubDebug
+> Task :app:preGithubDebugUnitTestBuild UP-TO-DATE
+> Task :app:javaPreCompileGithubDebugUnitTest
+> Task :app:processGithubDebugResources
+
+> Task :app:kspGithubDebugKotlin
+w: [ksp] /home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/database/dao/TerminalDao.kt:15:  com.deniscerri.ytdl.database.models.TerminalItem has some properties [log] which are not returned by the query. If they are not supposed to be read from the result, you can mark them with @Ignore annotation. You can suppress this warning by annotating the function with @SuppressWarnings(RoomWarnings.QUERY_MISMATCH). Columns returned by the query: id, command.
+w: [ksp] /home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/database/dao/TerminalDao.kt:18:  com.deniscerri.ytdl.database.models.TerminalItem has some properties [log] which are not returned by the query. If they are not supposed to be read from the result, you can mark them with @Ignore annotation. You can suppress this warning by annotating the function with @SuppressWarnings(RoomWarnings.QUERY_MISMATCH). Columns returned by the query: id, command.
+
+> Task :app:compileGithubDebugKotlin
+e: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/HomeFragment.kt:882:21 Unresolved reference 'Snackbar'.
+e: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/HomeFragment.kt:882:93 Unresolved reference 'Snackbar'.
+e: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/HomeFragment.kt:888:17 Unresolved reference 'Snackbar'.
+e: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/HomeFragment.kt:888:86 Unresolved reference 'Snackbar'.
+e: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/HomeFragment.kt:890:17 Unresolved reference 'Snackbar'.
+e: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/app/src/main/java/com/deniscerri/ytdl/ui/HomeFragment.kt:890:89 Unresolved reference 'Snackbar'.
+
+> Task :app:compileGithubDebugKotlin FAILED
+
+[Incubating] Problems report is available at: file:///home/runner/work/Calculator-Js/Calculator-Js/upstream/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:compileGithubDebugKotlin'.
+> A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+   > Compilation error. See log for more details
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 1m 25s
+20 actionable tasks: 20 executed
