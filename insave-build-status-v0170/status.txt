@@ -1,4 +1,5 @@
 run_id=32449350507
 run_attempt=2
-state=running
 target=InSave-v0.17.0-Recovery-arm64
+state=finished
+job_status=failure
