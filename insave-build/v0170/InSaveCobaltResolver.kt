@@ -5,10 +5,10 @@ import androidx.preference.PreferenceManager
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
+import okhttp3.OkHttpClient
 import java.util.concurrent.TimeUnit
 
 /**
@@ -37,23 +37,25 @@ class InSaveCobaltResolver(context: Context) {
         val request = Request.Builder().url(endpoint).get().build()
         return runCatching {
             client.newCall(request).execute().use { response ->
-                response.isSuccessful && !response.body.string().isBlank()
+                response.isSuccessful && response.body.string().isNotBlank()
             }
         }.getOrDefault(false)
     }
 
     /**
      * Returns a Cobalt tunnel/direct URL that can be passed to the local FFmpeg/yt-dlp runtime.
-     * For local-processing audio responses we use the first tunnel as the media source and keep
-     * the final MP3 conversion local. Returns null on disabled/unhealthy/error/picker responses.
+     * The final user-selected bitrate is still enforced locally by InSave's FFmpeg pipeline.
+     * Cobalt v11 accepts 320/256/128/96/64/8; InSave's 192K preset therefore requests 256K
+     * upstream and performs the final 192K conversion locally instead of sending an invalid API value.
      */
     fun resolveAudio(sourceUrl: String, bitrateKbps: Int = 320): String? {
         val endpoint = endpoint() ?: return null
+        val cobaltBitrate = normalizeCobaltBitrate(bitrateKbps)
         val payload = linkedMapOf<String, Any>(
             "url" to sourceUrl,
             "downloadMode" to "audio",
             "audioFormat" to "mp3",
-            "audioBitrate" to bitrateKbps.coerceIn(64, 320).toString(),
+            "audioBitrate" to cobaltBitrate.toString(),
             "filenameStyle" to "pretty",
             "localProcessing" to "preferred",
             "youtubeBetterAudio" to true,
@@ -84,6 +86,15 @@ class InSaveCobaltResolver(context: Context) {
                 }
             }
         }.getOrNull()
+    }
+
+    private fun normalizeCobaltBitrate(requested: Int): Int = when {
+        requested >= 288 -> 320
+        requested >= 160 -> 256
+        requested >= 112 -> 128
+        requested >= 80 -> 96
+        requested >= 36 -> 64
+        else -> 8
     }
 
     private fun endpoint(): String? {
