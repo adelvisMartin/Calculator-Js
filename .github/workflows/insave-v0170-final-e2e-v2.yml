@@ -1,0 +1,94 @@
+name: InSave v0.17 Recovery Heavy Final E2E v2
+
+on:
+  push:
+    branches: [ main ]
+    paths: [ '.github/workflows/insave-v0170-final-e2e-v2.yml' ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  p0:
+    runs-on: ubuntu-latest
+    timeout-minutes: 110
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: recovery/insave-v0.17.0-lkg
+          path: insave-build
+      - uses: actions/checkout@v6
+        with:
+          repository: deniscerri/ytdlnis
+          ref: c6084ed4f110efd4ba0c3f82bb16723b6529c8f0
+          path: upstream
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Reconstruct Heavy source
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x insave-build/insave-build/v0170/reconstruct_recovery_heavy.sh
+          insave-build/insave-build/v0170/reconstruct_recovery_heavy.sh upstream
+          mkdir -p upstream/app/src/androidTest/java/com/deniscerri/ytdl/insave
+          cp insave-build/insave-build/v0170/InSaveRecoveryInstrumentedTest.kt upstream/app/src/androidTest/java/com/deniscerri/ytdl/insave/
+
+      - name: Compile tests and universal debug APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p evidence
+          cd upstream
+          ./gradlew --no-daemon :app:testGithubDebugUnitTest :app:assembleGithubDebug :app:assembleGithubDebugAndroidTest > ../evidence/pre-e2e.log 2>&1
+          cd ..
+          APK=$(find upstream/app/build/outputs/apk/github/debug -type f -name '*universal*.apk' | head -1)
+          test -n "$APK"
+          unzip -l "$APK" > evidence/debug-apk-list.txt
+          for ABI in arm64-v8a armeabi-v7a x86 x86_64; do grep -q "lib/$ABI/" evidence/debug-apk-list.txt; done
+          for LIB in libpython.so libpython.zip.so libffmpeg.so libffprobe.so libaria2c.so libqjs.so; do grep -q "/$LIB" evidence/debug-apk-list.txt; done
+
+      - name: Enable KVM
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm || true
+          sudo chmod 666 /dev/kvm
+          test -r /dev/kvm && test -w /dev/kvm
+
+      - name: Android API 35 functional gates
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          arch: x86_64
+          profile: pixel_6
+          cores: 2
+          ram-size: 3072M
+          disable-linux-hw-accel: false
+          disable-animations: false
+          emulator-boot-timeout: 600
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -accel on
+          script: bash insave-build/insave-build/v0170/run_android_p0.sh
+
+      - name: Complete PASS evidence
+        shell: bash
+        run: |
+          cat >> evidence/P0-PASS.txt <<'EOF'
+          heavy_runtime=pass
+          universal_four_abis=pass
+          canonical_reconstruction=pass
+          EOF
+
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: InSave-v0.17.0-Recovery-Heavy-E2E-v2-evidence
+          retention-days: 7
+          path: evidence/
