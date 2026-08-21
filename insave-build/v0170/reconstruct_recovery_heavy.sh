@@ -26,6 +26,19 @@ python3 "$OVERLAY/insave-build/v0162/normalize_after_patch.py"
 python3 -m py_compile "$OVERLAY/insave-build/v0163/apply_v0163.py"
 python3 "$OVERLAY/insave-build/v0163/apply_v0163.py"
 
+# v0.16.3 enables diagnostic logging next to auto_update_ytdlp. v0.17's older
+# patch expects those two original preference lines to be adjacent. Remove only
+# that duplicate logging line here; v0.17 re-adds log_downloads=true in its full
+# recovery defaults a few lines later.
+python3 - "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/insave/InSaveHubActivity.kt" <<'PY'
+from pathlib import Path
+import sys
+p = Path(sys.argv[1])
+s = p.read_text()
+s = s.replace('            .putBoolean("log_downloads", true)\n', '', 1)
+p.write_text(s)
+PY
+
 python3 "$OVERLAY/insave-build/v0170/normalize_status_function.py"
 cp "$OVERLAY/insave-build/v0170/AutomaticStatusRepository.kt" "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/insave/"
 python3 -m py_compile "$OVERLAY/insave-build/v0170/apply_v0170.py" "$OVERLAY/insave-build/v0170/post_v0170_compile_fixes.py"
