@@ -57,23 +57,16 @@ jobs:
           touch upstream/local.properties upstream/keystore.properties
           mkdir -p upstream/app/src/main/java/com/deniscerri/ytdl/insave
           cat insave-build/insave-build/v0161/InSaveHubActivity.part* > upstream/app/src/main/java/com/deniscerri/ytdl/insave/InSaveHubActivity.kt
-
-          # Keep the established 0.16.2 selection/queue fixes, then intentionally restore
-          # automatic local status access in the v0.17 recovery layer.
           python3 insave-build/insave-build/v0162/remove_broad_storage.py
           for f in insave-build/insave-build/v0162/apply_v0162.py.b64.*; do base64 -d "$f"; done > /tmp/apply_v0162.py
-          python3 -m py_compile /tmp/apply_v0162.py
           python3 /tmp/apply_v0162.py
           python3 insave-build/insave-build/v0162/normalize_after_patch.py
-
+          python3 insave-build/insave-build/v0170/normalize_status_function.py
           cp insave-build/insave-build/v0170/AutomaticStatusRepository.kt upstream/app/src/main/java/com/deniscerri/ytdl/insave/
-          python3 -m py_compile insave-build/insave-build/v0170/apply_v0170.py
           python3 insave-build/insave-build/v0170/apply_v0170.py | tee insave-build/insave-build-status-v0170/source-contract.log
           grep -q 'InSave v0.17 LKG recovery contract: PASS' insave-build/insave-build-status-v0170/source-contract.log
-
           mkdir -p upstream/app/src/androidTest/java/com/deniscerri/ytdl/insave
           cp insave-build/insave-build/v0170/InSaveRecoveryInstrumentedTest.kt upstream/app/src/androidTest/java/com/deniscerri/ytdl/insave/
-
           grep -q 'MANAGE_EXTERNAL_STORAGE' upstream/app/src/main/AndroidManifest.xml
           grep -q 'Environment.isExternalStorageManager' upstream/app/src/main/java/com/deniscerri/ytdl/insave/InSaveHubActivity.kt
           grep -q 'AutomaticStatusRepository().scan' upstream/app/src/main/java/com/deniscerri/ytdl/insave/InSaveHubActivity.kt
@@ -104,20 +97,15 @@ jobs:
             TARGET_APK=$(find app/build/outputs/apk/github/debug -name '*.apk' | head -1)
             adb install -r "$TARGET_APK"
             adb shell appops set com.deniscerri.ytdl MANAGE_EXTERNAL_STORAGE allow
-
             adb shell mkdir -p '/sdcard/Android/media/com.whatsapp/WhatsApp/Media/.Statuses'
             adb shell mkdir -p '/sdcard/Android/media/com.whatsapp.w4b/WhatsApp Business/Media/.Statuses'
             printf 'fake-jpeg-for-discovery' > /tmp/insave-auto-test.jpg
             printf 'fake-mp4-for-discovery' > /tmp/insave-auto-business-test.mp4
             adb push /tmp/insave-auto-test.jpg '/sdcard/Android/media/com.whatsapp/WhatsApp/Media/.Statuses/insave-auto-test.jpg'
             adb push /tmp/insave-auto-business-test.mp4 '/sdcard/Android/media/com.whatsapp.w4b/WhatsApp Business/Media/.Statuses/insave-auto-business-test.mp4'
-
-            ./gradlew --no-daemon :app:connectedGithubDebugAndroidTest \
-              -Pandroid.testInstrumentationRunnerArguments.class=com.deniscerri.ytdl.insave.InSaveRecoveryInstrumentedTest \
-              2>&1 | tee ../insave-build/insave-build-status-v0170/android-p0-e2e.log
+            ./gradlew --no-daemon :app:connectedGithubDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.deniscerri.ytdl.insave.InSaveRecoveryInstrumentedTest 2>&1 | tee ../insave-build/insave-build-status-v0170/android-p0-e2e.log
 
       - name: Mark Android P0 gates passed
-        shell: bash
         run: |
           echo 'android_status_auto_e2e=pass' >> insave-build/insave-build-status-v0170/status.txt
           echo 'android_youtube_mp3_e2e=pass' >> insave-build/insave-build-status-v0170/status.txt
@@ -129,30 +117,20 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           import re
-          b = Path('upstream/app/build.gradle')
-          s = b.read_text()
-          s = s.replace('applicationId "com.deniscerri.ytdl"', 'applicationId "com.adelvis.insave.recovery"')
-          s = s.replace('versionCode versionMajor * 1000000 + versionMinor * 10000 + versionPatch * 100 + versionBuild', 'versionCode 17000')
-          s = s.replace('versionName "${versionMajor}.${versionMinor}.${versionPatch}${versionExt}"', 'versionName "0.17.0-Recovery"')
-          s = s.replace('archivesBaseName = "YTDLnis-$versionName"', 'archivesBaseName = "InSave-0.17.0-Recovery"')
-          s = s.replace("include 'x86', 'x86_64', 'armeabi-v7a', 'arm64-v8a'", "include 'arm64-v8a'")
+          b=Path('upstream/app/build.gradle'); s=b.read_text()
+          s=s.replace('applicationId "com.deniscerri.ytdl"','applicationId "com.adelvis.insave.recovery"')
+          s=s.replace('versionCode versionMajor * 1000000 + versionMinor * 10000 + versionPatch * 100 + versionBuild','versionCode 17000')
+          s=s.replace('versionName "${versionMajor}.${versionMinor}.${versionPatch}${versionExt}"','versionName "0.17.0-Recovery"')
+          s=s.replace('archivesBaseName = "YTDLnis-$versionName"','archivesBaseName = "InSave-0.17.0-Recovery"')
+          s=s.replace("include 'x86', 'x86_64', 'armeabi-v7a', 'arm64-v8a'","include 'arm64-v8a'")
           b.write_text(s)
-
-          strings = Path('upstream/app/src/main/res/values/strings.xml')
-          strings.write_text(re.sub(r'<string name="app_name">.*?</string>', '<string name="app_name">InSave Recovery</string>', strings.read_text(), count=1))
-
-          theme = Path('upstream/app/src/main/java/com/deniscerri/ytdl/util/ThemeUtil.kt')
-          theme.write_text(theme.read_text().replace('>YTDL</span>nis', '>In</span>Save'))
-
-          manifest = Path('upstream/app/src/main/AndroidManifest.xml')
-          m = manifest.read_text().replace('android:label="YTDLnis"', 'android:label="InSave Recovery"', 1)
-          marker = '        <activity\n            android:name=".MainActivity"'
-          insert = '        <activity\n            android:name=".insave.InSaveHubActivity"\n            android:exported="true"\n            android:launchMode="singleTask"\n            android:theme="@style/BaseTheme" />\n\n        <activity\n            android:name=".MainActivity"'
-          if marker not in m:
-              raise SystemExit('MainActivity marker missing')
-          m = m.replace(marker, insert, 1)
-          m = m.replace('android:targetActivity=".MainActivity"', 'android:targetActivity=".insave.InSaveHubActivity"')
-          manifest.write_text(m)
+          st=Path('upstream/app/src/main/res/values/strings.xml'); st.write_text(re.sub(r'<string name="app_name">.*?</string>','<string name="app_name">InSave Recovery</string>',st.read_text(),count=1))
+          th=Path('upstream/app/src/main/java/com/deniscerri/ytdl/util/ThemeUtil.kt'); th.write_text(th.read_text().replace('>YTDL</span>nis','>In</span>Save'))
+          m=Path('upstream/app/src/main/AndroidManifest.xml'); x=m.read_text().replace('android:label="YTDLnis"','android:label="InSave Recovery"',1)
+          marker='        <activity\n            android:name=".MainActivity"'
+          insert='        <activity\n            android:name=".insave.InSaveHubActivity"\n            android:exported="true"\n            android:launchMode="singleTask"\n            android:theme="@style/BaseTheme" />\n\n        <activity\n            android:name=".MainActivity"'
+          if marker not in x: raise SystemExit('MainActivity marker missing')
+          m.write_text(x.replace(marker,insert,1).replace('android:targetActivity=".MainActivity"','android:targetActivity=".insave.InSaveHubActivity"'))
           PY
           grep -q 'applicationId "com.adelvis.insave.recovery"' upstream/app/build.gradle
           grep -q 'versionName "0.17.0-Recovery"' upstream/app/build.gradle
@@ -170,7 +148,6 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          find upstream/app/build/outputs/apk -type f -name '*.apk' -print | tee insave-build/insave-build-status-v0170/apks.txt
           APK=$(find upstream/app/build/outputs/apk -type f -name '*.apk' | grep -Ei 'arm64|v8a' | grep -Ei 'release' | head -1)
           test -n "$APK"
           unzip -t "$APK" | tee insave-build/insave-build-status-v0170/zip-test.log
@@ -201,6 +178,8 @@ jobs:
           sed -i '/^state=/d' insave-build/insave-build-status-v0170/status.txt || true
           echo 'state=finished' >> insave-build/insave-build-status-v0170/status.txt
           echo 'job_status=${{ job.status }}' >> insave-build/insave-build-status-v0170/status.txt
+          git -C insave-build config user.name 'github-actions[bot]'
+          git -C insave-build config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git -C insave-build add insave-build-status-v0170
           git -C insave-build commit -m 'ci: persist InSave v0.17 recovery evidence' || true
           git -C insave-build push origin HEAD:recovery/insave-v0.17.0-lkg
