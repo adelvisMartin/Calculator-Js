@@ -1,0 +1,7 @@
+{
+  "REPLACE-WITH-A-REAL-UUID-V4": {
+    "name": "InSave Android",
+    "limit": "unlimited",
+    "allowedServices": ["youtube", "instagram", "facebook", "tiktok", "twitter"]
+  }
+}
