@@ -1,16 +1,19 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
+# Script lives at <overlay>/insave-build/v0170/. Two parents up is the overlay repo root.
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 OVERLAY="$ROOT"
-UPSTREAM="${1:-$ROOT/../upstream}"
+UPSTREAM_INPUT="${1:-$ROOT/../upstream}"
+UPSTREAM="$(cd "$UPSTREAM_INPUT" && pwd)"
+WORKSPACE="$(cd "$ROOT/.." && pwd)"
 
 chmod +x "$UPSTREAM/gradlew"
 touch "$UPSTREAM/local.properties" "$UPSTREAM/keystore.properties"
 mkdir -p "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/insave"
 cat "$OVERLAY"/insave-build/v0161/InSaveHubActivity.part* > "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/insave/InSaveHubActivity.kt"
 
-cd "$ROOT/.."
+cd "$WORKSPACE"
 python3 "$OVERLAY/insave-build/v0162/remove_broad_storage.py"
 for f in "$OVERLAY"/insave-build/v0162/apply_v0162.py.b64.*; do base64 -d "$f"; done > /tmp/apply_v0162.py
 python3 -m py_compile /tmp/apply_v0162.py
