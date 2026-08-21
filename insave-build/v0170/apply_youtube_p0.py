@@ -189,10 +189,12 @@ if run_start not in worker:
 worker = worker.replace(run_start, replacement, 1)
 worker_path.write_text(worker)
 
-# P0 static contract. Provider C must not be called from the direct resolver anymore.
+# P0 static contract. Scope the A-only assertion before the separate C helper.
 y = ytdlp_path.read_text()
 w = worker_path.read_text()
-resolver_body = y[y.find(helper_start):y.find(helper_end, y.find(helper_start))]
+resolver_start = y.find(helper_start)
+resolver_end = y.find('    fun resolveInSaveCobaltFallbackUrl', resolver_start)
+resolver_body = y[resolver_start:resolver_end]
 checks = {
     'provider A newpipe': 'inSaveNewPipe.getFormats(url)' in resolver_body,
     'provider A does not call C': 'inSaveCobalt.resolveAudio' not in resolver_body,
