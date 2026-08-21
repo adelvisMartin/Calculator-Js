@@ -30,7 +30,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p insave-build/insave-build-status-v0170
-          printf 'run_id=%s\nrun_attempt=%s\nstate=e2e-running\ntarget=InSave-v0.17.0-Recovery-heavy\n' "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" > insave-build/insave-build-status-v0170/status.txt
+          printf 'run_id=%s\nrun_attempt=%s\nstate=e2e-running\ntarget=InSave-v0.17.0-Recovery-heavy-final\n' "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" > insave-build/insave-build-status-v0170/status.txt
 
       - name: Checkout maintained engine
         uses: actions/checkout@v6
@@ -78,6 +78,9 @@ jobs:
           python3 -m py_compile insave-build/insave-build/v0170/apply_provider_settings.py
           python3 insave-build/insave-build/v0170/apply_provider_settings.py
 
+          python3 -m py_compile insave-build/insave-build/v0170/apply_brand_paths.py
+          python3 insave-build/insave-build/v0170/apply_brand_paths.py
+
           mkdir -p upstream/app/src/androidTest/java/com/deniscerri/ytdl/insave
           cp insave-build/insave-build/v0170/InSaveRecoveryInstrumentedTest.kt upstream/app/src/androidTest/java/com/deniscerri/ytdl/insave/
 
@@ -108,11 +111,16 @@ jobs:
           grep -q 'request.addOption("--audio-format", "mp3")' upstream/app/src/main/java/com/deniscerri/ytdl/util/extractors/ytdlp/YTDLPUtil.kt
           grep -q 'normalizedAudioBitrate' upstream/app/src/main/java/com/deniscerri/ytdl/util/extractors/ytdlp/YTDLPUtil.kt
           grep -q 'fragment:exp=1:8' upstream/app/src/main/java/com/deniscerri/ytdl/util/extractors/ytdlp/YTDLPUtil.kt
+          grep -q 'InSave/Audio' upstream/app/src/main/java/com/deniscerri/ytdl/util/FileUtil.kt
+          grep -q 'InSave/Video' upstream/app/src/main/java/com/deniscerri/ytdl/util/FileUtil.kt
+          ! grep -q 'YTDLnis/Audio' upstream/app/src/main/java/com/deniscerri/ytdl/util/FileUtil.kt
+          ! grep -q 'YTDLnis/Video' upstream/app/src/main/java/com/deniscerri/ytdl/util/FileUtil.kt
           ! grep -R -q 'loudnorm=I=-11' upstream/app/src/main/java
           echo 'heavy_runtime_contract=pass' >> insave-build/insave-build-status-v0170/status.txt
           echo 'provider_c_contract=pass' >> insave-build/insave-build-status-v0170/status.txt
           echo 'provider_settings_contract=pass' >> insave-build/insave-build-status-v0170/status.txt
           echo 'playlist_mp3_contract=pass' >> insave-build/insave-build-status-v0170/status.txt
+          echo 'brand_paths_contract=pass' >> insave-build/insave-build-status-v0170/status.txt
 
       - name: Compile recovery and unit tests
         shell: bash
