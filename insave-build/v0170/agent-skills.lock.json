@@ -1,15 +1,28 @@
 {
-  "version": 1,
-  "release": "0.17.0-recovery",
+  "version": 2,
+  "release": "0.17.0-recovery-heavy",
   "skills": [
     "lkg-recovery",
     "android-status-storage",
-    "youtube-dual-engine",
-    "media-ffmpeg",
+    "youtube-provider-routing",
+    "youtube-per-video-po-token-awareness",
+    "playlist-batch-orchestration",
+    "mp3-quality-contract",
+    "media-ffmpeg-validation",
+    "runtime-packaging-heavy",
+    "retry-resilience",
+    "selfhosted-fallback-endpoint",
+    "android-kvm-e2e",
     "regression-qa",
     "android-release",
     "app-security",
-    "ui-accessibility"
+    "ui-accessibility",
+    "competitive-regression-review"
   ],
-  "rule": "A skill is complete only when its required evidence gate passes. Compilation alone is not runtime verification."
+  "required_p0_gates": [
+    "android_status_auto_e2e",
+    "android_youtube_mp3_e2e",
+    "android_playlist_mp3_e2e"
+  ],
+  "rule": "A skill is complete only when its required evidence gate passes. Compilation, APK size, or successful assembly alone is not runtime verification."
 }
