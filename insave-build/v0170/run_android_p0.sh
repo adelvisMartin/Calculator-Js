@@ -23,15 +23,27 @@ printf 'fake-mp4-for-discovery' > /tmp/insave-auto-business-test.mp4
 adb push /tmp/insave-auto-test.jpg '/sdcard/Android/media/com.whatsapp/WhatsApp/Media/.Statuses/insave-auto-test.jpg'
 adb push /tmp/insave-auto-business-test.mp4 '/sdcard/Android/media/com.whatsapp.w4b/WhatsApp Business/Media/.Statuses/insave-auto-business-test.mp4'
 
+# QA diagnostic hardening: RuntimeManager builds ExecuteException from stderr.
+# Keeping stderr separate makes yt-dlp's actual 403/PO-token/bot-check failure visible
+# instead of reporting an empty ExecuteException when the command fails.
+TEST_FILE="app/src/androidTest/java/com/deniscerri/ytdl/insave/InSaveRecoveryInstrumentedTest.kt"
+sed -i 's/redirectErrorStream = true/redirectErrorStream = false/g' "$TEST_FILE"
+
 mkdir -p "$WORKSPACE/evidence"
 LOG="$WORKSPACE/evidence/android-p0-e2e.log"
+adb logcat -c || true
 if ! ./gradlew --no-daemon :app:connectedGithubDebugAndroidTest \
   -Pandroid.testInstrumentationRunnerArguments.class=com.deniscerri.ytdl.insave.InSaveRecoveryInstrumentedTest \
   > "$LOG" 2>&1; then
+  adb logcat -d > "$WORKSPACE/evidence/android-logcat.txt" 2>&1 || true
   cat "$LOG"
+  echo '--- focused Android logcat ---'
+  grep -iE 'yt-dlp|youtube|potoken|po token|newpipe|botguard|403|sign in|unavailable|error' \
+    "$WORKSPACE/evidence/android-logcat.txt" | tail -n 300 || true
   exit 1
 fi
 cat "$LOG"
+adb logcat -d > "$WORKSPACE/evidence/android-logcat.txt" 2>&1 || true
 
 cd "$WORKSPACE"
 chmod +x insave-build/insave-build/v0170/capture_p0_views.sh
