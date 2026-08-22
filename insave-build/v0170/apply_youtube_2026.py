@@ -32,9 +32,10 @@ replacements = {
 }
 
 for old, new in replacements.items():
-    if old not in s:
+    if old in s:
+        s = s.replace(old, new, 1)
+    elif new not in s:
         raise SystemExit(f"2026 YouTube hardening anchor missing: {old}")
-    s = s.replace(old, new, 1)
 
 # Make the intent explicit for future maintenance: web is SABR-only under current
 # enforcement, while yt-dlp recommends mweb + GVS provider for ordinary formats.
@@ -49,15 +50,17 @@ ytdlp_path.write_text(s)
 # through the Heavy APK's bundled Python and is checksum-verified before replacement.
 out = Path("upstream/app/src/main/res/raw/ytdlp")
 out.parent.mkdir(parents=True, exist_ok=True)
-req = urllib.request.Request(YTDLP_URL, headers={"User-Agent": "InSave-Recovery-Heavy-CI"})
-with urllib.request.urlopen(req, timeout=90) as response:
-    payload = response.read()
-digest = hashlib.sha256(payload).hexdigest()
-if digest != YTDLP_SHA256:
-    raise SystemExit(
-        f"yt-dlp {YTDLP_VERSION} checksum mismatch: expected={YTDLP_SHA256} actual={digest}"
-    )
-out.write_bytes(payload)
+existing_ok = out.exists() and hashlib.sha256(out.read_bytes()).hexdigest() == YTDLP_SHA256
+if not existing_ok:
+    req = urllib.request.Request(YTDLP_URL, headers={"User-Agent": "InSave-Recovery-Heavy-CI"})
+    with urllib.request.urlopen(req, timeout=90) as response:
+        payload = response.read()
+    digest = hashlib.sha256(payload).hexdigest()
+    if digest != YTDLP_SHA256:
+        raise SystemExit(
+            f"yt-dlp {YTDLP_VERSION} checksum mismatch: expected={YTDLP_SHA256} actual={digest}"
+        )
+    out.write_bytes(payload)
 
 final = ytdlp_path.read_text()
 checks = {
