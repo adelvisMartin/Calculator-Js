@@ -23,7 +23,25 @@ jobs:
         with:
           ref: recovery/insave-v0.17.0-lkg
           path: insave-build
-          fetch-depth: 1
+          fetch-depth: 0
+
+      - name: Publish build run id
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p insave-build/insave-build-status-v0171
+          cat > insave-build/insave-build-status-v0171/direct-apk-run.txt <<EOF
+          run_id=$GITHUB_RUN_ID
+          run_attempt=$GITHUB_RUN_ATTEMPT
+          state=running
+          workflow_head=$GITHUB_SHA
+          recovery_head=$(git -C insave-build rev-parse HEAD)
+          EOF
+          git -C insave-build config user.name 'github-actions[bot]'
+          git -C insave-build config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git -C insave-build add insave-build-status-v0171/direct-apk-run.txt
+          git -C insave-build commit -m 'ci: publish InSave v0.17.1 P0 APK run id' || true
+          git -C insave-build push origin HEAD:recovery/insave-v0.17.0-lkg
 
       - name: Checkout maintained engine
         uses: actions/checkout@v6
@@ -46,8 +64,6 @@ jobs:
           chmod +x insave-build/insave-build/v0170/reconstruct_recovery_heavy.sh
           insave-build/insave-build/v0170/reconstruct_recovery_heavy.sh upstream
 
-          # Release identity only. Runtime code is exactly the canonical Recovery Heavy
-          # that passed the Android 5/5 gate with dynamic per-video PO + mweb.
           python3 - <<'PY'
           from pathlib import Path
           import re
@@ -166,3 +182,18 @@ jobs:
             InSave-v0.17.1-Recovery-P0-heavy-*.apk
             InSave-v0.17.1-Recovery-P0-heavy-*.sha256
             InSave-v0.17.1-Recovery-P0-QA.txt
+
+      - name: Mark build complete
+        if: always()
+        shell: bash
+        run: |
+          set +e
+          sed -i 's/^state=.*/state=finished/' insave-build/insave-build-status-v0171/direct-apk-run.txt
+          echo 'job_status=${{ job.status }}' >> insave-build/insave-build-status-v0171/direct-apk-run.txt
+          git -C insave-build config user.name 'github-actions[bot]'
+          git -C insave-build config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git -C insave-build add insave-build-status-v0171/direct-apk-run.txt
+          git -C insave-build commit -m 'ci: finish InSave v0.17.1 P0 APK run' || true
+          git -C insave-build fetch origin recovery/insave-v0.17.0-lkg
+          git -C insave-build rebase origin/recovery/insave-v0.17.0-lkg || true
+          git -C insave-build push origin HEAD:recovery/insave-v0.17.0-lkg || true
