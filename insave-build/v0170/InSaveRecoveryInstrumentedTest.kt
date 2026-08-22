@@ -24,9 +24,10 @@ import java.io.File
 class InSaveRecoveryInstrumentedTest {
 
     companion object {
-        // Public, long-lived video selected for P0 instead of the historical
+        // Public, long-lived videos selected for P0 instead of the historical
         // BaW_jenozKc test asset, which currently returns unavailable.
         private const val PUBLIC_YOUTUBE_URL = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+        private const val SECOND_PUBLIC_YOUTUBE_URL = "https://www.youtube.com/watch?v=jNQXAC9IVRw"
     }
 
     @Test
@@ -121,12 +122,15 @@ class InSaveRecoveryInstrumentedTest {
         val util = ytdlp(context)
         RuntimeManager.init(context)
 
-        val created = (1..2).map { index ->
+        val urls = listOf(PUBLIC_YOUTUBE_URL, SECOND_PUBLIC_YOUTUBE_URL)
+        val created = urls.mapIndexed { zeroBasedIndex, url ->
+            val index = zeroBasedIndex + 1
             val id = 910010L + index
             val item = audioItem(
                 context = context,
                 id = id,
                 title = "%03d-p0-playlist".format(index),
+                url = url,
                 playlistTitle = "InSave P0 Playlist",
                 playlistIndex = index,
             )
@@ -139,6 +143,7 @@ class InSaveRecoveryInstrumentedTest {
             )
             assertTrue("Batch job $index lost dynamic Player PO", rendered.contains("web.player+"))
             assertTrue("Batch job $index lost dynamic GVS PO", rendered.contains("web.gvs+"))
+            assertTrue("Batch job $index must keep its own video URL", rendered.contains(url))
 
             val response = RuntimeManager.execute(
                 request = request,
@@ -205,13 +210,14 @@ class InSaveRecoveryInstrumentedTest {
         context: Context,
         id: Long,
         title: String,
+        url: String = PUBLIC_YOUTUBE_URL,
         playlistTitle: String = "",
         playlistIndex: Int? = null,
     ): DownloadItem {
         File(FileUtil.getCacheDownloadsPath(context), id.toString()).deleteRecursively()
         return DownloadItem(
             id = id,
-            url = PUBLIC_YOUTUBE_URL,
+            url = url,
             title = title,
             author = "",
             thumb = "",
