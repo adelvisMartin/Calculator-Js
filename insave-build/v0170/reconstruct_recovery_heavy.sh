@@ -21,8 +21,8 @@ python3 /tmp/apply_v0162.py
 python3 "$OVERLAY/insave-build/v0162/normalize_after_patch.py"
 
 # Provider B dynamic per-video PO token support. This reuses the maintained
-# NewPipe/BotGuard provider but injects the freshly generated Player/GVS tokens
-# into yt-dlp itself, without making cookies/login mandatory.
+# NewPipe/BotGuard provider but injects freshly generated tokens into yt-dlp,
+# without making cookies/login mandatory.
 python3 -m py_compile "$OVERLAY/insave-build/v0163/apply_v0163.py"
 python3 "$OVERLAY/insave-build/v0163/apply_v0163.py"
 
@@ -58,6 +58,13 @@ python3 "$OVERLAY/insave-build/v0170/apply_playlist_mp3.py"
 python3 -m py_compile "$OVERLAY/insave-build/v0170/apply_youtube_p0.py"
 python3 "$OVERLAY/insave-build/v0170/apply_youtube_p0.py"
 
+# 2026 hardening: current yt-dlp recommends mweb + a GVS PO provider. The
+# embedded upstream snapshot still carried yt-dlp 2025.11.12, which fails the
+# current YouTube JS/SABR path. Pin the immutable 2026.08.19 zipimport binary and
+# bind the already-dynamic per-video BotGuard tokens to mweb.
+python3 -m py_compile "$OVERLAY/insave-build/v0170/apply_youtube_2026.py"
+python3 "$OVERLAY/insave-build/v0170/apply_youtube_2026.py"
+
 python3 -m py_compile "$OVERLAY/insave-build/v0170/apply_provider_settings.py"
 python3 "$OVERLAY/insave-build/v0170/apply_provider_settings.py"
 python3 -m py_compile "$OVERLAY/insave-build/v0170/apply_brand_paths.py"
@@ -90,8 +97,9 @@ grep -q 'MANAGE_EXTERNAL_STORAGE' "$UPSTREAM/app/src/main/AndroidManifest.xml"
 grep -q 'AutomaticStatusRepository().scan' "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/insave/InSaveHubActivity.kt"
 grep -q 'resolveInSaveYoutubeAudioDirectUrl' "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/util/extractors/ytdlp/YTDLPUtil.kt"
 grep -q 'getWebClientPoToken(videoId)' "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/util/extractors/ytdlp/YTDLPUtil.kt"
-grep -q 'web.player+' "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/util/extractors/ytdlp/YTDLPUtil.kt"
-grep -q 'web.gvs+' "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/util/extractors/ytdlp/YTDLPUtil.kt"
+grep -q 'playerClients.add("mweb")' "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/util/extractors/ytdlp/YTDLPUtil.kt"
+grep -q 'mweb.player+' "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/util/extractors/ytdlp/YTDLPUtil.kt"
+grep -q 'mweb.gvs+' "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/util/extractors/ytdlp/YTDLPUtil.kt"
 ! grep -q 'poTokens.isNotEmpty() && sharedPreferences.getBoolean("use_cookies"' "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/util/extractors/ytdlp/YTDLPUtil.kt"
 grep -q 'resolveInSaveCobaltFallbackUrl' "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/util/extractors/ytdlp/YTDLPUtil.kt"
 grep -q 'recoverCatching { providerBError' "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/work/download/DownloadWorker.kt"
@@ -104,5 +112,6 @@ grep -q 'InSave/Video' "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/util/Fil
 ! grep -q 'YTDLnis/Audio' "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/util/FileUtil.kt"
 ! grep -q 'YTDLnis/Video' "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/util/FileUtil.kt"
 ! grep -R -q 'loudnorm=I=-11' "$UPSTREAM/app/src/main/java"
+echo '1fa6733c37ea6fb51c99ad8fe785e7b7e5f3246c9b980230329d4fb72ed8d4d6  '"$UPSTREAM/app/src/main/res/raw/ytdlp" | sha256sum -c -
 
 echo 'InSave Recovery Heavy canonical reconstruction: PASS'
