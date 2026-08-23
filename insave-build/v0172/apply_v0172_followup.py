@@ -19,34 +19,31 @@ if 'import androidx.core.widget.doAfterTextChanged\n' not in hub:
         raise SystemExit('DocumentFile import anchor missing')
     hub = hub.replace(anchor, anchor + 'import androidx.core.widget.doAfterTextChanged\n', 1)
 
-# Find the automatic branch positionally. Earlier recovery patches may insert
-# whitespace/comments, so do not rely on a brittle multi-line exact anchor.
-auto_marker = 'val automaticGranted = automaticStatusAccessGranted()'
-auto_marker_pos = hub.find(auto_marker)
-if auto_marker_pos < 0:
-    raise SystemExit('automatic statuses marker missing')
-auto_branch_pos = hub.find('if (automaticGranted)', auto_marker_pos)
-if auto_branch_pos < 0:
-    raise SystemExit('automatic status branch missing')
+# Locate the primary automatic UI by its visible loading label. Some recovery
+# normalizers leave only a marker comment, so the actual variable name/branch is
+# intentionally not used as an anchor here.
+auto_label = 'Buscando estados automáticamente'
+auto_label_pos = hub.find(auto_label)
+if auto_label_pos < 0:
+    raise SystemExit('automatic status loading label missing')
 
 if 'hint = "Buscar estados"' not in hub:
-    info_pos = hub.find('val info = TextView', auto_branch_pos)
+    info_pos = hub.rfind('val info = TextView', 0, auto_label_pos)
     if info_pos < 0:
         raise SystemExit('automatic status info view missing')
-    line_start = hub.rfind('\n', auto_branch_pos, info_pos) + 1
+    line_start = hub.rfind('\n', 0, info_pos) + 1
     indent = hub[line_start:info_pos]
     insert = f'''{indent}val statusSearch = EditText(this).apply {{\n{indent}    hint = "Buscar estados"\n{indent}    setSingleLine(true)\n{indent}    textSize = 15f\n{indent}    setTextColor(TEXT)\n{indent}    setHintTextColor(MUTED)\n{indent}    background = rounded(Color.rgb(44, 35, 46), 18)\n{indent}    setPadding(dp(14), dp(11), dp(14), dp(11))\n{indent}}}\n{indent}root.addView(statusSearch, LinearLayout.LayoutParams(\n{indent}    LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT\n{indent}).apply {{ setMargins(0, dp(8), 0, dp(6)) }})\n'''
     hub = hub[:line_start] + insert + hub[line_start:]
-    # Re-find branch after insertion.
-    auto_marker_pos = hub.find(auto_marker)
-    auto_branch_pos = hub.find('if (automaticGranted)', auto_marker_pos)
+    auto_label_pos = hub.find(auto_label)
 
-# Replace the primary automatic load with a debounced live query.
+# Replace the first automatic load after the status-loading label with a
+# debounced live query. Only the last keystroke performs filesystem I/O.
 if 'statusSearch.doAfterTextChanged' not in hub:
-    load_pos = hub.find('loadAutomaticStatuses(info, recycler)', auto_branch_pos)
+    load_pos = hub.find('loadAutomaticStatuses(info, recycler)', auto_label_pos)
     if load_pos < 0:
         raise SystemExit('automatic status load call missing')
-    line_start = hub.rfind('\n', auto_branch_pos, load_pos) + 1
+    line_start = hub.rfind('\n', 0, load_pos) + 1
     line_end = hub.find('\n', load_pos)
     if line_end < 0:
         line_end = len(hub)
@@ -67,10 +64,7 @@ elif sig_new not in hub:
 loader_pos = hub.find(sig_new)
 if loader_pos < 0:
     raise SystemExit('automatic loader missing after signature patch')
-loader_end = hub.find('private fun buildDownloadsView()', loader_pos)
-if loader_end < 0:
-    # Some generated versions include ': View' between name and brace.
-    loader_end = hub.find('private fun buildDownloadsView', loader_pos)
+loader_end = hub.find('private fun buildDownloadsView', loader_pos)
 if loader_end < 0:
     raise SystemExit('automatic loader end missing')
 auto = hub[loader_pos:loader_end]
