@@ -33,6 +33,28 @@ if marker not in hub:
 
 hub_path.write_text(hub)
 
+# Normalize the search fallback directly inside ResultRepository.search().
+# Previous recovery patches can change the surrounding if/else formatting,
+# so target the first yt-dlp fallback inside that function rather than a whole
+# exact multiline block.
+repo_path = Path('upstream/app/src/main/java/com/deniscerri/ytdl/database/repository/ResultRepository.kt')
+repo = repo_path.read_text()
+search_pos = repo.find('suspend fun search(inputQuery: String')
+if search_pos >= 0:
+    next_fun = repo.find('\n    private ', search_pos)
+    if next_fun < 0:
+        next_fun = len(repo)
+    search_block = repo[search_pos:next_fun]
+    bare = 'ytdlpUtil.getFromYTDL(inputQuery, resultsGenerated = {})'
+    if 'ytsearch10:$inputQuery' not in search_block and bare in search_block:
+        search_block = search_block.replace(
+            bare,
+            'ytdlpUtil.getFromYTDL("ytsearch10:$inputQuery", resultsGenerated = {})',
+            1,
+        )
+        repo = repo[:search_pos] + search_block + repo[next_fun:]
+repo_path.write_text(repo)
+
 runtime = Path(__file__).with_name('apply_v0172_runtime.py')
 if not runtime.exists():
     raise SystemExit('apply_v0172_runtime.py missing')
