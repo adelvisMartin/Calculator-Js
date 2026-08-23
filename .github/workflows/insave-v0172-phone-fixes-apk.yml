@@ -1,0 +1,175 @@
+name: InSave v0.17.2 Phone Fixes APK
+
+on:
+  push:
+    branches: [ main ]
+    paths: [ '.github/workflows/insave-v0172-phone-fixes-apk.yml' ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: insave-v0172-phone-fixes-apk
+  cancel-in-progress: true
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout InSave overlay
+        uses: actions/checkout@v6
+        with:
+          ref: recovery/insave-v0.17.0-lkg
+          path: insave-build
+          fetch-depth: 0
+
+      - name: Publish run id
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p insave-build/insave-build-status-v0172
+          cat > insave-build/insave-build-status-v0172/apk-run.txt <<EOF
+          run_id=$GITHUB_RUN_ID
+          attempt=$GITHUB_RUN_ATTEMPT
+          state=running
+          recovery_head=$(git -C insave-build rev-parse HEAD)
+          EOF
+          git -C insave-build config user.name 'github-actions[bot]'
+          git -C insave-build config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git -C insave-build add insave-build-status-v0172/apk-run.txt
+          git -C insave-build commit -m 'ci: publish InSave v0.17.2 APK run' || true
+          git -C insave-build push origin HEAD:recovery/insave-v0.17.0-lkg
+
+      - name: Checkout maintained engine
+        uses: actions/checkout@v6
+        with:
+          repository: deniscerri/ytdlnis
+          ref: c6084ed4f110efd4ba0c3f82bb16723b6529c8f0
+          path: upstream
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Reconstruct v0.17.2 Recovery Heavy
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x insave-build/insave-build/v0170/reconstruct_recovery_heavy.sh
+          insave-build/insave-build/v0170/reconstruct_recovery_heavy.sh upstream
+
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('upstream/app/build.gradle')
+          s=p.read_text()
+          s=s.replace('applicationId "com.deniscerri.ytdl"','applicationId "com.adelvis.insave.recovery"')
+          s=s.replace('versionCode versionMajor * 1000000 + versionMinor * 10000 + versionPatch * 100 + versionBuild','versionCode 17200')
+          s=s.replace('versionName "${versionMajor}.${versionMinor}.${versionPatch}${versionExt}"','versionName "0.17.2-Recovery-UX"')
+          s=s.replace('archivesBaseName = "YTDLnis-$versionName"','archivesBaseName = "InSave-0.17.2-Recovery-UX"')
+          p.write_text(s)
+
+          st=Path('upstream/app/src/main/res/values/strings.xml')
+          st.write_text(re.sub(r'<string name="app_name">.*?</string>','<string name="app_name">InSave</string>',st.read_text(),count=1))
+          th=Path('upstream/app/src/main/java/com/deniscerri/ytdl/util/ThemeUtil.kt')
+          th.write_text(th.read_text().replace('>YTDL</span>nis','>In</span>Save'))
+          m=Path('upstream/app/src/main/AndroidManifest.xml')
+          x=m.read_text().replace('android:label="YTDLnis"','android:label="InSave"',1)
+          marker='        <activity\n            android:name=".MainActivity"'
+          if '.insave.InSaveHubActivity' not in x:
+              insert='        <activity\n            android:name=".insave.InSaveHubActivity"\n            android:exported="true"\n            android:launchMode="singleTask"\n            android:theme="@style/BaseTheme" />\n\n        <activity\n            android:name=".MainActivity"'
+              if marker not in x: raise SystemExit('MainActivity marker missing')
+              x=x.replace(marker,insert,1)
+          x=x.replace('android:targetActivity=".MainActivity"','android:targetActivity=".insave.InSaveHubActivity"')
+          m.write_text(x)
+          PY
+
+      - name: Compile and unit-test
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd upstream
+          ./gradlew --no-daemon :app:testGithubDebugUnitTest :app:assembleGithubDebug :app:assembleGithubRelease
+
+      - name: Verify phone-fix contracts and APK structure
+        shell: bash
+        run: |
+          set -euo pipefail
+          HUB=upstream/app/src/main/java/com/deniscerri/ytdl/insave/InSaveHubActivity.kt
+          HOME=upstream/app/src/main/java/com/deniscerri/ytdl/ui/HomeFragment.kt
+          HISTORY=upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloads/HistoryFragment.kt
+          RESULT=upstream/app/src/main/java/com/deniscerri/ytdl/database/repository/ResultRepository.kt
+          YT=upstream/app/src/main/java/com/deniscerri/ytdl/util/extractors/ytdlp/YTDLPUtil.kt
+          grep -q 'Buscar estados' "$HUB"
+          grep -q 'isNestedScrollingEnabled = true' "$HUB"
+          grep -q 'Busca una canción, artista o pega un enlace' "$HUB"
+          grep -q 'insave_search_query' "$HUB"
+          grep -q 'ytsearch10:' "$RESULT"
+          ! grep -q 'finishAffinity()' "$HOME"
+          grep -q 'FileUtil.openFileIntent(requireContext(), playablePath)' "$HISTORY"
+          grep -q 'loudnorm=I=-9:TP=-1.0:LRA=7' "$YT"
+          grep -q '@drawable/insave_logo' upstream/app/src/main/AndroidManifest.xml
+          test -s upstream/app/src/main/res/drawable-nodpi/insave_logo.jpg
+
+          ARM64=$(find upstream/app/build/outputs/apk -type f -name '*.apk' | grep -Ei 'arm64|v8a' | grep -Ei 'release' | head -1)
+          UNIVERSAL=$(find upstream/app/build/outputs/apk -type f -name '*.apk' | grep -Ei 'universal' | grep -Ei 'release' | head -1)
+          test -n "$ARM64"; test -n "$UNIVERSAL"
+          for APK in "$ARM64" "$UNIVERSAL"; do
+            unzip -t "$APK" >/dev/null
+            unzip -l "$APK" | grep -q 'lib/arm64-v8a/libpython.so'
+            unzip -l "$APK" | grep -q 'lib/arm64-v8a/libffmpeg.so'
+            unzip -l "$APK" | grep -q 'lib/arm64-v8a/libqjs.so'
+            unzip -l "$APK" | grep -q 'res/drawable-nodpi/insave_logo'
+          done
+          cp "$ARM64" InSave-v0.17.2-Recovery-UX-heavy-arm64.apk
+          cp "$UNIVERSAL" InSave-v0.17.2-Recovery-UX-heavy-universal.apk
+          sha256sum InSave-v0.17.2-Recovery-UX-heavy-arm64.apk | tee InSave-v0.17.2-Recovery-UX-heavy-arm64.sha256
+          sha256sum InSave-v0.17.2-Recovery-UX-heavy-universal.apk | tee InSave-v0.17.2-Recovery-UX-heavy-universal.sha256
+          cat > InSave-v0.17.2-Recovery-UX-QA.txt <<EOF
+          canonical_reconstruction=PASS
+          unit_tests=PASS
+          release_assemble=PASS
+          states_scroll_all=PASS_SOURCE_CONTRACT
+          states_search=PASS_SOURCE_CONTRACT
+          song_artist_search=PASS_SOURCE_CONTRACT
+          back_navigation=PASS_SOURCE_CONTRACT
+          downloaded_media_playback=PASS_SOURCE_CONTRACT
+          loudness_boost=PASS_SOURCE_CONTRACT
+          approved_logo=PASS_APK_STRUCTURE
+          youtube_provider_b_dynamic_po=preserved_from_P0_5_of_5
+          playlist_mp3=preserved_from_P0_5_of_5
+          recovery_head=$(git -C insave-build rev-parse HEAD)
+          upstream=c6084ed4f110efd4ba0c3f82bb16723b6529c8f0
+          EOF
+
+      - name: Upload corrected APKs
+        uses: actions/upload-artifact@v4
+        with:
+          name: InSave-v0.17.2-Recovery-UX-corrected
+          retention-days: 7
+          compression-level: 0
+          if-no-files-found: error
+          path: |
+            InSave-v0.17.2-Recovery-UX-heavy-*.apk
+            InSave-v0.17.2-Recovery-UX-heavy-*.sha256
+            InSave-v0.17.2-Recovery-UX-QA.txt
+
+      - name: Mark run complete
+        if: always()
+        shell: bash
+        run: |
+          set +e
+          sed -i 's/^state=.*/state=finished/' insave-build/insave-build-status-v0172/apk-run.txt
+          echo 'job_status=${{ job.status }}' >> insave-build/insave-build-status-v0172/apk-run.txt
+          git -C insave-build config user.name 'github-actions[bot]'
+          git -C insave-build config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git -C insave-build add insave-build-status-v0172/apk-run.txt
+          git -C insave-build commit -m 'ci: finish InSave v0.17.2 APK run' || true
+          git -C insave-build fetch origin recovery/insave-v0.17.0-lkg
+          git -C insave-build rebase origin/recovery/insave-v0.17.0-lkg || true
+          git -C insave-build push origin HEAD:recovery/insave-v0.17.0-lkg || true
