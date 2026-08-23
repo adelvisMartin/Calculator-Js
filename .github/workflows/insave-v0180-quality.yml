@@ -16,9 +16,40 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  locator:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout only for run locator
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          fetch-depth: 0
+      - name: Publish run id without widening quality-job permissions
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p insave-build-status-v0180
+          cat > insave-build-status-v0180/run.txt <<EOF
+          run_id=$GITHUB_RUN_ID
+          attempt=$GITHUB_RUN_ATTEMPT
+          state=running
+          head=$GITHUB_SHA
+          EOF
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add insave-build-status-v0180/run.txt
+          git commit -m 'ci: publish InSave v0.18 quality run locator' || exit 0
+          git fetch origin feat/insave-9of10-hardening-v0180
+          git rebase origin/feat/insave-9of10-hardening-v0180
+          git push origin HEAD:feat/insave-9of10-hardening-v0180
+
   quality-api35:
     runs-on: ubuntu-latest
     timeout-minutes: 150
+    permissions:
+      contents: read
     steps:
       - name: Checkout InSave hardening overlay
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
