@@ -103,6 +103,11 @@ capture "04-estados-whatsapp-search"
 dump_ui "04-estados-whatsapp-search"
 grep -q 'Mostrando' "$OUT/04-estados-whatsapp-search.xml"
 
+# Close the IME before touching bottom navigation. Android consumes this first
+# Back in the keyboard, so it does not exercise the app-level Back callback yet.
+adb shell input keyevent KEYCODE_BACK
+sleep 1
+
 # Re-open Statuses to clear the local search field, then verify Business.
 tap_text "Inicio"
 tap_text "Estados"
