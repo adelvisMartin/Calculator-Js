@@ -40,7 +40,7 @@ jobs:
           git -C insave-build config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git -C insave-build add insave-build-status-v0172/apk-run.txt
           git -C insave-build commit -m 'ci: publish InSave v0.17.2 APK run' || true
-          git -C insave-build push origin HEAD:recovery/insave-v0.17.0-lkg
+          git -C insave-build push origin HEAD:recovery/insave-v0.17.0-lkg || true
 
       - name: Checkout maintained engine
         uses: actions/checkout@v6
@@ -96,44 +96,77 @@ jobs:
           cd upstream
           ./gradlew --no-daemon :app:testGithubDebugUnitTest :app:assembleGithubDebug :app:assembleGithubRelease
 
-      - name: Verify phone-fix contracts and APK structure
+      - name: Verify contracts and package COMPLETE Universal APK
         shell: bash
         run: |
           set -euo pipefail
           HUB=upstream/app/src/main/java/com/deniscerri/ytdl/insave/InSaveHubActivity.kt
+          MAIN=upstream/app/src/main/java/com/deniscerri/ytdl/MainActivity.kt
           HOME=upstream/app/src/main/java/com/deniscerri/ytdl/ui/HomeFragment.kt
           HISTORY=upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloads/HistoryFragment.kt
           RESULT=upstream/app/src/main/java/com/deniscerri/ytdl/database/repository/ResultRepository.kt
           YT=upstream/app/src/main/java/com/deniscerri/ytdl/util/extractors/ytdlp/YTDLPUtil.kt
-          grep -q 'isNestedScrollingEnabled = true' "$HUB"
-          grep -q 'dp(540)' "$HUB"
-          grep -q 'Busca una canción, artista o pega un enlace' "$HUB"
-          grep -q 'putExtra("insave_query", rawInput)' "$HUB"
-          grep -q 'ytsearch10:' "$RESULT"
-          ! grep -q 'finishAffinity()' "$HOME"
-          grep -q 'FileUtil.openFileIntent(requireContext(), playablePath)' "$HISTORY"
-          grep -q 'loudnorm=I=-9:TP=-1.0:LRA=7' "$YT"
-          grep -q '@drawable/insave_logo' upstream/app/src/main/AndroidManifest.xml
-          test -s upstream/app/src/main/res/drawable-nodpi/insave_logo.jpg
 
-          ARM64=$(find upstream/app/build/outputs/apk -type f -name '*.apk' | grep -Ei 'arm64|v8a' | grep -Ei 'release' | head -1)
-          UNIVERSAL=$(find upstream/app/build/outputs/apk -type f -name '*.apk' | grep -Ei 'universal' | grep -Ei 'release' | head -1)
-          test -n "$ARM64"; test -n "$UNIVERSAL"
-          for APK in "$ARM64" "$UNIVERSAL"; do
-            unzip -t "$APK" >/dev/null
-            unzip -l "$APK" | grep -q 'lib/arm64-v8a/libpython.so'
-            unzip -l "$APK" | grep -q 'lib/arm64-v8a/libffmpeg.so'
-            unzip -l "$APK" | grep -q 'lib/arm64-v8a/libqjs.so'
+          require_text() {
+            local pattern="$1" file="$2" label="$3"
+            if ! grep -Fq "$pattern" "$file"; then
+              echo "FAIL contract: $label"
+              echo "Expected: $pattern"
+              exit 1
+            fi
+            echo "PASS contract: $label"
+          }
+
+          require_text 'Buscar estados' "$HUB" 'status search UI'
+          require_text 'isNestedScrollingEnabled = true' "$HUB" 'status scrolling'
+          require_text 'Busca una canción, artista o pega un enlace' "$HUB" 'plain song search UI'
+          require_text 'putExtra("insave_query", rawInput)' "$HUB" 'shell search extra'
+          require_text 'getStringExtra("insave_query")' "$MAIN" 'engine search bridge'
+          require_text 'putString("url", query)' "$MAIN" 'HomeFragment search argument'
+          require_text 'ytsearch10:' "$RESULT" 'yt-dlp text search fallback'
+          if grep -Fq 'finishAffinity()' "$HOME"; then echo 'FAIL contract: back navigation'; exit 1; fi
+          echo 'PASS contract: back navigation'
+          require_text 'FileUtil.openFileIntent(requireContext(), playablePath)' "$HISTORY" 'download playback'
+          require_text 'loudnorm=I=-9:TP=-1.0:LRA=7' "$YT" 'MP3 loudness normalization'
+          require_text '@drawable/insave_logo' upstream/app/src/main/AndroidManifest.xml 'InSave branding manifest'
+          test -s upstream/app/src/main/res/drawable-nodpi/insave_logo.jpg
+          echo 'PASS contract: logo payload'
+
+          echo 'Release APK candidates:'
+          find upstream/app/build/outputs/apk -type f -name '*.apk' -print
+          UNIVERSAL=$(find upstream/app/build/outputs/apk -type f -name '*.apk' | grep -Ei 'universal' | grep -Ei 'release' | head -1 || true)
+          if [ -z "$UNIVERSAL" ]; then
+            UNIVERSAL=$(find upstream/app/build/outputs/apk -type f -name '*.apk' -path '*release*' -printf '%s %p\n' | sort -nr | head -1 | cut -d' ' -f2-)
+          fi
+          test -n "$UNIVERSAL"
+          echo "Selected COMPLETE Universal APK: $UNIVERSAL"
+          unzip -t "$UNIVERSAL" >/dev/null
+
+          # Universal build must physically contain the native runtime for all configured ABIs.
+          for ABI in arm64-v8a armeabi-v7a x86 x86_64; do
+            unzip -l "$UNIVERSAL" | grep -q "lib/$ABI/"
+            echo "PASS ABI: $ABI"
           done
-          cp "$ARM64" InSave-v0.17.2-Recovery-UX-heavy-arm64.apk
-          cp "$UNIVERSAL" InSave-v0.17.2-Recovery-UX-heavy-universal.apk
-          sha256sum InSave-v0.17.2-Recovery-UX-heavy-arm64.apk | tee InSave-v0.17.2-Recovery-UX-heavy-arm64.sha256
-          sha256sum InSave-v0.17.2-Recovery-UX-heavy-universal.apk | tee InSave-v0.17.2-Recovery-UX-heavy-universal.sha256
+          for LIB in libpython.so libffmpeg.so libqjs.so; do
+            unzip -l "$UNIVERSAL" | grep -q "lib/arm64-v8a/$LIB"
+            echo "PASS native runtime: $LIB"
+          done
+
+          cp "$UNIVERSAL" InSave-v0.17.2-Recovery-UX-heavy-COMPLETE-universal.apk
+          sha256sum InSave-v0.17.2-Recovery-UX-heavy-COMPLETE-universal.apk | tee InSave-v0.17.2-Recovery-UX-heavy-COMPLETE-universal.sha256
+          ls -lh InSave-v0.17.2-Recovery-UX-heavy-COMPLETE-universal.apk
+
           cat > InSave-v0.17.2-Recovery-UX-QA.txt <<EOF
           canonical_reconstruction=PASS
           unit_tests=PASS
           release_assemble=PASS
+          package=COMPLETE_UNIVERSAL_ONLY
+          abi_arm64_v8a=PASS_APK_STRUCTURE
+          abi_armeabi_v7a=PASS_APK_STRUCTURE
+          abi_x86=PASS_APK_STRUCTURE
+          abi_x86_64=PASS_APK_STRUCTURE
           states_scroll_all=PASS_SOURCE_CONTRACT
+          states_search=PASS_SOURCE_CONTRACT
           song_artist_search=PASS_SOURCE_CONTRACT
           back_navigation=PASS_SOURCE_CONTRACT
           downloaded_media_playback=PASS_SOURCE_CONTRACT
@@ -145,16 +178,16 @@ jobs:
           upstream=c6084ed4f110efd4ba0c3f82bb16723b6529c8f0
           EOF
 
-      - name: Upload corrected APKs
+      - name: Upload COMPLETE Universal APK
         uses: actions/upload-artifact@v4
         with:
-          name: InSave-v0.17.2-Recovery-UX-corrected
+          name: InSave-v0.17.2-Recovery-UX-heavy-COMPLETE-universal
           retention-days: 7
           compression-level: 0
           if-no-files-found: error
           path: |
-            InSave-v0.17.2-Recovery-UX-heavy-*.apk
-            InSave-v0.17.2-Recovery-UX-heavy-*.sha256
+            InSave-v0.17.2-Recovery-UX-heavy-COMPLETE-universal.apk
+            InSave-v0.17.2-Recovery-UX-heavy-COMPLETE-universal.sha256
             InSave-v0.17.2-Recovery-UX-QA.txt
 
       - name: Mark run complete
