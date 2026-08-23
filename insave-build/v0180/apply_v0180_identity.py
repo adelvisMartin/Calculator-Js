@@ -20,7 +20,11 @@ build = build.replace(
 build_path.write_text(build)
 
 strings = strings_path.read_text()
-strings = re.sub(r'<string name="app_name">.*?</string>', '<string name="app_name">InSave</string>', strings, count=1)
+app_name_pattern = r'<string name="app_name">.*?</string>'
+if re.search(app_name_pattern, strings, flags=re.DOTALL):
+    strings = re.sub(app_name_pattern, '<string name="app_name">InSave</string>', strings, count=1, flags=re.DOTALL)
+else:
+    strings = strings.replace('<resources>', '<resources>\n    <string name="app_name">InSave</string>', 1)
 strings_path.write_text(strings)
 
 theme = theme_path.read_text().replace('>YTDL</span>nis', '>In</span>Save')
@@ -39,7 +43,11 @@ else:
     hub_pattern = re.compile(r'(<activity\b[^>]*android:name="\.insave\.InSaveHubActivity"[^>]*)(>)', re.DOTALL)
     m = hub_pattern.search(manifest)
     if m:
-        tag = re.sub(r'android:exported="(?:true|false)"', 'android:exported="false"', m.group(1), count=1)
+        tag = m.group(1)
+        if re.search(r'android:exported="(?:true|false)"', tag):
+            tag = re.sub(r'android:exported="(?:true|false)"', 'android:exported="false"', tag, count=1)
+        else:
+            tag += '\n            android:exported="false"'
         manifest = manifest[:m.start()] + tag + m.group(2) + manifest[m.end():]
 manifest = manifest.replace('android:targetActivity=".MainActivity"', 'android:targetActivity=".insave.InSaveHubActivity"')
 manifest_path.write_text(manifest)
