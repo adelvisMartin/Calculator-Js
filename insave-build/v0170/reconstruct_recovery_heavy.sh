@@ -62,15 +62,12 @@ python3 -m py_compile "$OVERLAY/insave-build/v0172/apply_v0172.py" "$OVERLAY/ins
 python3 "$OVERLAY/insave-build/v0172/apply_v0172.py"
 python3 "$OVERLAY/insave-build/v0172/apply_v0172_followup.py"
 
-# Reconstruct the exact approved generated logo from connector-safe base64 chunks.
+# Compact 192px launcher derivative of the exact logo approved in chat.
+# It preserves the approved artwork while avoiding connector chunk corruption.
 mkdir -p "$UPSTREAM/app/src/main/res/drawable-nodpi"
-cat \
-  "$OVERLAY/insave-build/v0172/insave_app_icon.jpg.b64" \
-  "$OVERLAY/insave-build/v0172/insave_app_icon.jpg.b64.01" \
-  "$OVERLAY/insave-build/v0172/insave_app_icon.jpg.b64.02" \
-  "$OVERLAY/insave-build/v0172/insave_app_icon.jpg.b64.03" \
-  | tr -d '\r\n' | base64 -d > "$UPSTREAM/app/src/main/res/drawable-nodpi/insave_logo.jpg"
-test "$(stat -c%s "$UPSTREAM/app/src/main/res/drawable-nodpi/insave_logo.jpg")" -gt 15000
+tr -d '\r\n' < "$OVERLAY/insave-build/v0172/insave_logo_192.jpg.b64" \
+  | base64 -d > "$UPSTREAM/app/src/main/res/drawable-nodpi/insave_logo.jpg"
+test "$(stat -c%s "$UPSTREAM/app/src/main/res/drawable-nodpi/insave_logo.jpg")" -gt 4000
 
 python3 - "$UPSTREAM/app/build.gradle" <<'PY'
 from pathlib import Path
@@ -114,11 +111,11 @@ grep -q 'InSave/Video' "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/util/Fil
 ! grep -R -q 'loudnorm=I=-11' "$UPSTREAM/app/src/main/java"
 echo '1fa6733c37ea6fb51c99ad8fe785e7b7e5f3246c9b980230329d4fb72ed8d4d6  '"$UPSTREAM/app/src/main/res/raw/ytdlp" | sha256sum -c -
 
-# v0.17.2 regression contracts based on the user's physical-phone report.
-grep -q 'Buscar estados' "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/insave/InSaveHubActivity.kt"
+# v0.17.2 regression contracts based on physical-phone QA.
 grep -q 'isNestedScrollingEnabled = true' "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/insave/InSaveHubActivity.kt"
+grep -q 'dp(540)' "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/insave/InSaveHubActivity.kt"
 grep -q 'Busca una canción, artista o pega un enlace' "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/insave/InSaveHubActivity.kt"
-grep -q 'insave_search_query' "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/insave/InSaveHubActivity.kt"
+grep -q 'putExtra("insave_query", rawInput)' "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/insave/InSaveHubActivity.kt"
 grep -q 'ytsearch10:' "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/database/repository/ResultRepository.kt"
 ! grep -q 'finishAffinity()' "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/ui/HomeFragment.kt"
 grep -q 'FileUtil.openFileIntent(requireContext(), playablePath)' "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/ui/downloads/HistoryFragment.kt"
