@@ -9,8 +9,11 @@ WORKSPACE="$(cd "$ROOT/.." && pwd)"
 "$ROOT/insave-build/v0170/reconstruct_recovery_heavy.sh" "$UPSTREAM"
 
 cd "$WORKSPACE"
-python3 -m py_compile "$ROOT/insave-build/v0180/apply_v0180_hardening.py"
+python3 -m py_compile \
+  "$ROOT/insave-build/v0180/apply_v0180_hardening.py" \
+  "$ROOT/insave-build/v0180/apply_v0180_tests.py"
 python3 "$ROOT/insave-build/v0180/apply_v0180_hardening.py"
+python3 "$ROOT/insave-build/v0180/apply_v0180_tests.py"
 
 # v0.18 hardening contracts. Runtime behavior is validated separately by Android E2E.
 grep -q "include ':app'" "$UPSTREAM/settings.gradle"
@@ -32,5 +35,7 @@ grep -q 'InSaveRedactor.redact(line)' "$UPSTREAM/app/src/main/java/com/deniscerr
 ! grep -q 'poToken=\$poToken' "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/util/extractors/newpipe/potoken/PoTokenWebView.kt"
 grep -q 'webview_native' "$UPSTREAM/app/src/main/res/layout/webview_potoken_activity.xml"
 grep -q 'RoomWarnings.QUERY_MISMATCH' "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/database/dao/TerminalDao.kt"
+test -s "$UPSTREAM/app/src/androidTest/java/com/deniscerri/ytdl/insave/InSaveV0180InstrumentedTest.kt"
+! test -e "$UPSTREAM/app/src/androidTest/java/com/deniscerri/ytdl/insave/InSaveRecoveryInstrumentedTest.kt"
 
 echo 'InSave v0.18.0 hardened reconstruction: PASS'
