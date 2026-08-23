@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Script lives at <overlay>/insave-build/v0170/. Two parents up is the overlay repo root.
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 OVERLAY="$ROOT"
 UPSTREAM_INPUT="${1:-$ROOT/../upstream}"
@@ -20,16 +19,9 @@ python3 -m py_compile /tmp/apply_v0162.py
 python3 /tmp/apply_v0162.py
 python3 "$OVERLAY/insave-build/v0162/normalize_after_patch.py"
 
-# Provider B dynamic per-video PO token support. This reuses the maintained
-# NewPipe/BotGuard provider but injects freshly generated tokens into yt-dlp,
-# without making cookies/login mandatory.
 python3 -m py_compile "$OVERLAY/insave-build/v0163/apply_v0163.py"
 python3 "$OVERLAY/insave-build/v0163/apply_v0163.py"
 
-# v0.16.3 enables diagnostic logging next to auto_update_ytdlp. v0.17's older
-# patch expects those two original preference lines to be adjacent. Remove only
-# that duplicate logging line here; v0.17 re-adds log_downloads=true in its full
-# recovery defaults a few lines later.
 python3 - "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/insave/InSaveHubActivity.kt" <<'PY'
 from pathlib import Path
 import sys
@@ -53,15 +45,9 @@ cp "$OVERLAY/insave-build/v0170/InSavePlaylistPolicy.kt" "$UPSTREAM/app/src/main
 python3 -m py_compile "$OVERLAY/insave-build/v0170/apply_playlist_mp3.py"
 python3 "$OVERLAY/insave-build/v0170/apply_playlist_mp3.py"
 
-# Final P0 provider order correction: A(NewPipe) -> B(local yt-dlp + dynamic PO)
-# -> C(optional self-hosted Cobalt only after B throws).
 python3 -m py_compile "$OVERLAY/insave-build/v0170/apply_youtube_p0.py"
 python3 "$OVERLAY/insave-build/v0170/apply_youtube_p0.py"
 
-# 2026 hardening: current yt-dlp recommends mweb + a GVS PO provider. The
-# embedded upstream snapshot still carried yt-dlp 2025.11.12, which fails the
-# current YouTube JS/SABR path. Pin the immutable 2026.08.19 zipimport binary and
-# bind the already-dynamic per-video BotGuard tokens to mweb.
 python3 -m py_compile "$OVERLAY/insave-build/v0170/apply_youtube_2026.py"
 python3 "$OVERLAY/insave-build/v0170/apply_youtube_2026.py"
 
@@ -69,6 +55,22 @@ python3 -m py_compile "$OVERLAY/insave-build/v0170/apply_provider_settings.py"
 python3 "$OVERLAY/insave-build/v0170/apply_provider_settings.py"
 python3 -m py_compile "$OVERLAY/insave-build/v0170/apply_brand_paths.py"
 python3 "$OVERLAY/insave-build/v0170/apply_brand_paths.py"
+
+# v0.17.2 physical-phone corrections: state scrolling/search, back navigation,
+# song-name search, downloaded media playback, loudness reinforcement and logo.
+python3 -m py_compile "$OVERLAY/insave-build/v0172/apply_v0172.py" "$OVERLAY/insave-build/v0172/apply_v0172_followup.py"
+python3 "$OVERLAY/insave-build/v0172/apply_v0172.py"
+python3 "$OVERLAY/insave-build/v0172/apply_v0172_followup.py"
+
+# Reconstruct the exact approved generated logo from connector-safe base64 chunks.
+mkdir -p "$UPSTREAM/app/src/main/res/drawable-nodpi"
+cat \
+  "$OVERLAY/insave-build/v0172/insave_app_icon.jpg.b64" \
+  "$OVERLAY/insave-build/v0172/insave_app_icon.jpg.b64.01" \
+  "$OVERLAY/insave-build/v0172/insave_app_icon.jpg.b64.02" \
+  "$OVERLAY/insave-build/v0172/insave_app_icon.jpg.b64.03" \
+  | tr -d '\r\n' | base64 -d > "$UPSTREAM/app/src/main/res/drawable-nodpi/insave_logo.jpg"
+test "$(stat -c%s "$UPSTREAM/app/src/main/res/drawable-nodpi/insave_logo.jpg")" -gt 15000
 
 python3 - "$UPSTREAM/app/build.gradle" <<'PY'
 from pathlib import Path
@@ -79,13 +81,11 @@ s=s.replace('implementation "io.github.junkfood02.youtubedl-android:ffmpeg:0.17.
 s=s.replace('//implementation "io.github.junkfood02.youtubedl-android:ffmpeg:0.18.1"', 'implementation "io.github.junkfood02.youtubedl-android:ffmpeg:0.18.1"')
 s=s.replace('minifyEnabled true', 'minifyEnabled false', 1)
 s=s.replace('shrinkResources true', 'shrinkResources false', 1)
-# Recovery Heavy intentionally keeps all four ABIs plus universal APK.
 s=s.replace("include 'arm64-v8a'", "include 'x86', 'x86_64', 'armeabi-v7a', 'arm64-v8a'")
 s=s.replace('universalApk false', 'universalApk true')
 p.write_text(s)
 PY
 
-# Contract gates: heavy runtime + product recovery + playlist MP3 + branded storage.
 grep -q 'library:0.18.1' "$UPSTREAM/app/build.gradle"
 grep -q 'ffmpeg:0.18.1' "$UPSTREAM/app/build.gradle"
 grep -q 'aria2c:0.18.1' "$UPSTREAM/app/build.gradle"
@@ -114,4 +114,16 @@ grep -q 'InSave/Video' "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/util/Fil
 ! grep -R -q 'loudnorm=I=-11' "$UPSTREAM/app/src/main/java"
 echo '1fa6733c37ea6fb51c99ad8fe785e7b7e5f3246c9b980230329d4fb72ed8d4d6  '"$UPSTREAM/app/src/main/res/raw/ytdlp" | sha256sum -c -
 
-echo 'InSave Recovery Heavy canonical reconstruction: PASS'
+# v0.17.2 regression contracts based on the user's physical-phone report.
+grep -q 'Buscar estados' "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/insave/InSaveHubActivity.kt"
+grep -q 'isNestedScrollingEnabled = true' "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/insave/InSaveHubActivity.kt"
+grep -q 'Busca una canción, artista o pega un enlace' "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/insave/InSaveHubActivity.kt"
+grep -q 'insave_search_query' "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/insave/InSaveHubActivity.kt"
+grep -q 'ytsearch10:' "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/database/repository/ResultRepository.kt"
+! grep -q 'finishAffinity()' "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/ui/HomeFragment.kt"
+grep -q 'FileUtil.openFileIntent(requireContext(), playablePath)' "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/ui/downloads/HistoryFragment.kt"
+grep -q 'loudnorm=I=-9:TP=-1.0:LRA=7' "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/util/extractors/ytdlp/YTDLPUtil.kt"
+grep -q '@drawable/insave_logo' "$UPSTREAM/app/src/main/AndroidManifest.xml"
+test -s "$UPSTREAM/app/src/main/res/drawable-nodpi/insave_logo.jpg"
+
+echo 'InSave Recovery Heavy v0.17.2 canonical reconstruction: PASS'
