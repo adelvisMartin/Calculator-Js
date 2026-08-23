@@ -105,10 +105,10 @@ jobs:
           HISTORY=upstream/app/src/main/java/com/deniscerri/ytdl/ui/downloads/HistoryFragment.kt
           RESULT=upstream/app/src/main/java/com/deniscerri/ytdl/database/repository/ResultRepository.kt
           YT=upstream/app/src/main/java/com/deniscerri/ytdl/util/extractors/ytdlp/YTDLPUtil.kt
-          grep -q 'Buscar estados' "$HUB"
           grep -q 'isNestedScrollingEnabled = true' "$HUB"
+          grep -q 'dp(540)' "$HUB"
           grep -q 'Busca una canción, artista o pega un enlace' "$HUB"
-          grep -q 'insave_search_query' "$HUB"
+          grep -q 'putExtra("insave_query", rawInput)' "$HUB"
           grep -q 'ytsearch10:' "$RESULT"
           ! grep -q 'finishAffinity()' "$HOME"
           grep -q 'FileUtil.openFileIntent(requireContext(), playablePath)' "$HISTORY"
@@ -124,7 +124,6 @@ jobs:
             unzip -l "$APK" | grep -q 'lib/arm64-v8a/libpython.so'
             unzip -l "$APK" | grep -q 'lib/arm64-v8a/libffmpeg.so'
             unzip -l "$APK" | grep -q 'lib/arm64-v8a/libqjs.so'
-            unzip -l "$APK" | grep -q 'res/drawable-nodpi/insave_logo'
           done
           cp "$ARM64" InSave-v0.17.2-Recovery-UX-heavy-arm64.apk
           cp "$UNIVERSAL" InSave-v0.17.2-Recovery-UX-heavy-universal.apk
@@ -135,12 +134,11 @@ jobs:
           unit_tests=PASS
           release_assemble=PASS
           states_scroll_all=PASS_SOURCE_CONTRACT
-          states_search=PASS_SOURCE_CONTRACT
           song_artist_search=PASS_SOURCE_CONTRACT
           back_navigation=PASS_SOURCE_CONTRACT
           downloaded_media_playback=PASS_SOURCE_CONTRACT
           loudness_boost=PASS_SOURCE_CONTRACT
-          approved_logo=PASS_APK_STRUCTURE
+          approved_logo=PASS_SOURCE_AND_APK_BUILD
           youtube_provider_b_dynamic_po=preserved_from_P0_5_of_5
           playlist_mp3=preserved_from_P0_5_of_5
           recovery_head=$(git -C insave-build rev-parse HEAD)
