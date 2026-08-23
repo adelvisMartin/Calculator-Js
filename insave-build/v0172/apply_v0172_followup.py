@@ -8,10 +8,10 @@ hub = hub_path.read_text()
 main = main_path.read_text()
 
 # Physical-phone UX follow-up:
-# - a real search field in the normal automatic WhatsApp/Business status flow
-# - no arbitrary status cap; RecyclerView virtualizes the complete collection
-# - a debounced filter so hundreds of statuses do not cause repeated scans
-# - plain song/artist input reaches HomeFragment through its native `url` arg
+# - real search in the normal automatic WhatsApp/Business status flow
+# - no arbitrary status cap
+# - debounced filtering for hundreds of statuses
+# - plain song/artist input bridged into HomeFragment's native `url` argument
 
 if 'import androidx.core.widget.doAfterTextChanged\n' not in hub:
     anchor = 'import androidx.documentfile.provider.DocumentFile\n'
@@ -19,62 +19,84 @@ if 'import androidx.core.widget.doAfterTextChanged\n' not in hub:
         raise SystemExit('DocumentFile import anchor missing')
     hub = hub.replace(anchor, anchor + 'import androidx.core.widget.doAfterTextChanged\n', 1)
 
-# Primary/historical UX is automatic discovery after one Special App Access grant.
-# Put search in that branch, not in the SAF fallback card.
+# Find the automatic branch positionally. Earlier recovery patches may insert
+# whitespace/comments, so do not rely on a brittle multi-line exact anchor.
+auto_marker = 'val automaticGranted = automaticStatusAccessGranted()'
+auto_marker_pos = hub.find(auto_marker)
+if auto_marker_pos < 0:
+    raise SystemExit('automatic statuses marker missing')
+auto_branch_pos = hub.find('if (automaticGranted)', auto_marker_pos)
+if auto_branch_pos < 0:
+    raise SystemExit('automatic status branch missing')
+
 if 'hint = "Buscar estados"' not in hub:
-    anchor = '''        if (automaticGranted) {\n            val info = TextView(this).apply {\n'''
-    replacement = '''        if (automaticGranted) {\n            val statusSearch = EditText(this).apply {\n                hint = "Buscar estados"\n                setSingleLine(true)\n                textSize = 15f\n                setTextColor(TEXT)\n                setHintTextColor(MUTED)\n                background = rounded(Color.rgb(44, 35, 46), 18)\n                setPadding(dp(14), dp(11), dp(14), dp(11))\n            }\n            root.addView(statusSearch, LinearLayout.LayoutParams(\n                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT\n            ).apply { setMargins(0, dp(8), 0, dp(6)) })\n            val info = TextView(this).apply {\n'''
-    if anchor not in hub:
-        raise SystemExit('automatic status branch anchor missing')
-    hub = hub.replace(anchor, replacement, 1)
+    info_pos = hub.find('val info = TextView', auto_branch_pos)
+    if info_pos < 0:
+        raise SystemExit('automatic status info view missing')
+    line_start = hub.rfind('\n', auto_branch_pos, info_pos) + 1
+    indent = hub[line_start:info_pos]
+    insert = f'''{indent}val statusSearch = EditText(this).apply {{\n{indent}    hint = "Buscar estados"\n{indent}    setSingleLine(true)\n{indent}    textSize = 15f\n{indent}    setTextColor(TEXT)\n{indent}    setHintTextColor(MUTED)\n{indent}    background = rounded(Color.rgb(44, 35, 46), 18)\n{indent}    setPadding(dp(14), dp(11), dp(14), dp(11))\n{indent}}}\n{indent}root.addView(statusSearch, LinearLayout.LayoutParams(\n{indent}    LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT\n{indent}).apply {{ setMargins(0, dp(8), 0, dp(6)) }})\n'''
+    hub = hub[:line_start] + insert + hub[line_start:]
+    # Re-find branch after insertion.
+    auto_marker_pos = hub.find(auto_marker)
+    auto_branch_pos = hub.find('if (automaticGranted)', auto_marker_pos)
 
-# Wire the automatic repository to the query. Stale delayed callbacks are cheap
-# and ignored before any filesystem scan; only the latest text performs I/O.
-load_call = '            loadAutomaticStatuses(info, recycler)\n'
+# Replace the primary automatic load with a debounced live query.
 if 'statusSearch.doAfterTextChanged' not in hub:
-    replacement = '''            statusSearch.doAfterTextChanged { editable ->\n                val querySnapshot = editable?.toString().orEmpty()\n                statusSearch.postDelayed({\n                    if (statusSearch.text.toString() == querySnapshot) {\n                        loadAutomaticStatuses(info, recycler, querySnapshot)\n                    }\n                }, 250L)\n            }\n            loadAutomaticStatuses(info, recycler, statusSearch.text.toString())\n'''
-    if load_call not in hub:
+    load_pos = hub.find('loadAutomaticStatuses(info, recycler)', auto_branch_pos)
+    if load_pos < 0:
         raise SystemExit('automatic status load call missing')
-    hub = hub.replace(load_call, replacement, 1)
+    line_start = hub.rfind('\n', auto_branch_pos, load_pos) + 1
+    line_end = hub.find('\n', load_pos)
+    if line_end < 0:
+        line_end = len(hub)
+    indent = hub[line_start:load_pos]
+    replacement = f'''{indent}statusSearch.doAfterTextChanged {{ editable ->\n{indent}    val querySnapshot = editable?.toString().orEmpty()\n{indent}    statusSearch.postDelayed({{\n{indent}        if (statusSearch.text.toString() == querySnapshot) {{\n{indent}            loadAutomaticStatuses(info, recycler, querySnapshot)\n{indent}        }}\n{indent}    }}, 250L)\n{indent}}}\n{indent}loadAutomaticStatuses(info, recycler, statusSearch.text.toString())'''
+    hub = hub[:line_start] + replacement + hub[line_end:]
 
-# Defensive removal of the legacy fallback cap. The automatic repository already
-# returns every discovered item and the RecyclerView keeps memory bounded.
+# Defensive removal of the old SAF cap as well. RecyclerView virtualizes rows.
 hub = hub.replace('                ?.take(180)\n', '')
 
-sig_old = '    private fun loadAutomaticStatuses(info: TextView, recycler: RecyclerView) {\n'
-sig_new = '    private fun loadAutomaticStatuses(info: TextView, recycler: RecyclerView, query: String = "") {\n'
+sig_old = 'private fun loadAutomaticStatuses(info: TextView, recycler: RecyclerView) {'
+sig_new = 'private fun loadAutomaticStatuses(info: TextView, recycler: RecyclerView, query: String = "") {'
 if sig_old in hub:
     hub = hub.replace(sig_old, sig_new, 1)
 elif sig_new not in hub:
     raise SystemExit('loadAutomaticStatuses signature missing')
 
-# Restrict filtering edits to the automatic loader so SAF remains a safe fallback.
-auto_start = hub.find(sig_new)
-auto_end = hub.find('    private fun buildDownloadsView(): View {', auto_start)
-if auto_start < 0 or auto_end < 0:
-    raise SystemExit('automatic status loader boundaries missing')
-auto = hub[auto_start:auto_end]
-filter_old = '''            val filtered = all.filter {\n                if (filterSnapshot == StatusFilter.IMAGES) it.mime.startsWith("image/") else it.mime.startsWith("video/")\n            }\n'''
-filter_new = '''            val querySnapshot = query.trim()\n            val filtered = all.filter { item ->\n                val matchesType = if (filterSnapshot == StatusFilter.IMAGES) {\n                    item.mime.startsWith("image/")\n                } else {\n                    item.mime.startsWith("video/")\n                }\n                matchesType && (querySnapshot.isBlank() || item.name.contains(querySnapshot, ignoreCase = true))\n            }\n'''
+loader_pos = hub.find(sig_new)
+if loader_pos < 0:
+    raise SystemExit('automatic loader missing after signature patch')
+loader_end = hub.find('private fun buildDownloadsView()', loader_pos)
+if loader_end < 0:
+    # Some generated versions include ': View' between name and brace.
+    loader_end = hub.find('private fun buildDownloadsView', loader_pos)
+if loader_end < 0:
+    raise SystemExit('automatic loader end missing')
+auto = hub[loader_pos:loader_end]
+
+filter_old = '''val filtered = all.filter {\n                if (filterSnapshot == StatusFilter.IMAGES) it.mime.startsWith("image/") else it.mime.startsWith("video/")\n            }'''
+filter_new = '''val querySnapshot = query.trim()\n            val filtered = all.filter { item ->\n                val matchesType = if (filterSnapshot == StatusFilter.IMAGES) {\n                    item.mime.startsWith("image/")\n                } else {\n                    item.mime.startsWith("video/")\n                }\n                matchesType && (querySnapshot.isBlank() || item.name.contains(querySnapshot, ignoreCase = true))\n            }'''
 if filter_old in auto:
     auto = auto.replace(filter_old, filter_new, 1)
 elif 'item.name.contains(querySnapshot, ignoreCase = true)' not in auto:
     raise SystemExit('automatic status filter anchor missing')
 
-info_old = '                    "Imágenes · $images     Videos · $videos"\n'
-info_new = '                    "Imágenes · $images     Videos · $videos     Mostrando · ${filtered.size}"\n'
-if info_old in auto:
-    auto = auto.replace(info_old, info_new, 1)
-hub = hub[:auto_start] + auto + hub[auto_end:]
+auto = auto.replace(
+    '"Imágenes · $images     Videos · $videos"',
+    '"Imágenes · $images     Videos · $videos     Mostrando · ${filtered.size}"',
+    1,
+)
+hub = hub[:loader_pos] + auto + hub[loader_end:]
 
-# MainActivity is the maintained engine. It already routes a navigation argument
-# named `url` into HomeFragment; bridge our explicit shell extra to that same arg.
+# Bridge shell text search to the maintained engine.
 if 'intent.getStringExtra("insave_query")' not in main:
-    anchor = '''        }else if (action == Intent.ACTION_VIEW){\n\n            val navbarItems = NavbarUtil.getNavBarItems(this)\n'''
-    replacement = '''        }else if (action == Intent.ACTION_VIEW){\n            intent.getStringExtra("insave_query")?.trim()?.takeIf { it.isNotEmpty() }?.let { query ->\n                val bundle = Bundle().apply { putString("url", query) }\n                navController.popBackStack(R.id.homeFragment, true)\n                navController.navigate(R.id.homeFragment, bundle)\n                return\n            }\n\n            val navbarItems = NavbarUtil.getNavBarItems(this)\n'''
-    if anchor not in main:
-        raise SystemExit('MainActivity ACTION_VIEW anchor missing')
-    main = main.replace(anchor, replacement, 1)
+    action_pos = main.find('}else if (action == Intent.ACTION_VIEW){')
+    if action_pos < 0:
+        raise SystemExit('MainActivity ACTION_VIEW branch missing')
+    insert_pos = main.find('\n', action_pos) + 1
+    insertion = '''            intent.getStringExtra("insave_query")?.trim()?.takeIf { it.isNotEmpty() }?.let { query ->\n                val bundle = Bundle().apply { putString("url", query) }\n                navController.popBackStack(R.id.homeFragment, true)\n                navController.navigate(R.id.homeFragment, bundle)\n                return\n            }\n'''
+    main = main[:insert_pos] + insertion + main[insert_pos:]
 
 hub_path.write_text(hub)
 main_path.write_text(main)
