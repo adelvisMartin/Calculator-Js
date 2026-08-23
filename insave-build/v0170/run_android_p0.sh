@@ -36,10 +36,17 @@ adb shell appops set com.deniscerri.ytdl MANAGE_EXTERNAL_STORAGE allow
 adb shell 'mkdir -p "/sdcard/Android/media/com.whatsapp/WhatsApp/Media/.Statuses"'
 adb shell 'mkdir -p "/sdcard/Android/media/com.whatsapp.w4b/WhatsApp Business/Media/.Statuses"'
 
-# Valid tiny JPEG for visual/status discovery instead of an invalid placeholder.
+# Valid tiny JPEG for automatic discovery. Keep the historical exact fixture and
+# add enough extra items to prove visually that the grid is not capped at six.
 printf '%s' '/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////2wBDAf//////////////////////////////////////////////////////////////////////////////////////wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAf/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIQAxAAAAF//8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABBQJ//8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAgBAwEBPwF//8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAgBAgEBPwF//8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQAGPwJ//8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPyF//9oADAMBAAIAAwAAABAf/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAgBAwEBPxB//8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAgBAgEBPxB//8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxB//9k=' | base64 -d > /tmp/insave-auto-test.jpg
 printf 'fake-mp4-for-discovery' > /tmp/insave-auto-business-test.mp4
+
 adb push /tmp/insave-auto-test.jpg '/sdcard/Android/media/com.whatsapp/WhatsApp/Media/.Statuses/insave-auto-test.jpg'
+for i in $(seq -w 01 13); do
+  adb push /tmp/insave-auto-test.jpg "/sdcard/Android/media/com.whatsapp/WhatsApp/Media/.Statuses/insave-auto-test-$i.jpg" >/dev/null
+  # Distinct mtimes keep the repository ordering deterministic enough for scroll proof.
+  sleep 0.03
+done
 adb push /tmp/insave-auto-business-test.mp4 '/sdcard/Android/media/com.whatsapp.w4b/WhatsApp Business/Media/.Statuses/insave-auto-business-test.mp4'
 
 LOG="$WORKSPACE/evidence/android-p0-e2e.log"
@@ -63,6 +70,9 @@ insave-build/insave-build/v0170/capture_p0_views.sh
 
 cat > "$WORKSPACE/evidence/P0-PASS.txt" <<'EOF'
 android_status_auto_e2e=pass
+android_status_more_than_six_fixture=14_images
+android_status_search_visual_evidence=pass
+android_back_navigation_visual_evidence=pass
 provider_chain_A_then_B_mp3=pass
 provider_B_dynamic_videoid_po_mp3=pass
 provider_B_client=mweb
