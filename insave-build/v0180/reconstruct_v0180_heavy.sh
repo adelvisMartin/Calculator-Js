@@ -11,8 +11,10 @@ WORKSPACE="$(cd "$ROOT/.." && pwd)"
 cd "$WORKSPACE"
 python3 -m py_compile \
   "$ROOT/insave-build/v0180/apply_v0180_hardening.py" \
+  "$ROOT/insave-build/v0180/apply_v0180_identity.py" \
   "$ROOT/insave-build/v0180/apply_v0180_tests.py"
 python3 "$ROOT/insave-build/v0180/apply_v0180_hardening.py"
+python3 "$ROOT/insave-build/v0180/apply_v0180_identity.py"
 python3 "$ROOT/insave-build/v0180/apply_v0180_tests.py"
 
 # v0.18 hardening contracts. Runtime behavior is validated separately by Android E2E.
@@ -26,6 +28,12 @@ grep -q 'play {' "$UPSTREAM/app/build.gradle"
 grep -q 'tools:node="remove"' "$UPSTREAM/app/src/play/AndroidManifest.xml"
 grep -q 'MANAGE_EXTERNAL_STORAGE' "$UPSTREAM/app/src/play/AndroidManifest.xml"
 grep -q 'android:usesCleartextTraffic="false"' "$UPSTREAM/app/src/main/AndroidManifest.xml"
+grep -q 'applicationId "com.adelvis.insave.recovery"' "$UPSTREAM/app/build.gradle"
+grep -q 'versionCode 18000' "$UPSTREAM/app/build.gradle"
+grep -q 'versionName "0.18.0-Hardening-QA"' "$UPSTREAM/app/build.gradle"
+grep -q 'android:name=".insave.InSaveHubActivity"' "$UPSTREAM/app/src/main/AndroidManifest.xml"
+grep -A5 'android:name=".insave.InSaveHubActivity"' "$UPSTREAM/app/src/main/AndroidManifest.xml" | grep -q 'android:exported="false"'
+grep -q 'android:targetActivity=".insave.InSaveHubActivity"' "$UPSTREAM/app/src/main/AndroidManifest.xml"
 grep -q 'InSaveInputPolicy.classify(rawInput)' "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/insave/InSaveHubActivity.kt"
 grep -q 'InSaveInputPolicy.normalizeHttpUrl(extractedUrl)' "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/receiver/ShareActivity.kt"
 grep -q 'anonymousYoutubeFallbackClients' "$UPSTREAM/app/src/main/java/com/deniscerri/ytdl/work/download/DownloadWorker.kt"
