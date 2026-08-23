@@ -1,4 +1,5 @@
 run_id=32654428898
 attempt=3
-state=running
+state=finished
 recovery_head=5c792f7aa009221cae646eaed510eba1a5755c9b
+job_status=failure
