@@ -83,8 +83,10 @@ auto = auto.replace(
 )
 hub = hub[:loader_pos] + auto + hub[loader_end:]
 
-# Bridge shell text search to the maintained engine.
-if 'intent.getStringExtra("insave_query")' not in main:
+# Bridge shell text search to the maintained engine. Earlier runtime patches may
+# already mention `insave_query` without actually mapping it into HomeFragment,
+# so gate on the completed bridge marker rather than on the extra name alone.
+if 'putString("url", query)' not in main:
     action_pos = main.find('}else if (action == Intent.ACTION_VIEW){')
     if action_pos < 0:
         raise SystemExit('MainActivity ACTION_VIEW branch missing')
