@@ -28,10 +28,11 @@ if 'hint = "Buscar estados"' not in hub:
         raise SystemExit('status granted branch anchor missing')
     hub = hub.replace(anchor, replacement, 1)
 
-# Wire live filtering and pass the current query into every refresh.
+# Wire debounced live filtering. DocumentFile traversal can touch hundreds of
+# status files, so stale keystrokes must not trigger redundant directory scans.
 load_call = '            loadStatuses(stored, info, recycler)\n'
 if 'statusSearch.doAfterTextChanged' not in hub:
-    replacement = '''            statusSearch.doAfterTextChanged { editable ->\n                loadStatuses(stored, info, recycler, editable?.toString().orEmpty())\n            }\n            loadStatuses(stored, info, recycler, statusSearch.text.toString())\n'''
+    replacement = '''            statusSearch.doAfterTextChanged { editable ->\n                val querySnapshot = editable?.toString().orEmpty()\n                statusSearch.postDelayed({\n                    if (statusSearch.text.toString() == querySnapshot) {\n                        loadStatuses(stored, info, recycler, querySnapshot)\n                    }\n                }, 250L)\n            }\n            loadStatuses(stored, info, recycler, statusSearch.text.toString())\n'''
     if load_call not in hub:
         raise SystemExit('loadStatuses call anchor missing')
     hub = hub.replace(load_call, replacement, 1)
@@ -77,6 +78,7 @@ main_path.write_text(main)
 checks = {
     'status search label': 'hint = "Buscar estados"' in hub,
     'status live filter': 'statusSearch.doAfterTextChanged' in hub,
+    'status debounce': 'postDelayed({' in hub and '}, 250L)' in hub,
     'status uncapped': '?.take(180)' not in hub,
     'status name filter': 'item.name.contains(querySnapshot, ignoreCase = true)' in hub,
     'plain search bridge': 'intent.getStringExtra("insave_query")' in main and 'putString("url", query)' in main,
