@@ -5,12 +5,12 @@ root = Path.cwd()
 upstream = root / "upstream"
 manifest_path = upstream / "app/src/main/AndroidManifest.xml"
 build_path = upstream / "app/build.gradle"
-launcher_path = upstream / "app/src/main/res/drawable-nodpi/insave_launcher.jpg"
+launcher_path = upstream / "app/src/main/res/drawable-nodpi/insave_launcher.webp"
 
 manifest = manifest_path.read_text()
 build = build_path.read_text()
 
-if not launcher_path.exists() or launcher_path.stat().st_size <= 10000:
+if not launcher_path.exists() or launcher_path.stat().st_size <= 2000:
     raise SystemExit("validated InSave launcher artwork missing")
 
 # The previous release changed only <application android:icon>. YTDLnis uses
