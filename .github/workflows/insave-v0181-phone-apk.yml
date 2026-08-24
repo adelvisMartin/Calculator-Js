@@ -9,6 +9,9 @@ on:
       - 'insave-build/v0181/**'
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 concurrency:
   group: insave-v0181-phone-apk
   cancel-in-progress: true
@@ -24,6 +27,21 @@ jobs:
           ref: ${{ github.sha }}
           path: insave-build
           fetch-depth: 1
+
+      - name: Publish run locator
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd insave-build
+          mkdir -p insave-build-status-v0181-phone
+          printf 'run_id=%s\nattempt=%s\nstate=running\nhead=%s\n' "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$GITHUB_SHA" > insave-build-status-v0181-phone/run.txt
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add insave-build-status-v0181-phone/run.txt
+          if ! git diff --cached --quiet; then
+            git commit -m 'ci(insave): publish v0.18.1 phone run locator'
+            git push origin HEAD:feat/insave-v0181-social-ux
+          fi
 
       - name: Checkout pinned maintained Android engine
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
