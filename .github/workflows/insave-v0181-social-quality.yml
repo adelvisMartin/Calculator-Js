@@ -89,12 +89,19 @@ jobs:
             :app:assembleGithubDebugAndroidTest \
             2>&1 | tee ../evidence/build.log
 
+      - name: Critical warning ratchet
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 insave-build/insave-build/v0180/warning_ratchet.py
+
       - name: Static security and privacy gate
         shell: bash
         run: |
           set -euo pipefail
           python3 insave-build/insave-build/v0180/static_security_gate.py
           ! grep -R -n 'Log.e("Aaa", clip.toString())' upstream/app/src/main/java
+          grep -q 'Descargas sociales' upstream/app/src/main/java/com/deniscerri/ytdl/insave/InSaveHubActivity.kt
           grep -q 'Instagram · Pegar y descargar' upstream/app/src/main/java/com/deniscerri/ytdl/insave/InSaveHubActivity.kt
           grep -q 'Facebook · Pegar y descargar' upstream/app/src/main/java/com/deniscerri/ytdl/insave/InSaveHubActivity.kt
 
@@ -134,6 +141,8 @@ jobs:
           ./gradlew --no-daemon :app:dependencies --configuration githubReleaseRuntimeClasspath > ../evidence/gradle-runtime-dependencies.txt
           cd ..
           python3 insave-build/insave-build/v0180/generate_sbom.py
+          test -s evidence/InSave-v0.18.1-Social-UX-QA-SBOM.cdx.json
+          grep -q '"version": "0.18.1-Social-UX-QA"' evidence/InSave-v0.18.1-Social-UX-QA-SBOM.cdx.json
 
       - name: Enable KVM
         shell: bash
@@ -196,4 +205,4 @@ jobs:
           path: |
             InSave-v0.18.1-Social-UX-QA-heavy-universal.apk
             InSave-v0.18.1-Social-UX-QA-heavy-universal.sha256
-            evidence/InSave-v0.18.0-SBOM.cdx.json
+            evidence/InSave-v0.18.1-Social-UX-QA-SBOM.cdx.json
