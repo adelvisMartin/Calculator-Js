@@ -2,7 +2,6 @@ from pathlib import Path
 import hashlib
 import json
 import re
-import sys
 import uuid
 
 workspace = Path.cwd()
@@ -32,6 +31,16 @@ for match in coord.finditer(text):
         "bom-ref": f"pkg:maven/{group}/{name}@{version}",
         "purl": f"pkg:maven/{group}/{name}@{version}",
     }
+
+# Resolve product identity from the exact reconstructed source instead of
+# hard-coding an older InSave release into newer SBOMs.
+build_gradle = (upstream / "app/build.gradle").read_text(errors="replace")
+version_match = re.search(r'versionName\s*(?:=\s*)?"([^"]+)"', build_gradle)
+app_id_match = re.search(r'applicationId\s*(?:=\s*)?"([^"]+)"', build_gradle)
+if not version_match or not app_id_match:
+    raise SystemExit("Unable to resolve applicationId/versionName for SBOM")
+app_version = version_match.group(1)
+application_id = app_id_match.group(1)
 
 # Explicit native/runtime assets that do not appear as ordinary Maven coordinates.
 ytdlp = upstream / "app/src/main/res/raw/ytdlp"
@@ -82,8 +91,8 @@ extra = [
 metadata_component = {
     "type": "application",
     "name": "InSave",
-    "version": "0.18.0-Hardening-QA",
-    "bom-ref": "pkg:apk/com.adelvis.insave.recovery@0.18.0-Hardening-QA",
+    "version": app_version,
+    "bom-ref": f"pkg:apk/{application_id}@{app_version}",
     "properties": [
         {"name": "insave.upstream", "value": "deniscerri/ytdlnis@c6084ed4f110efd4ba0c3f82bb16723b6529c8f0"},
         {"name": "insave.distribution", "value": "Recovery/QA Heavy"},
@@ -100,9 +109,12 @@ bom = {
     "components": all_components,
 }
 
-out = evidence / "InSave-v0.18.0-SBOM.cdx.json"
+safe_version = re.sub(r'[^A-Za-z0-9._-]+', '-', app_version).strip('-')
+out = evidence / f"InSave-v{safe_version}-SBOM.cdx.json"
 out.write_text(json.dumps(bom, indent=2, ensure_ascii=False) + "\n")
 summary = {
+    "application_id": application_id,
+    "application_version": app_version,
     "maven_components": len(components),
     "embedded_runtime_components": len(extra),
     "total_components": len(all_components),
