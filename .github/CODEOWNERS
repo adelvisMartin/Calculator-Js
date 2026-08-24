@@ -1,0 +1,14 @@
+# Default owner for public InSave repository changes
+* @adelvisMartin
+
+# Sensitive/release areas
+/.github/workflows/ @adelvisMartin
+/insave-build/ @adelvisMartin
+/SECURITY.md @adelvisMartin
+/LICENSE @adelvisMartin
+/NOTICE @adelvisMartin
+/TRADEMARKS.md @adelvisMartin
+/BRAND-ASSETS-LICENSE.md @adelvisMartin
+/THIRD_PARTY_NOTICES.md @adelvisMartin
+/docs/SECURITY-PRIVACY.md @adelvisMartin
+/docs/LEGAL-DISTRIBUTION.md @adelvisMartin
