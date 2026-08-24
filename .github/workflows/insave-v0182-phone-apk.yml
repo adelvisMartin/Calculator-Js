@@ -78,12 +78,15 @@ jobs:
             :app:testGithubDebugUnitTest \
             :app:assembleGithubDebug
 
-      - name: Verify launcher icon contract
+      - name: Verify exact launcher icon contract
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p evidence
           python3 insave-build/insave-build/v0180/static_security_gate.py
+          LAUNCHER=upstream/app/src/main/res/drawable-nodpi/insave_launcher.jpg
+          test -s "$LAUNCHER"
+          echo 'bcfb275e4172b3ed1db6ab04760bbe8371ffc0cbc9573530144d6b0d64b04d8c  upstream/app/src/main/res/drawable-nodpi/insave_launcher.jpg' | sha256sum -c -
           python3 - <<'PY'
           from pathlib import Path
           import re
@@ -93,12 +96,16 @@ jobs:
               x = re.search(r'<activity-alias\b(?=[^>]*android:name="'+re.escape(name)+r'")[^>]*>', m, re.S)
               assert x, name
               tag=x.group(0)
-              assert 'android:icon="@drawable/insave_logo"' in tag, tag
-              assert 'android:roundIcon="@drawable/insave_logo"' in tag, tag
+              assert 'android:icon="@drawable/insave_launcher"' in tag, tag
+              assert 'android:roundIcon="@drawable/insave_launcher"' in tag, tag
               assert '@mipmap/ic_launcher' not in tag, tag
-          print('launcher alias logo contract: PASS')
+              assert '@drawable/insave_logo' not in tag, tag
+          app = re.search(r'<application\b[^>]*>', m, re.S)
+          assert app
+          assert 'android:icon="@drawable/insave_launcher"' in app.group(0)
+          assert 'android:roundIcon="@drawable/insave_launcher"' in app.group(0)
+          print('launcher alias/application logo contract: PASS')
           PY
-          test -s upstream/app/src/main/res/drawable-nodpi/insave_logo.jpg
           grep -q 'versionName "0.18.2-Launcher-Logo-QA"' upstream/app/build.gradle
 
       - name: Verify and package Heavy universal APK
@@ -109,7 +116,9 @@ jobs:
           test -n "$APK"
           unzip -t "$APK" > evidence/apk-zip-test.txt
           unzip -l "$APK" > evidence/apk-list.txt
-          grep -q 'res/drawable-nodpi-v4/insave_logo.jpg' evidence/apk-list.txt
+          grep -q 'res/drawable-nodpi-v4/insave_launcher.jpg' evidence/apk-list.txt
+          unzip -p "$APK" res/drawable-nodpi-v4/insave_launcher.jpg > evidence/insave_launcher_from_apk.jpg
+          echo 'bcfb275e4172b3ed1db6ab04760bbe8371ffc0cbc9573530144d6b0d64b04d8c  evidence/insave_launcher_from_apk.jpg' | sha256sum -c -
           for ABI in arm64-v8a armeabi-v7a x86 x86_64; do grep -q "lib/$ABI/" evidence/apk-list.txt; done
           for LIB in libpython.so libffmpeg.so libffprobe.so libaria2c.so libqjs.so; do grep -q "/$LIB" evidence/apk-list.txt; done
           cp "$APK" InSave-v0.18.2-Launcher-Logo-QA-COMPLETE-heavy-universal.apk
@@ -127,3 +136,4 @@ jobs:
             InSave-v0.18.2-Launcher-Logo-QA-COMPLETE-heavy-universal.apk
             InSave-v0.18.2-Launcher-Logo-QA-COMPLETE-heavy-universal.sha256
             evidence/security-gate.json
+            evidence/insave_launcher_from_apk.jpg
