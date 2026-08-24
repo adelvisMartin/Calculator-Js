@@ -84,9 +84,9 @@ jobs:
           set -euo pipefail
           mkdir -p evidence
           python3 insave-build/insave-build/v0180/static_security_gate.py
-          LAUNCHER=upstream/app/src/main/res/drawable-nodpi/insave_launcher.jpg
+          LAUNCHER=upstream/app/src/main/res/drawable-nodpi/insave_launcher.webp
           test -s "$LAUNCHER"
-          echo 'bcfb275e4172b3ed1db6ab04760bbe8371ffc0cbc9573530144d6b0d64b04d8c  upstream/app/src/main/res/drawable-nodpi/insave_launcher.jpg' | sha256sum -c -
+          echo '260f8149109e566c19dd8a06e2b94684b1e9a81c4a8fca6b9e5effd798868319  upstream/app/src/main/res/drawable-nodpi/insave_launcher.webp' | sha256sum -c -
           python3 - <<'PY'
           from pathlib import Path
           import re
@@ -116,9 +116,9 @@ jobs:
           test -n "$APK"
           unzip -t "$APK" > evidence/apk-zip-test.txt
           unzip -l "$APK" > evidence/apk-list.txt
-          grep -q 'res/drawable-nodpi-v4/insave_launcher.jpg' evidence/apk-list.txt
-          unzip -p "$APK" res/drawable-nodpi-v4/insave_launcher.jpg > evidence/insave_launcher_from_apk.jpg
-          echo 'bcfb275e4172b3ed1db6ab04760bbe8371ffc0cbc9573530144d6b0d64b04d8c  evidence/insave_launcher_from_apk.jpg' | sha256sum -c -
+          grep -q 'res/drawable-nodpi-v4/insave_launcher.webp' evidence/apk-list.txt
+          unzip -p "$APK" res/drawable-nodpi-v4/insave_launcher.webp > evidence/insave_launcher_from_apk.webp
+          echo '260f8149109e566c19dd8a06e2b94684b1e9a81c4a8fca6b9e5effd798868319  evidence/insave_launcher_from_apk.webp' | sha256sum -c -
           for ABI in arm64-v8a armeabi-v7a x86 x86_64; do grep -q "lib/$ABI/" evidence/apk-list.txt; done
           for LIB in libpython.so libffmpeg.so libffprobe.so libaria2c.so libqjs.so; do grep -q "/$LIB" evidence/apk-list.txt; done
           cp "$APK" InSave-v0.18.2-Launcher-Logo-QA-COMPLETE-heavy-universal.apk
@@ -136,4 +136,4 @@ jobs:
             InSave-v0.18.2-Launcher-Logo-QA-COMPLETE-heavy-universal.apk
             InSave-v0.18.2-Launcher-Logo-QA-COMPLETE-heavy-universal.sha256
             evidence/security-gate.json
-            evidence/insave_launcher_from_apk.jpg
+            evidence/insave_launcher_from_apk.webp
