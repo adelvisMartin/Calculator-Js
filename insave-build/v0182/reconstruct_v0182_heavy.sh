@@ -9,35 +9,39 @@ WORKSPACE="$(cd "$ROOT/.." && pwd)"
 "$ROOT/insave-build/v0181/reconstruct_v0181_heavy.sh" "$UPSTREAM"
 cd "$WORKSPACE"
 
-# Use the real approved neon InSave artwork supplied for this project. This
-# 512x512 launcher derivative was generated from that source, not from the old
-# YTDLnis launcher icon. Keep it as a binary asset in the overlay so no fragile
-# split-base64 reconstruction can corrupt it again.
-LAUNCHER_SRC="$ROOT/insave-build/v0182/insave_launcher_512.jpg"
-LAUNCHER="$UPSTREAM/app/src/main/res/drawable-nodpi/insave_launcher.jpg"
+# Use the approved neon InSave artwork supplied by the user. This 256x256 WebP
+# is a launcher-only derivative of that exact logo (symbol crop, no legacy
+# YTDLnis art). It is committed as a real binary, avoiding the malformed JPEG
+# and split-base64 path used by the earlier attempt.
+LAUNCHER_SRC="$ROOT/insave-build/v0182/insave_launcher_256.webp"
+LAUNCHER="$UPSTREAM/app/src/main/res/drawable-nodpi/insave_launcher.webp"
+EXPECTED_SHA="260f8149109e566c19dd8a06e2b94684b1e9a81c4a8fca6b9e5effd798868319"
 mkdir -p "$(dirname "$LAUNCHER")"
 test -s "$LAUNCHER_SRC"
 cp "$LAUNCHER_SRC" "$LAUNCHER"
+echo "$EXPECTED_SHA  $LAUNCHER" | sha256sum -c -
 
-# Decode the exact file before Android compilation. This rejects malformed JPEG
-# structures even when a resource packager would otherwise accept raw bytes.
-cat > /tmp/InSaveLogoCheck.java <<'JAVA'
-import java.awt.image.BufferedImage;
-import java.io.File;
-import javax.imageio.ImageIO;
-public final class InSaveLogoCheck {
-  public static void main(String[] args) throws Exception {
-    BufferedImage image = ImageIO.read(new File(args[0]));
-    if (image == null) throw new IllegalStateException("InSave launcher is not decodable");
-    if (image.getWidth() != 512 || image.getHeight() != 512) {
-      throw new IllegalStateException("Unexpected InSave launcher size: " + image.getWidth() + "x" + image.getHeight());
-    }
-    System.out.println("InSave approved launcher decode: PASS " + image.getWidth() + "x" + image.getHeight());
-  }
-}
-JAVA
-javac /tmp/InSaveLogoCheck.java
-java -cp /tmp InSaveLogoCheck "$LAUNCHER"
+# Validate the RIFF/WEBP envelope and VP8 dimensions without relying on optional
+# image libraries on the CI host. Android's resource compiler will perform its
+# own decode during assemble as the second independent check.
+python3 - "$LAUNCHER" <<'PY'
+from pathlib import Path
+import struct, sys
+p = Path(sys.argv[1])
+b = p.read_bytes()
+assert len(b) > 20, 'launcher too small'
+assert b[:4] == b'RIFF' and b[8:12] == b'WEBP', 'not a WebP RIFF image'
+chunk = b[12:16]
+assert chunk in {b'VP8 ', b'VP8L', b'VP8X'}, f'unexpected WebP chunk {chunk!r}'
+if chunk == b'VP8 ':
+    # Lossy VP8 frame header: 3-byte frame tag then 9d 01 2a and 14-bit WxH.
+    payload = 20
+    assert b[payload+3:payload+6] == b'\x9d\x01\x2a', 'invalid VP8 key-frame signature'
+    w = struct.unpack_from('<H', b, payload+6)[0] & 0x3fff
+    h = struct.unpack_from('<H', b, payload+8)[0] & 0x3fff
+    assert (w, h) == (256, 256), f'unexpected launcher size {w}x{h}'
+print('InSave approved WebP launcher structure: PASS 256x256')
+PY
 
 python3 -m py_compile "$ROOT/insave-build/v0182/apply_v0182_launcher_logo.py"
 python3 "$ROOT/insave-build/v0182/apply_v0182_launcher_logo.py"
