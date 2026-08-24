@@ -1,0 +1,51 @@
+# Android / Gradle
+.gradle/
+**/build/
+local.properties
+captures/
+.externalNativeBuild/
+.cxx/
+
+# IDE / OS
+.idea/
+*.iml
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# Local secrets / signing
+.env
+.env.*
+!.env.example
+*.jks
+*.keystore
+*.p12
+*.pfx
+*.pem
+*.key
+keystore.properties
+signing.properties
+secrets.properties
+
+# Android distribution artifacts — publish through releases/CI, not Git blobs
+*.apk
+*.aab
+*.apks
+
+# Temporary output
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+
+# Local QA output that is not intentionally committed evidence
+evidence-local/
+qa-local/

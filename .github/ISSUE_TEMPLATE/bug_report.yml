@@ -1,0 +1,73 @@
+name: Bug report
+description: Report a reproducible InSave defect
+title: "[Bug]: "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not include passwords, cookies, API keys, PO tokens, signed URLs, private user data or signing material. Security issues must follow SECURITY.md.
+  - type: input
+    id: version
+    attributes:
+      label: InSave version
+      description: Exact version/APK filename, for example 0.18.2 Launcher Logo QA.
+      placeholder: InSave-v0.18.2-...
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: Device and Android version
+      placeholder: Xiaomi ... / Android ...
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Startup / installation
+        - YouTube / audio-video download
+        - Instagram / Facebook social download
+        - WhatsApp statuses
+        - Downloads / player
+        - Navigation / UI
+        - Settings / provider runtime
+        - Build / CI
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Use a public test URL when possible. Redact sensitive values.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Sanitized evidence
+      description: Screenshots/log excerpts are welcome only after removing secrets and personal data.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Safety checks
+      options:
+        - label: I confirmed this report contains no credentials, cookies, tokens or private signing data.
+          required: true
+        - label: I checked that I am testing an official InSave build or clearly identified my fork/modification.
+          required: true

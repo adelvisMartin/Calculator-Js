@@ -1,0 +1,30 @@
+InSave
+Copyright (C) 2026 Adelvis Martin and InSave contributors.
+
+This public repository contains InSave-specific source overlays, build tooling,
+documentation, branding and release-validation material, and reconstructs an
+Android application over third-party upstream software.
+
+SOFTWARE LICENSE
+GPL-covered software is distributed under GPL-3.0-only unless a component or
+file states another applicable license. See LICENSE and THIRD_PARTY_NOTICES.md.
+
+BRANDING
+The InSave name, logo, launcher icon and original brand artwork are not granted
+for use as product branding by the GPL software license. See TRADEMARKS.md and
+BRAND-ASSETS-LICENSE.md.
+
+THIRD-PARTY SOFTWARE
+Third-party components remain copyright their respective authors and retain
+their own license terms. No ownership claim is made over YTDLnis, yt-dlp,
+aria2, QuickJS, FFmpeg, Android libraries or platform trademarks.
+
+NO AFFILIATION
+InSave is an independent project. References to YouTube, WhatsApp, Instagram,
+Facebook or other services describe interoperability targets only and do not
+imply sponsorship, endorsement or affiliation.
+
+RELEASE AUTHENTICITY
+Only artifacts published by the repository owner through documented official
+release channels and matching the published checksum should be represented as
+official InSave builds. Modified forks should be clearly renamed and rebranded.
