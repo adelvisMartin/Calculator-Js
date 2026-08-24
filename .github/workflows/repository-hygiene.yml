@@ -1,0 +1,78 @@
+name: Repository Hygiene
+
+on:
+  push:
+    branches:
+      - main
+      - 'feat/**'
+      - 'fix/**'
+      - 'docs/**'
+      - 'recovery/**'
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  hygiene:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          fetch-depth: 1
+
+      - name: Required public/legal files
+        shell: bash
+        run: |
+          set -euo pipefail
+          required=(
+            README.md
+            LICENSE
+            NOTICE
+            TRADEMARKS.md
+            BRAND-ASSETS-LICENSE.md
+            THIRD_PARTY_NOTICES.md
+            SECURITY.md
+            SUPPORT.md
+            CODE_OF_CONDUCT.md
+            CHANGELOG.md
+            docs/INDEX.md
+            docs/CONTRIBUTING.md
+            docs/LEGAL-DISTRIBUTION.md
+            docs/REPOSITORY-STRUCTURE.md
+          )
+          for f in "${required[@]}"; do
+            test -s "$f" || { echo "Missing required public file: $f"; exit 1; }
+          done
+          grep -q 'GPL-3.0-only' LICENSE
+          grep -q 'TRADEMARKS.md' README.md
+          grep -q 'THIRD_PARTY_NOTICES.md' README.md
+          grep -q 'SECURITY.md' README.md
+
+      - name: Block tracked distribution/signing/secrets files
+        shell: bash
+        run: |
+          set -euo pipefail
+          forbidden_regex='(^|/)(\.env($|\.)|local\.properties$|keystore\.properties$|signing\.properties$|secrets\.properties$)|\.(apk|aab|apks|jks|keystore|p12|pfx)$'
+          if git ls-files | grep -E "$forbidden_regex"; then
+            echo 'Forbidden generated distribution, secret-config or signing file is tracked.'
+            exit 1
+          fi
+
+      - name: Reject obvious private-key material
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git grep -I -n -E -- '-----BEGIN (RSA |EC |OPENSSH |DSA )?PRIVATE KEY-----' -- . ':!*.md' ':!docs/**'; then
+            echo 'Private-key material detected in tracked source.'
+            exit 1
+          fi
+
+      - name: Repository hygiene summary
+        shell: bash
+        run: |
+          echo 'Public documentation/legal boundary: PASS'
+          echo 'Tracked binary/signing/secret-config gate: PASS'
+          echo 'Private-key marker gate: PASS'
