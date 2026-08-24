@@ -29,13 +29,14 @@ class InSaveHardeningUnitTest {
 
     @Test
     fun redactorRemovesRuntimeSecretsButKeepsUsefulError() {
-        val raw = "ERROR 403 Authorization: Bearer abc.def po_token=secret visitor_data=visitor https://x.test/v?sig=signed&foo=1"
+        val raw = "ERROR 403 Authorization: Bearer abc.def po_token=secret-value visitor_data=visitor-secret-value https://x.test/v?sig=signed-value&foo=1"
         val clean = InSaveRedactor.redact(raw)
         assertTrue(clean.contains("ERROR 403"))
         assertFalse(clean.contains("abc.def"))
-        assertFalse(clean.contains("secret"))
-        assertFalse(clean.contains("visitor", ignoreCase = false))
-        assertFalse(clean.contains("signed"))
+        assertFalse(clean.contains("secret-value"))
+        assertFalse(clean.contains("visitor-secret-value"))
+        assertFalse(clean.contains("signed-value"))
+        assertTrue(clean.contains("visitor_data=<redacted>"))
         assertTrue(clean.contains("foo=1"))
     }
 
