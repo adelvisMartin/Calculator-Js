@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security policy
+    url: https://github.com/adelvisMartin/Calculator-Js/blob/docs/insave-public-repo-hardening-v0182/SECURITY.md
+    about: Read this before reporting a security-sensitive problem. Do not post secrets publicly.
