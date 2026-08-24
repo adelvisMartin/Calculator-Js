@@ -1,0 +1,43 @@
+InSave — GNU General Public License v3.0
+
+SPDX-License-Identifier: GPL-3.0-only
+
+Copyright (C) 2026 Adelvis Martin and InSave contributors.
+Portions are Copyright their respective upstream authors.
+
+This repository contains an Android work derived from and reconstructed over
+YTDLnis. The pinned YTDLnis upstream used by the InSave build pipeline is
+licensed under the GNU General Public License, version 3 (GPL-3.0).
+Accordingly, the software portions of this repository that form part of the
+combined/derived Android work are distributed under GPL-3.0-only unless a file
+or third-party component carries its own compatible license notice.
+
+You may use, study, modify and redistribute GPL-covered software only under the
+terms and conditions of GPL-3.0. Distribution of modified versions must preserve
+applicable copyright and license notices and comply with the corresponding
+source obligations of GPL-3.0.
+
+The complete, authoritative GPL-3.0 license text is published by the Free
+Software Foundation at:
+https://www.gnu.org/licenses/gpl-3.0.html
+
+The exact GPL-3.0 text used by the pinned upstream is also available in the
+YTDLnis repository LICENSE file:
+https://github.com/deniscerri/ytdlnis/blob/c6084ed4f110efd4ba0c3f82bb16723b6529c8f0/LICENSE
+
+IMPORTANT — TRADEMARKS AND BRAND ASSETS
+
+The GPL grants copyright permissions in GPL-covered software. It does not grant
+permission to use the InSave name, logos, icons, trade dress, screenshots or
+other brand identifiers to imply origin, sponsorship, certification or
+endorsement. See TRADEMARKS.md and BRAND-ASSETS-LICENSE.md.
+
+Third-party components retain their own copyright and license terms. See
+THIRD_PARTY_NOTICES.md and the generated SBOM/release evidence for the exact
+components packaged in a specific build.
+
+NO WARRANTY
+
+The software is provided without warranty to the maximum extent permitted by
+the GPL and applicable law. See GPL-3.0 for the controlling warranty and
+liability terms.
