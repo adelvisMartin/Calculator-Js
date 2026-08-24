@@ -18,31 +18,28 @@ shutil.copy2(OVERLAY / "InSaveSocialPolicyTest.kt", TESTS / "InSaveSocialPolicyT
 hub_path = INSAVE / "InSaveHubActivity.kt"
 hub = hub_path.read_text()
 
-social_cards = '''
+# The user reported Facebook downloads already worked but were hard to discover.
+# Put both social shortcuts immediately after the Home title, before the large
+# music/video sections, so they are visible without hunting through the generic flow.
+social_quick = '''
         root.addView(card().apply {
-            addView(sectionTitle("Instagram"))
-            addView(body("Acceso directo para publicaciones, Reels y videos públicos. Copia el enlace en Instagram y toca el botón; InSave usa primero el enlace escrito arriba y, si no corresponde, revisa el portapapeles."))
+            addView(sectionTitle("Descargas sociales"))
+            addView(body("Copia el enlace de una publicación, Reel o video público. InSave detecta la plataforma, toma el enlace escrito arriba o el portapapeles y abre directamente el flujo de video."))
             addView(primaryButton("Instagram · Pegar y descargar") {
                 openSocialDownload(InSaveSocialPolicy.Platform.INSTAGRAM)
             })
-        })
-
-        root.addView(card().apply {
-            addView(sectionTitle("Facebook"))
-            addView(body("Acceso directo para videos, Reels y publicaciones públicas de Facebook, incluido fb.watch. Evita tener que encontrar el flujo genérico de Video."))
             addView(primaryButton("Facebook · Pegar y descargar") {
                 openSocialDownload(InSaveSocialPolicy.Platform.FACEBOOK)
             })
+            addView(body("Facebook admite facebook.com y fb.watch. Instagram admite instagram.com. Para contenido privado puede ser necesaria una sesión válida en el motor avanzado."))
         })
 
 '''
-anchor = '''        root.addView(card().apply {
-            addView(sectionTitle("YouTube"))
-'''
+anchor = '        root.addView(appTitle("InSave", "Descarga música primero. Video cuando lo necesites."))\n'
 if 'Instagram · Pegar y descargar' not in hub:
     if anchor not in hub:
-        raise SystemExit('v0.18.1 social card anchor missing')
-    hub = hub.replace(anchor, social_cards + anchor, 1)
+        raise SystemExit('v0.18.1 social top-level anchor missing')
+    hub = hub.replace(anchor, anchor + social_quick, 1)
 
 helper = '''    private fun openSocialDownload(platform: InSaveSocialPolicy.Platform) {
         if (!::urlInput.isInitialized) {
@@ -94,8 +91,10 @@ build = build.replace('versionName "0.18.0-Hardening-QA"', 'versionName "0.18.1-
 build_path.write_text(build)
 
 checks = {
-    'instagram dedicated card': 'Instagram · Pegar y descargar' in hub,
-    'facebook dedicated card': 'Facebook · Pegar y descargar' in hub,
+    'social shortcuts top-level': hub.find('Descargas sociales') > hub.find('appTitle("InSave"') and hub.find('Descargas sociales') < hub.find('sectionTitle("Descargar música")'),
+    'instagram dedicated shortcut': 'Instagram · Pegar y descargar' in hub,
+    'facebook dedicated shortcut': 'Facebook · Pegar y descargar' in hub,
+    'facebook fb.watch hint': 'fb.watch' in hub,
     'social clipboard fallback': 'clipboard.primaryClip' in hub,
     'social platform validation': 'InSaveSocialPolicy.classify' in hub,
     'social defaults video': 'openUrlAs(DownloadType.video)' in hub,
@@ -108,4 +107,4 @@ failed = [name for name, ok in checks.items() if not ok]
 if failed:
     raise SystemExit('InSave v0.18.1 social UX contract failed: ' + ', '.join(failed))
 
-print('InSave v0.18.1 dedicated Instagram/Facebook UX: PASS')
+print('InSave v0.18.1 top-level Instagram/Facebook UX: PASS')
