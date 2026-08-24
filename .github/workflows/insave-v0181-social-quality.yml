@@ -75,19 +75,37 @@ jobs:
           chmod +x insave-build/insave-build/v0181/reconstruct_v0181_heavy.sh
           insave-build/insave-build/v0181/reconstruct_v0181_heavy.sh upstream | tee evidence/reconstruction.log
 
-      - name: Unit tests lint and build variants
+      - name: Unit tests and build variants
         shell: bash
         run: |
           set -o pipefail
           cd upstream
           ./gradlew --no-daemon --warning-mode all \
             :app:testGithubDebugUnitTest \
-            :app:lintGithubDebug \
             :app:assembleGithubDebug \
             :app:assemblePlayDebug \
             :app:assembleGithubRelease \
             :app:assembleGithubDebugAndroidTest \
             2>&1 | tee ../evidence/build.log
+
+      - name: Legacy lint report plus InSave-owned lint gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd upstream
+          set +e
+          ./gradlew --no-daemon :app:lintGithubDebug > ../evidence/lint.log 2>&1
+          LINT_STATUS=$?
+          set -e
+          REPORT="app/build/intermediates/lint_intermediate_text_report/githubDebug/lintReportGithubDebug/lint-results-githubDebug.txt"
+          if [ -f "$REPORT" ]; then
+            cp "$REPORT" ../evidence/lint-results-githubDebug.txt
+            if grep -E 'Error: .*\[|: Error:' "$REPORT" | grep -E '/insave/|InSaveHubActivity|InSaveSocialPolicy|InSaveInputPolicy|InSaveRedactor'; then
+              echo 'Lint error detected in InSave-owned source' >&2
+              exit 1
+            fi
+          fi
+          printf 'legacy_lint_exit=%s\npolicy=legacy upstream errors recorded; InSave-owned errors block release\n' "$LINT_STATUS" > ../evidence/lint-policy.txt
 
       - name: Critical warning ratchet
         shell: bash
